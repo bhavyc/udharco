@@ -362,7 +362,7 @@ function SellerSignupContent() {
   const stepsList = [
     { num: 1, title: "Phone OTP", desc: "Identity Check" },
     { num: 2, title: "GSTIN & PAN", desc: "Business Details" },
-    { num: 3, title: "Penny Drop", desc: "Payout Account" },
+    { num: 3, title: "Bank Account", desc: "Pennyless Verification" },
     { num: 4, title: "e-NACH", desc: "Dispute Guarantee" },
     { num: 5, title: "Credit Score", desc: "Cashflow Audit" },
     { num: 6, title: "Sanction Limit", desc: "Facility Ready" },
@@ -381,7 +381,7 @@ function SellerSignupContent() {
     },
     3: {
       title: "Where Should We Send Your Cash Advances?",
-      subtitle: "NPCI automated ₹1 deposit (Penny Drop) validates that the bank account belongs to your registered GST entity.",
+      subtitle: "Instant pennyless account validation verifies beneficiary name directly with NPCI & core banking.",
       why: "RBI strictly mandates that invoice discounting funds can only be disbursed into your official current account — never to third parties.",
     },
     4: {
@@ -601,7 +601,7 @@ function SellerSignupContent() {
                     <div>
                       <span className="text-xs font-semibold block">3. Payout Bank Account</span>
                       <span className="text-[11px] font-mono text-slate-500">
-                        {bankDetails ? `${bankDetails.bankName} (A/C: ${bankAccountNo})` : bankAccountNo ? `A/C: ${bankAccountNo}` : "₹1 Penny Drop verification"}
+                        {bankDetails ? `${bankDetails.bankName} (A/C: ${bankAccountNo})` : bankAccountNo ? `A/C: ${bankAccountNo}` : "Pennyless Verification"}
                       </span>
                     </div>
                   </div>
@@ -933,7 +933,7 @@ function SellerSignupContent() {
               )}
 
               {/* ─────────────────────────────────────────────────────────────
-                  STEP 3: PENNY DROP BANK ACCOUNT
+                  STEP 3: PENNYLESS BANK VERIFICATION
                   ───────────────────────────────────────────────────────────── */}
               {step === 3 && (
                 <div className="space-y-6">
@@ -942,7 +942,7 @@ function SellerSignupContent() {
                       Where Should We Deposit Your Cash Advances?
                     </h3>
                     <p className="text-xs text-slate-500 mt-1">
-                      NPCI automated ₹1 deposit (Penny Drop) validates that the bank account belongs to your registered GST entity.
+                      Instant pennyless validation verifies account ownership directly with NPCI & core banking without deposit.
                     </p>
                   </div>
 
@@ -1000,7 +1000,7 @@ function SellerSignupContent() {
                     <div className="p-3.5 rounded-xl bg-sky-50 border border-sky-200 text-xs text-sky-800 flex items-start gap-2.5">
                       <Sparkles className="w-4 h-4 shrink-0 text-sky-600 mt-0.5" />
                       <span>
-                        <strong className="font-semibold text-sky-900">You keep the ₹1.00!</strong> This automated test ensures your upfront cash advances are never sent to the wrong person.
+                        <strong className="font-semibold text-sky-900">Zero-Deposit Pennyless Verification:</strong> Bank account ownership is verified instantly via NPCI reverse lookup — zero ₹1 deposit required.
                       </span>
                     </div>
 
@@ -1010,7 +1010,7 @@ function SellerSignupContent() {
                       disabled={loading || !bankAccountNo || !bankIfsc}
                       className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm flex items-center justify-center gap-2 transition shadow-sm cursor-pointer disabled:opacity-50"
                     >
-                      {loading ? "Running NPCI Penny Drop..." : "Verify Bank Account & Continue"}
+                      {loading ? "Verifying Bank Account..." : "Verify Bank Account & Continue"}
                       <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>

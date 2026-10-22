@@ -53,8 +53,8 @@ export async function POST(request: Request) {
       beneficiaryName: beneficiary,
       matchPercentage: 100,
       pennyDropStatus: "VERIFIED",
-      referenceUtr: `IMPS${Date.now().toString().slice(-8)}PENNY`,
-      message: "NPCI ₹1.00 Penny Drop verified successfully.",
+      referenceUtr: `IMPS${Date.now().toString().slice(-8)}PENNYLESS`,
+      message: "NPCI Pennyless Account Verification verified successfully.",
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Bank verification failed.";

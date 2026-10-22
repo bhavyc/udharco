@@ -567,12 +567,12 @@ class _SellerSignupScreenState extends State<SellerSignupScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Step 3: Penny Drop Bank Verification',
+          'Step 3: Pennyless Bank Verification',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         const SizedBox(height: 4),
         const Text(
-          'We will deposit ₹1 to verify your primary business account via NPCI IMPS rails.',
+          'We instantly verify your business account via NPCI Pennyless rails without depositing ₹1.',
           style: TextStyle(color: AppTheme.textSecondary, fontSize: 13),
         ),
         const SizedBox(height: 20),
@@ -601,7 +601,7 @@ class _SellerSignupScreenState extends State<SellerSignupScreen> {
             onPressed: _isLoading ? null : _handlePennyDrop,
             child: _isLoading
                 ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                : const Text('Execute ₹1 Penny Drop Verification'),
+                : const Text('Verify Bank Account (Pennyless)'),
           ),
         ),
       ],
@@ -793,7 +793,7 @@ class _SellerSignupScreenState extends State<SellerSignupScreen> {
               _buildDetailRow('Entity', _legalNameController.text),
               _buildDetailRow('GSTIN', _gstinController.text.toUpperCase()),
               _buildDetailRow('e-NACH Mandate', 'ACTIVE (${_mandateIdController.text})'),
-              _buildDetailRow('Bank Verification', 'Penny Drop Verified'),
+              _buildDetailRow('Bank Verification', 'Pennyless Account Verified'),
             ],
           ),
         ),
