@@ -188,7 +188,7 @@ function LoginContent() {
                 </span>
               </div>
               <p className="text-xs text-slate-500 font-medium">
-                Get 84% Instant Cash on Invoices in 24 Hours
+                Early Working Capital on Verified B2B Invoices
               </p>
             </div>
           </div>
@@ -273,7 +273,7 @@ function LoginContent() {
           {activeTab === "SELLER" && (
             <div>
               <div className="p-3 mb-5 rounded-xl bg-emerald-50/60 border border-emerald-100 text-xs text-emerald-900 flex items-center justify-between">
-                <span>⚡ <strong>MSME Instant Cash:</strong> Upload invoices and get 84% advance in bank.</span>
+                <span>⚡ <strong>MSME Working Capital:</strong> Discount verified invoices upon corporate buyer confirmation.</span>
               </div>
 
               {!otpSent ? (

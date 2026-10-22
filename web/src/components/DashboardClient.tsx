@@ -440,12 +440,12 @@ export default function DashboardClient({
               How UdharCo Works (Simple 3-Step Process)
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              MSMEs get 84% upfront cash for unpaid invoices in 24 hours. No bank branch visits required.
+              MSMEs unlock up to 84% upfront capital once the corporate buyer confirms the invoice.
             </p>
           </div>
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 self-start sm:self-auto">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-            84% Cash in 24 Hours
+            Up to 84% Advance Disbursal
           </span>
         </div>
 
