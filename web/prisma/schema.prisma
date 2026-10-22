@@ -1,0 +1,275 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ---------------------------------------------------------------------------
+// Auth Models
+// ---------------------------------------------------------------------------
+
+/// Platform users linked to a Seller, Anchor, or Investor entity.
+/// Anchor and Investor accounts are admin-provisioned (no self-signup).
+model User {
+  id            String   @id @default(uuid())
+  mobile        String?  @unique  // Sellers authenticate via mobile OTP
+  email         String?  @unique  // Anchors/Investors authenticate via email invite
+  passwordHash  String?           // For Anchor/Investor email+password login (set on first invite)
+  role          String            // SELLER | ANCHOR | INVESTOR
+
+  // Invite flow (Anchor / Investor)
+  inviteToken   String?  @unique
+  inviteExpiry  DateTime?
+  isActive      Boolean  @default(false) // true after OTP or invite accepted
+
+  // Relations — only one of these will be set depending on role
+  sellerId      String?  @unique
+  seller        Seller?  @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  anchorId      String?  @unique
+  anchor        Anchor?  @relation(fields: [anchorId], references: [id], onDelete: Cascade)
+  investorId    String?  @unique
+  investor      Investor? @relation(fields: [investorId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("users")
+}
+
+/// Separate admin user table — completely isolated from the seller/anchor/investor flow.
+/// Admins are only created through direct DB seeding or a secure CLI command.
+model AdminUser {
+  id             String   @id @default(uuid())
+  email          String   @unique
+  passwordHash   String
+  twoFactorSecret String?          // Base32 TOTP secret (e.g. Google Authenticator)
+  twoFactorEnabled Boolean @default(false)
+  isActive       Boolean  @default(true)
+  lastLoginAt    DateTime?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("admin_users")
+}
+
+/// OTP codes for mobile-based Seller login & signup
+model OtpCode {
+  id         String   @id @default(uuid())
+  mobile     String
+  code       String
+  purpose    String   @default("LOGIN") // LOGIN | SIGNUP
+  expiresAt  DateTime
+  used       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@map("otp_codes")
+}
+
+// ---------------------------------------------------------------------------
+// Business Models
+// ---------------------------------------------------------------------------
+
+model Seller {
+  id            String    @id @default(uuid())
+  legalName     String
+  gstin         String    @unique
+  pan           String
+  bankAccountNo String
+  bankIfsc      String
+  kycStatus     String    @default("PENDING") // PENDING, VERIFIED, REJECTED
+  
+  // Fintech Blind Spot #2: e-NACH Mandate for Auto-Debit Recourse Recovery
+  enachMandateId     String?
+  enachMandateStatus String   @default("PENDING") // PENDING, ACTIVE, EXPIRED, FAILED
+
+  creditLimit    Float    @default(0)   // Sanctioned limit after AA scoring
+  creditLimitStatus String @default("PENDING") // PENDING | SANCTIONED | REJECTED
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  invoices      Invoice[]
+  user          User?
+
+  @@map("sellers")
+}
+
+model Anchor {
+  id               String    @id @default(uuid())
+  corporateName    String    // e.g. Tata Motors Ltd, Reliance
+  gstin            String    @unique
+  creditRating     String    @default("UNRATED") // UNRATED, AAA, AA+, AA, A, BBB
+  maxExposureLimit Float     @default(0) // Default ₹0 until formal credit risk assessment
+  currentExposure  Float     @default(0) // Active funded debt
+  status           String    @default("ACTIVE") // PENDING, ACTIVE, REJECTED, SUSPENDED
+  contactPerson    String?
+  contactEmail     String?
+  contactPhone     String?
+  annualProcurement Float?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  invoices         Invoice[]
+  user             User?
+
+  @@map("anchors")
+}
+
+model Investor {
+  id            String       @id @default(uuid())
+  entityName    String       // e.g. Bajaj Finance NBFC, HDFC Bank
+  investorType  String       @default("NBFC") // BANK, NBFC, HNI
+  escrowBalance Float        @default(0) // Production Escrow balance starts at ₹0 until real deposit
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  bids          FundingBid[]
+  user          User?
+
+  @@map("investors")
+}
+
+model Invoice {
+  id                     String    @id @default(uuid())
+  invoiceNumber          String
+  financialYear          String    // Dynamically computed per Indian FY standard (April - March)
+  invoiceDate            DateTime  @default(now())
+  dueDate                DateTime
+  tenureDays             Int       @default(90) // 30-90 days
+
+  // Financial Amounts & Pricing Model
+  pricingModel           String    @default("NET_DISBURSED") // NET_DISBURSED (Option A) vs GROSS_ADVANCE (Option B)
+  totalAmount            Float
+  marginHoldPct          Float     @default(15.0) // 15% margin hold
+  marginHeldAmount       Float     @default(0)
+  upfrontDisbursedAmount Float     @default(0)    // 84% given upfront to Seller
+  discountRatePa         Float     @default(12.0) // 12% p.a.
+  platformFeePct         Float     @default(1.0)  // 1% platform commission
+
+  // Core Fintech Flags
+  recourseType           String    @default("RECOURSE") // RECOURSE vs NON_RECOURSE
+  status                 String    @default("UPLOADED") // UPLOADED, VERIFIED, ANCHOR_CONFIRMED, LISTED, FUNDED, SETTLED, DEFAULTED, DISPUTED, REJECTED, REJECTED_TIMEOUT
+  disputeReason          String?   // Reason code & notes if Corporate Anchor disputes the invoice
+  ewayBillNo             String?
+  poNumber               String?
+  invoiceDocumentUrl     String?   // Base64 Data URI or S3 bucket URL
+  invoiceDocumentName    String?   // Original uploaded file name (e.g. INV-RajuSteel-TataMotors.pdf)
+  
+  // Fintech Blind Spot #1: e-Invoice 64-char IRN (Invoice Reference Number) & QR Code Validation
+  irn                    String?
+  irnVerified            Boolean   @default(false)
+
+  // Fintech Blind Spot #4: CERSAI National Asset Charge Registry
+  cersaiSecurityId       String?
+  cersaiStatus           String    @default("PENDING") // PENDING, REGISTERED
+
+  // Doc Item 13: Anchor NOA Tracking & Timeout Reminders
+  noaSentAt              DateTime?
+  anchorReminderCount    Int       @default(0)
+  lastReminderSentAt     DateTime?
+  
+  // Fraud Prevention: Cryptographic Hash of (Seller GSTIN + Invoice Number + FY)
+  invoiceHash            String    @unique
+
+  // Doc Section 7: Virtual Escrow Account (VAN) for RBI-Compliant Direct Deposit Routing
+  virtualAccountNumber   String?
+
+  // Relations
+  sellerId               String
+  seller                 Seller    @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  anchorId               String
+  anchor                 Anchor    @relation(fields: [anchorId], references: [id], onDelete: Cascade)
+
+  fundingBids            FundingBid[]
+  escrowTransactions     EscrowTransaction[]
+  settlementRecord       SettlementRecord?
+
+  anchorConfirmedAt      DateTime?
+  fundedAt               DateTime?
+  settledAt              DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  @@map("invoices")
+}
+
+model FundingBid {
+  id             String    @id @default(uuid())
+  fundedAmount   Float
+  expectedReturn Float
+  status         String    @default("CONFIRMED") // PENDING, CONFIRMED, REFUNDED
+
+  invoiceId      String
+  invoice        Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  investorId     String
+  investor       Investor  @relation(fields: [investorId], references: [id], onDelete: Cascade)
+
+  createdAt      DateTime  @default(now())
+
+  @@map("funding_bids")
+}
+
+model EscrowTransaction {
+  id             String    @id @default(uuid())
+  transactionType String   // BUYER_REPAYMENT, INVESTOR_PAYOUT, PLATFORM_FEE, SELLER_MARGIN_RELEASE, RECOURSE_RECOVERY
+  amount         Float
+  notes          String?
+
+  invoiceId      String
+  invoice        Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  createdAt      DateTime  @default(now())
+
+  @@map("escrow_transactions")
+}
+
+model SettlementRecord {
+  id                     String    @id @default(uuid())
+  totalReceived          Float
+  investorPrincipalPaid  Float
+  investorInterestPaid   Float
+  platformFeeDeducted    Float
+  sellerMarginReturned   Float
+  shortfallAmount        Float     @default(0)
+  recourseTriggered      Boolean   @default(false)
+
+  invoiceId              String    @unique
+  invoice                Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  settledAt              DateTime  @default(now())
+
+  @@map("settlement_records")
+}
+
+model WebhookEvent {
+  id             String    @id @default(uuid())
+  idempotencyKey String    @unique // UTR / bank event_id
+  provider       String    @default("ICICI_ESCROW") // ICICI_ESCROW, YES_BANK, RAZORPAYX
+  eventType      String    // VIRTUAL_ACCOUNT_CREDIT, REPAYMENT_RECEIVED
+  payload        String    // Raw JSON string
+  status         String    @default("PROCESSED") // PROCESSED, DUPLICATE_SKIPPED, FAILED
+  processedAt    DateTime  @default(now())
+
+  @@map("webhook_events")
+}
+
+/// Append-only audit log table tracking every state transition & money-movement event for compliance review (Section 8)
+model AuditLog {
+  id            String   @id @default(uuid())
+  entityType    String   // INVOICE, ESCROW, SETTLEMENT, KYC, MANDATE
+  entityId      String   // Target record ID
+  action        String   // UPLOAD, VERIFY, ANCHOR_CONFIRM, ANCHOR_DISPUTE, FUND, SETTLE, RECOURSE_EXECUTE
+  actorRole     String   // SELLER, ANCHOR, INVESTOR, ADMIN, SYSTEM
+  actorId       String?  // User or Admin ID who triggered the action
+  previousState String?
+  newState      String?
+  metadata      String?  // JSON stringified audit details (amounts, UTRs, reason codes)
+  timestamp     DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@map("audit_logs")
+}
+
