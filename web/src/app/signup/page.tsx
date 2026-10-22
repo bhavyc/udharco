@@ -418,7 +418,7 @@ function SellerSignupContent() {
                 </span>
               </div>
               <p className="text-xs text-slate-500 font-medium">
-                Get 84% Instant Cash on Invoices in 24 Hours
+                Early Working Capital on Verified B2B Invoices
               </p>
             </div>
           </div>

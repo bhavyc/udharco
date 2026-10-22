@@ -108,7 +108,7 @@ class _UploadInvoiceSheetState extends State<UploadInvoiceSheet> {
               ),
               const SizedBox(height: 6),
               const Text(
-                'Upload verified GST e-invoice to receive up to 84% instant cash disbursal within 24 hours.',
+                'Upload verified GST e-invoice to unlock up to 84% advance capital upon corporate buyer confirmation.',
                 style: TextStyle(color: AppTheme.textSecondary, fontSize: 13),
               ),
               const SizedBox(height: 20),
