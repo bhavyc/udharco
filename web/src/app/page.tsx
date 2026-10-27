@@ -6,6 +6,8 @@ import DashboardClient from "@/components/DashboardClient";
 import Link from "next/link";
 import { ShieldCheck, LogOut, Building2, User, Wallet } from "lucide-react";
 
+export const instant = false;
+
 export default async function Home() {
   const session = await getSession();
   if (!session) {

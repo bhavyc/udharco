@@ -79,6 +79,8 @@ export async function POST(request: Request) {
           gstin,
           creditRating: creditRating ?? "UNRATED",
           maxExposureLimit: maxExposureLimit ?? 0,
+          status: maxExposureLimit && maxExposureLimit > 0 ? "ACTIVE" : "PENDING",
+          sourceChannel: "ENTERPRISE_SALES",
           user: {
             create: {
               email,

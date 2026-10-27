@@ -72,3 +72,31 @@ All other buyers default to **SME_COMMERCIAL** track.
 | **e-NACH Mandates** | Digio / Cashfree | Setu | Auto-debit registration for seller recourse recovery |
 | **Fraud Registry** | Internal SHA-256 | CERSAI | Double-financing & duplicate bill blocking |
 
+---
+
+## 9. Core Engineering Non-Negotiables & The "Fail-Closed" Rule
+
+Any code, database schema, or architectural addition to UdharCo must strictly pass the **Fail-Closed Golden Question**:
+
+> *"Agar ye field accidentally set hi na ho (default use ho jaaye), kya system sabse safe/restrictive state mein rahega, ya sabse risky/permissive state mein?"*
+
+### Mandatory Rules:
+
+1. **Fail-Closed Schema Defaults (Never Fail-Open)**:
+   - Every `status` field representing trust, money-movement, or access must default to `"PENDING"` (Never `"ACTIVE"` or `"VERIFIED"`).
+   - Every `limit` or `exposure` field must default to `0` (Zero rupee disbursement allowed until explicit underwriter sanction).
+   - Every provenance/source field must default to the highest-scrutiny channel (e.g. `sourceChannel: "VENDOR_PUSH"`).
+
+2. **Strict With-Recourse Standard (Option A)**:
+   - No invoice is ever processed without an active NPCI e-NACH mandate from the seller.
+   - The platform does not offer non-recourse factoring to SME suppliers.
+
+3. **Two-Way Provenance Distinction**:
+   - `Channel 1 (VENDOR_PUSH)`: Initial limit locked at ₹0, maker-checker admin underwriting mandatory.
+   - `Channel 2 (ENTERPRISE_SALES)`: Sanctioned limit backed by pre-vetted corporate master factoring agreement.
+
+4. **Production Database Migration Policy**:
+   - `prisma db push` is restricted to local sandbox prototyping.
+   - Production deployments MUST use versioned `prisma migrate dev` and `prisma migrate deploy` to guarantee audited, reversible, and collaborative SQL schema history.
+
+

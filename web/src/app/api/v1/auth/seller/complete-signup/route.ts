@@ -18,6 +18,7 @@ export async function POST(request: Request) {
       bankAccountNo,
       bankIfsc,
       enachMandateId,
+      sanctionedLimit,
     } = body;
 
     // Validate required fields
@@ -27,6 +28,10 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    const assignedCreditLimit = sanctionedLimit && Number(sanctionedLimit) > 0 
+      ? Number(sanctionedLimit) 
+      : 5000000;
 
     const isDev = process.env.NODE_ENV !== "production";
 
@@ -79,7 +84,7 @@ export async function POST(request: Request) {
               kycStatus: "VERIFIED",
               enachMandateId: enachMandateId ?? "MND-NPCI-882910",
               enachMandateStatus: "ACTIVE",
-              creditLimit: 5000000,
+              creditLimit: assignedCreditLimit,
               creditLimitStatus: "SANCTIONED",
             },
           })
@@ -93,7 +98,7 @@ export async function POST(request: Request) {
               kycStatus: "VERIFIED",
               enachMandateId: enachMandateId ?? "MND-NPCI-882910",
               enachMandateStatus: "ACTIVE",
-              creditLimit: 5000000,
+              creditLimit: assignedCreditLimit,
               creditLimitStatus: "SANCTIONED",
             },
           });

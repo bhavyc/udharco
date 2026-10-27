@@ -4,6 +4,7 @@ import { getAdminSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import AdminDashboardClient from "./AdminDashboardClient";
 
+export const instant = false;
 
 export default async function AdminPage() {
   const session = await getAdminSession();

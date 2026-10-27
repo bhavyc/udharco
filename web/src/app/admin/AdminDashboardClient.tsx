@@ -52,6 +52,7 @@ interface Anchor {
   maxExposureLimit: number;
   currentExposure: number;
   status?: string;
+  sourceChannel?: string;
   contactPerson?: string | null;
   contactEmail?: string | null;
   contactPhone?: string | null;
@@ -853,7 +854,18 @@ export default function AdminDashboardClient({
                     .map((a) => (
                       <tr key={a.id} className={`hover:bg-slate-50 transition ${a.status === "PENDING" ? "bg-amber-50/50" : ""}`}>
                         <td className="p-4">
-                          <div className="font-bold text-slate-900">{a.corporateName}</div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-slate-900">{a.corporateName}</span>
+                            {a.sourceChannel === "VENDOR_PUSH" ? (
+                              <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                                Channel 1: Vendor Push (High Scrutiny)
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                Channel 2: Enterprise Sales (Verified)
+                              </span>
+                            )}
+                          </div>
                           {a.contactPerson ? (
                             <div className="text-[11px] text-slate-500 mt-0.5">
                               {a.contactPerson} • <span className="font-mono text-indigo-700">{a.contactEmail}</span>

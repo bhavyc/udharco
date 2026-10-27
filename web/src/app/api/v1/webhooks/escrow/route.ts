@@ -202,7 +202,7 @@ export async function POST(request: Request) {
             invoiceId: invoice.id,
             transactionType: "PLATFORM_FEE",
             amount: waterfall.platformFeeDeducted,
-            notes: `UdharCo Platform fee of ₹${waterfall.platformFeeDeducted.toLocaleString()} realized.`,
+            notes: `PLATFORM_FEE_SWEEP: ₹${waterfall.platformFeeDeducted.toLocaleString()} swept to UdharCo commission account.`,
           },
         })
       );

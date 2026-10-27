@@ -54,6 +54,8 @@ async function main() {
       creditRating: "AAA",
       maxExposureLimit: 50000000, // ₹5 Cr limit
       currentExposure: 0,
+      status: "ACTIVE",
+      sourceChannel: "ENTERPRISE_SALES",
     },
   });
   console.log("✅ Seeded Anchor:", anchor.corporateName);
