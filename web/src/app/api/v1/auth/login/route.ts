@@ -14,6 +14,7 @@ import type { SessionRole } from "@/lib/session";
 //     → validates credentials, creates session.
 //
 // Admin login is a completely separate endpoint at /admin/api/auth/login.
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();

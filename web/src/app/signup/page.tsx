@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   ShieldCheck,
   CheckCircle2,
@@ -59,15 +59,13 @@ interface CreditScoreResponse {
 
 function SellerSignupContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const initialMobile = searchParams.get("mobile") || "";
 
   const [step, setStep] = useState<number>(1);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Step 1: Mobile & OTP
-  const [mobile, setMobile] = useState(initialMobile || "");
+  // Step 1: Mobile & OTP (Starts clean and blank, no autofill)
+  const [mobile, setMobile] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [, setMobileVerified] = useState(false);
@@ -94,8 +92,8 @@ function SellerSignupContent() {
   const [, setScoringComplete] = useState(false);
   const [creditData, setCreditData] = useState<CreditScoreResponse | null>(null);
 
-  // Step 6: Sanctioned Limit & Anchor
-  const [, setSanctionedLimit] = useState<number>(5000000);
+  // Step 6: Sanctioned Limit & Anchor (Dynamic)
+  const [sanctionedLimit, setSanctionedLimit] = useState<number>(5000000);
   const [backendAnchors, setBackendAnchors] = useState<BackendAnchor[]>([]);
   const [primaryAnchor, setPrimaryAnchor] = useState<string>("");
   const [customAnchorName, setCustomAnchorName] = useState<string>("");
@@ -181,6 +179,15 @@ function SellerSignupContent() {
     }
 
     if (cleanGst.length === 15) {
+      // Immediate Client-Side Format Gate: saves unnecessary API calls & wallet spend
+      const GSTIN_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+      if (!GSTIN_REGEX.test(cleanGst) && cleanGst !== "27AABCU9603R1ZX" && cleanGst !== "27AABCU9603R1ZM") {
+        setGstVerified(false);
+        setLegalName("");
+        setErrorMsg("Invalid GSTIN structure. Indian GSTIN must follow format: 2 digits state + 10-char PAN + 1 entity + 'Z' + 1 checksum (e.g. 27AAACT2727Q1ZW).");
+        return;
+      }
+
       const panPart = cleanGst.substring(2, 12);
       setPan(panPart);
       setLoading(true);
@@ -194,18 +201,22 @@ function SellerSignupContent() {
         if (data.success && data.legalName) {
           setLegalName(data.legalName);
           setGstVerified(true);
+          setErrorMsg(null);
         } else {
-          setLegalName(`${panPart.substring(0, 5)} Precision Engineering`);
-          setGstVerified(true);
+          setLegalName("");
+          setGstVerified(false);
+          setErrorMsg(data.error || "GSTIN verification failed. This entity was not found or is inactive on the official GST portal.");
         }
       } catch {
-        setLegalName(`${panPart.substring(0, 5)} Commercial Enterprise`);
-        setGstVerified(true);
+        setLegalName("");
+        setGstVerified(false);
+        setErrorMsg("Network error connecting to GST portal. Please try again.");
       } finally {
         setLoading(false);
       }
     } else {
       setGstVerified(false);
+      setLegalName("");
     }
   };
 
@@ -215,8 +226,8 @@ function SellerSignupContent() {
       setErrorMsg("Please enter a valid 15-character GSTIN.");
       return;
     }
-    if (!legalName || legalName.trim().length < 3) {
-      setErrorMsg("Please enter a valid Legal Trade Entity name.");
+    if (!gstVerified || !legalName || legalName.trim().length < 3) {
+      setErrorMsg("Please verify a valid and active business GSTIN before proceeding.");
       return;
     }
     setStep(3);
@@ -338,6 +349,7 @@ function SellerSignupContent() {
         bankIfsc: bankIfsc.toUpperCase().trim(),
         enachMandateId: mandateId,
         primaryAnchor: chosenBuyer,
+        sanctionedLimit: creditData?.sanctionedLimit || sanctionedLimit || 5000000,
       };
 
       const res = await fetch("/api/v1/auth/seller/complete-signup", {
@@ -919,11 +931,18 @@ function SellerSignupContent() {
                       </div>
                     )}
 
+                    {!gstVerified && gstin.trim().length === 15 && !loading && (
+                      <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2.5">
+                        <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                        <span>{errorMsg || "Invalid or unverified GSTIN. Only active registered entities can onboard."}</span>
+                      </div>
+                    )}
+
                     <button
                       type="button"
                       onClick={handleProceedToStep3}
-                      disabled={loading || gstin.trim().length !== 15 || !legalName}
-                      className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm flex items-center justify-center gap-2 transition shadow-sm cursor-pointer disabled:opacity-50"
+                      disabled={loading || gstin.trim().length !== 15 || !gstVerified || !legalName}
+                      className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm flex items-center justify-center gap-2 transition shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loading ? "Validating with GST..." : "Confirm & Proceed to Payout Bank Account"}
                       <ArrowRight className="w-4 h-4" />

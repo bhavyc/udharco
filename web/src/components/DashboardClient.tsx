@@ -250,10 +250,6 @@ export default function DashboardClient({
       showToast("error", "A valid 64-character GSTN IRN hash is required for anti-fraud shield.");
       return;
     }
-    if (!uploadForm.ewayBillNo || uploadForm.ewayBillNo.trim().length < 8) {
-      showToast("error", "A valid E-Way Bill Number is required to prove physical consignment transit.");
-      return;
-    }
 
     setLoadingAction("upload");
     try {
@@ -832,110 +828,133 @@ export default function DashboardClient({
       </section>
 
 
-      {/* 3 Main Players Showcase Cards */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-indigo-600"></span>
-            Fintech Ecosystem Participants
-          </h2>
-          <span className="text-xs text-slate-500 font-medium">Factoring Regulation Act 2011 Architecture</span>
-        </div>
+      {/* 3 Main Players Showcase Cards (Dynamic to Active Session) */}
+      {(() => {
+        const activeSeller =
+          (currentUser?.role === "SELLER" && currentUser.entityId
+            ? sellers.find((s) => s.id === currentUser.entityId)
+            : null) || sellers[sellers.length - 1] || sellers[0];
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {/* Player 1: MSME Seller */}
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3.5">
-            <div className="flex items-center justify-between">
-              <span className="px-2.5 py-1 rounded-md text-[11px] font-bold uppercase bg-amber-50 text-amber-800 border border-amber-200">
-                1. MSME Vendor
-              </span>
-              <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                Verified Seller
-              </span>
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-slate-900">{sellers[0]?.legalName}</h3>
-              <p className="text-xs text-slate-500 font-mono mt-0.5">GSTIN: {sellers[0]?.gstin}</p>
-            </div>
-            <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2">
-              <div className="flex justify-between">
-                <span>Disbursement Rule:</span>
-                <span className="font-bold text-emerald-700">84% upfront cash</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Margin Release:</span>
-                <span className="font-semibold text-amber-700">15% in Escrow</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Verified Account:</span>
-                <span className="font-mono text-slate-700">{sellers[0]?.bankAccountNo}</span>
-              </div>
-            </div>
-          </div>
+        const activeAnchor =
+          (currentUser?.role === "ANCHOR" && currentUser.entityId
+            ? anchors.find((a) => a.id === currentUser.entityId)
+            : null) || anchors[0];
 
-          {/* Player 2: Corporate Anchor */}
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3.5">
-            <div className="flex items-center justify-between">
-              <span className="px-2.5 py-1 rounded-md text-[11px] font-bold uppercase bg-sky-50 text-sky-800 border border-sky-200">
-                2. Corporate Buyer
-              </span>
-              <span className="text-xs font-semibold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">
-                Rating: {anchors[0]?.creditRating}
-              </span>
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-slate-900">{anchors[0]?.corporateName}</h3>
-              <p className="text-xs text-slate-500 font-mono mt-0.5">GSTIN: {anchors[0]?.gstin}</p>
-            </div>
-            <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2">
-              <div className="flex justify-between">
-                <span>Sanctioned Limit:</span>
-                <span className="font-bold text-slate-900">₹{(anchors[0]?.maxExposureLimit / 10000000).toFixed(1)} Cr</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Active Exposure:</span>
-                <span className="font-semibold text-sky-700">₹{(anchors[0]?.currentExposure / 100000).toFixed(1)} Lakhs</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Approval Mode:</span>
-                <span className="text-slate-700">Official Portal / WhatsApp</span>
-              </div>
-            </div>
-          </div>
+        const activeInvestor =
+          (currentUser?.role === "INVESTOR" && currentUser.entityId
+            ? investors.find((i) => i.id === currentUser.entityId)
+            : null) || investors[0];
 
-          {/* Player 3: NBFC Investor */}
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3.5">
+        return (
+          <section className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="px-2.5 py-1 rounded-md text-[11px] font-bold uppercase bg-purple-50 text-purple-800 border border-purple-200">
-                3. NBFC / Bank
-              </span>
-              <span className="text-xs font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
-                11% - 14% p.a.
-              </span>
+              <h2 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-indigo-600"></span>
+                Fintech Ecosystem Participants
+              </h2>
+              <span className="text-xs text-slate-500 font-medium">Factoring Regulation Act 2011 Architecture</span>
             </div>
-            <div>
-              <h3 className="text-base font-bold text-slate-900">{investors[0]?.entityName}</h3>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">ICICI Nodal Virtual Escrow</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {/* Player 1: MSME Seller */}
+              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <span className="px-2.5 py-1 rounded-md text-[11px] font-bold uppercase bg-amber-50 text-amber-800 border border-amber-200">
+                    1. MSME Vendor
+                  </span>
+                  <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                    {currentUser?.role === "SELLER" ? "Your Company" : "Verified Seller"}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">{activeSeller?.legalName || "Your Registered MSME"}</h3>
+                  <p className="text-xs text-slate-500 font-mono mt-0.5">GSTIN: {activeSeller?.gstin || "Pending"}</p>
+                </div>
+                <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2">
+                  <div className="flex justify-between">
+                    <span>Disbursement Rule:</span>
+                    <span className="font-bold text-emerald-700">84% upfront cash</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Margin Release:</span>
+                    <span className="font-semibold text-amber-700">15% in Escrow</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Verified Account:</span>
+                    <span className="font-mono text-slate-700">{activeSeller?.bankAccountNo || "Verified"}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Player 2: Corporate Anchor */}
+              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <span className="px-2.5 py-1 rounded-md text-[11px] font-bold uppercase bg-sky-50 text-sky-800 border border-sky-200">
+                    2. Corporate Buyer
+                  </span>
+                  <span className="text-xs font-semibold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">
+                    Rating: {activeAnchor?.creditRating || "AAA"}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">{activeAnchor?.corporateName || "Approved Corporate Buyer"}</h3>
+                  <p className="text-xs text-slate-500 font-mono mt-0.5">GSTIN: {activeAnchor?.gstin || "Verified"}</p>
+                </div>
+                <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2">
+                  <div className="flex justify-between">
+                    <span>Sanctioned Limit:</span>
+                    <span className="font-bold text-slate-900">
+                      ₹{activeAnchor ? (activeAnchor.maxExposureLimit / 10000000).toFixed(1) : "5.0"} Cr
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Active Exposure:</span>
+                    <span className="font-semibold text-sky-700">
+                      ₹{activeAnchor ? (activeAnchor.currentExposure / 100000).toFixed(1) : "0.0"} Lakhs
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Approval Mode:</span>
+                    <span className="text-slate-700">Official Portal / WhatsApp</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Player 3: NBFC Investor */}
+              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <span className="px-2.5 py-1 rounded-md text-[11px] font-bold uppercase bg-purple-50 text-purple-800 border border-purple-200">
+                    3. NBFC / Bank
+                  </span>
+                  <span className="text-xs font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
+                    11% - 14% p.a.
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">{activeInvestor?.entityName || "Institutional Escrow Funder"}</h3>
+                  <p className="text-xs text-slate-500 font-medium mt-0.5">ICICI Nodal Virtual Escrow</p>
+                </div>
+                <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2">
+                  <div className="flex justify-between">
+                    <span>Escrow Balance:</span>
+                    <span className="font-bold text-indigo-700 font-mono">
+                      ₹{activeInvestor ? (activeInvestor.escrowBalance / 10000000).toFixed(2) : "2.50"} Cr
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Seniority:</span>
+                    <span className="text-slate-800 font-bold">Priority #1 (Senior Debt)</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Payout Method:</span>
+                    <span className="text-slate-700">Direct Escrow Split</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2">
-              <div className="flex justify-between">
-                <span>Escrow Balance:</span>
-                <span className="font-bold text-indigo-700 font-mono">
-                  ₹{(investors[0]?.escrowBalance / 10000000).toFixed(2)} Cr
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Seniority:</span>
-                <span className="text-slate-800 font-bold">Priority #1 (Senior Debt)</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Payout Method:</span>
-                <span className="text-slate-700">Direct Escrow Split</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+          </section>
+        );
+      })()}
 
       {/* MODAL 1: Upload Invoice Modal */}
       {isUploadOpen && (
@@ -948,7 +967,7 @@ export default function DashboardClient({
                   <h3 className="text-base font-bold text-slate-900">Upload New Invoice for Instant Discounting</h3>
                 </div>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Attach your GST invoice copy, enter E-Way bill & IRN to receive 84% instant advance.
+                  Attach your GST invoice copy & verified IRN hash to receive 84% instant advance.
                 </p>
               </div>
               <button
@@ -1097,14 +1116,32 @@ export default function DashboardClient({
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Total Bill Value (₹) *</label>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-xs font-bold text-slate-700">Total Bill Value (₹) *</label>
+                    {uploadForm.totalAmount > 0 && (
+                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                        {uploadForm.totalAmount >= 10000000
+                          ? `₹${(uploadForm.totalAmount / 10000000).toFixed(2)} Cr`
+                          : uploadForm.totalAmount >= 100000
+                          ? `₹${(uploadForm.totalAmount / 100000).toFixed(2)} Lakh`
+                          : `₹${uploadForm.totalAmount.toLocaleString("en-IN")}`}
+                      </span>
+                    )}
+                  </div>
                   <input
                     type="number"
                     required
                     min={10000}
+                    max={500000000}
                     step={10000}
-                    value={uploadForm.totalAmount}
-                    onChange={(e) => setUploadForm({ ...uploadForm, totalAmount: Number(e.target.value) })}
+                    value={uploadForm.totalAmount || ""}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, "");
+                      if (val.length <= 10) {
+                        setUploadForm({ ...uploadForm, totalAmount: val ? Number(val) : 0 });
+                      }
+                    }}
+                    placeholder="e.g. 1000000"
                     className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none"
                   />
                 </div>
@@ -1152,24 +1189,12 @@ export default function DashboardClient({
                 </div>
               </div>
 
-              {/* 5. E-WAY BILL NUMBER & PO NUMBER */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {/* 5. PURCHASE ORDER (PO) & CREDIT TENURE */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5 mb-1">
-                    <Truck className="w-3.5 h-3.5 text-sky-600" />
-                    <span>E-Way Bill Number *</span>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                    Purchase Order (PO) Number <span className="text-slate-400 font-normal">(Optional)</span>
                   </label>
-                  <input
-                    type="text"
-                    required
-                    value={uploadForm.ewayBillNo}
-                    onChange={(e) => setUploadForm({ ...uploadForm, ewayBillNo: e.target.value })}
-                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:border-sky-500 focus:ring-2 focus:ring-sky-100 outline-none"
-                    placeholder="12-digit NIC E-Way Bill (e.g. 281098442109)"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Purchase Order (PO) Number</label>
                   <input
                     type="text"
                     value={uploadForm.poNumber}
@@ -1178,64 +1203,95 @@ export default function DashboardClient({
                     placeholder="PO-AUTO-9021"
                   />
                 </div>
-              </div>
 
-              {/* 6. TENURE & RECOURSE */}
-              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Tenure (Days)</label>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Payment Tenure (Credit Period)</label>
                   <select
                     value={uploadForm.tenureDays}
                     onChange={(e) => setUploadForm({ ...uploadForm, tenureDays: Number(e.target.value) })}
-                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:border-emerald-500 outline-none"
+                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:border-emerald-500 outline-none font-medium cursor-pointer"
                   >
-                    <option value={30}>30 Days</option>
-                    <option value={60}>60 Days</option>
-                    <option value={90}>90 Days</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Recourse Type</label>
-                  <select
-                    value={uploadForm.recourseType}
-                    onChange={(e) => setUploadForm({ ...uploadForm, recourseType: e.target.value })}
-                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:border-emerald-500 outline-none"
-                  >
-                    <option value="RECOURSE">WITH RECOURSE (e-NACH Protected)</option>
-                    <option value="NON_RECOURSE">NON-RECOURSE (Enterprise Only)</option>
+                    <option value={30}>30 Days Credit Period</option>
+                    <option value={60}>60 Days Credit Period</option>
+                    <option value={90}>90 Days Credit Period</option>
+                    <option value={120}>120 Days Credit Period</option>
                   </select>
                 </div>
               </div>
 
               {/* 7. LIVE 84/15/1 DISBURSEMENT MATH PREVIEW */}
-              <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 space-y-2 text-xs">
+              <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200 space-y-2 text-xs">
                 <div className="font-bold text-slate-900 flex items-center justify-between">
                   <span>Cash Advance Breakdown:</span>
-                  <span className="text-emerald-800 font-semibold">11.0% p.a. Discount Benchmark</span>
+                  <span className="text-emerald-800 font-semibold text-[11px]">11.0% p.a. Benchmark</span>
                 </div>
-                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-emerald-200/80 font-mono">
-                  <div>
-                    <div className="text-slate-600 text-[11px]">Instant 84% Advance:</div>
-                    <div suppressHydrationWarning className="text-emerald-800 font-black text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1.5 border-t border-emerald-200/80 font-mono">
+                  <div className="min-w-0 bg-white/90 p-2.5 rounded-lg border border-emerald-200/60 overflow-hidden">
+                    <div className="text-slate-600 text-[10px] font-sans font-medium uppercase tracking-wider">Instant 84% Advance</div>
+                    <div
+                      suppressHydrationWarning
+                      className="text-emerald-800 font-black text-sm truncate mt-0.5"
+                      title={`₹${formatINR(Math.round(uploadForm.totalAmount * 0.84))}`}
+                    >
                       ₹{formatINR(Math.round(uploadForm.totalAmount * 0.84))}
                     </div>
+                    {uploadForm.totalAmount >= 100000 && (
+                      <div className="text-[10px] text-emerald-700 font-sans font-semibold mt-0.5 truncate">
+                        {uploadForm.totalAmount * 0.84 >= 10000000
+                          ? `≈ ₹${((uploadForm.totalAmount * 0.84) / 10000000).toFixed(2)} Cr`
+                          : `≈ ₹${((uploadForm.totalAmount * 0.84) / 100000).toFixed(2)} Lakh`}
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <div className="text-slate-600 text-[11px]">15% Escrow Margin:</div>
-                    <div suppressHydrationWarning className="text-amber-800 font-bold text-sm">
+
+                  <div className="min-w-0 bg-white/90 p-2.5 rounded-lg border border-emerald-200/60 overflow-hidden">
+                    <div className="text-slate-600 text-[10px] font-sans font-medium uppercase tracking-wider">15% Escrow Margin</div>
+                    <div
+                      suppressHydrationWarning
+                      className="text-amber-800 font-bold text-sm truncate mt-0.5"
+                      title={`₹${formatINR(Math.round(uploadForm.totalAmount * 0.15))}`}
+                    >
                       ₹{formatINR(Math.round(uploadForm.totalAmount * 0.15))}
                     </div>
+                    {uploadForm.totalAmount >= 100000 && (
+                      <div className="text-[10px] text-amber-700 font-sans font-semibold mt-0.5 truncate">
+                        {uploadForm.totalAmount * 0.15 >= 10000000
+                          ? `≈ ₹${((uploadForm.totalAmount * 0.15) / 10000000).toFixed(2)} Cr`
+                          : `≈ ₹${((uploadForm.totalAmount * 0.15) / 100000).toFixed(2)} Lakh`}
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <div className="text-slate-600 text-[11px]">1% Platform Fee:</div>
-                    <div suppressHydrationWarning className="text-slate-700 font-bold text-sm">
+
+                  <div className="min-w-0 bg-white/90 p-2.5 rounded-lg border border-emerald-200/60 overflow-hidden">
+                    <div className="text-slate-600 text-[10px] font-sans font-medium uppercase tracking-wider">1% Platform Fee</div>
+                    <div
+                      suppressHydrationWarning
+                      className="text-slate-700 font-bold text-sm truncate mt-0.5"
+                      title={`₹${formatINR(Math.round(uploadForm.totalAmount * 0.01))}`}
+                    >
                       ₹{formatINR(Math.round(uploadForm.totalAmount * 0.01))}
                     </div>
+                    {uploadForm.totalAmount >= 100000 && (
+                      <div className="text-[10px] text-slate-500 font-sans font-semibold mt-0.5 truncate">
+                        {uploadForm.totalAmount * 0.01 >= 10000000
+                          ? `≈ ₹${((uploadForm.totalAmount * 0.01) / 10000000).toFixed(2)} Cr`
+                          : `≈ ₹${((uploadForm.totalAmount * 0.01) / 100000).toFixed(2)} Lakh`}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
 
-              {/* 8. ACTIONS */}
+              {/* 8. LEGAL RECOURSE & e-NACH DISCLOSURE (RBI Transparency) */}
+              <div className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 text-[11px] leading-relaxed">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold text-slate-800">With-Recourse Factoring: </span>
+                  This invoice is discounted under your Master Factoring Agreement backed by your Step 4 e-NACH mandate. If the corporate buyer raises an unresolved commercial dispute, recourse applies per RBI Factoring Regulation Act, 2011.
+                </div>
+              </div>
+
+              {/* 9. ACTIONS */}
               <div className="flex justify-end gap-3 pt-2">
                 <button
                   type="button"

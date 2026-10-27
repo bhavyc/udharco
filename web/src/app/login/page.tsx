@@ -116,7 +116,7 @@ function LoginContent() {
       }
 
       if (data.needsOnboarding) {
-        router.push(`/signup?mobile=${encodeURIComponent(mobile.trim())}`);
+        router.push("/signup");
       } else {
         setSuccessMsg("Authentication successful. Redirecting to workspace...");
         setTimeout(() => {
@@ -193,12 +193,22 @@ function LoginContent() {
             </div>
           </div>
 
-          <Link
-            href="/admin/login"
-            className="text-xs font-medium text-slate-600 hover:text-indigo-600 border border-slate-200 hover:border-indigo-300 bg-white px-3 py-1.5 rounded-lg shadow-2xs transition"
-          >
-            Admin Portal →
-          </Link>
+          <div className="flex items-center gap-2.5">
+            <Link
+              href="/signup"
+              className="text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-3 py-1.5 rounded-lg shadow-2xs transition flex items-center gap-1.5"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Register New MSME</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+            <Link
+              href="/admin/login"
+              className="text-xs font-medium text-slate-600 hover:text-indigo-600 border border-slate-200 hover:border-indigo-300 bg-white px-3 py-1.5 rounded-lg shadow-2xs transition"
+            >
+              Admin Portal →
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -345,6 +355,18 @@ function LoginContent() {
                   </button>
                 </form>
               )}
+
+              {/* Registration Link for New MSME Seller */}
+              <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+                <span className="text-slate-500 font-medium">New MSME supplier?</span>
+                <Link
+                  href="/signup"
+                  className="font-bold text-emerald-700 hover:text-emerald-800 hover:underline flex items-center gap-1"
+                >
+                  <span>Register & Apply for Facility</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
             </div>
           )}
 

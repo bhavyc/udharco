@@ -80,6 +80,7 @@ export async function POST(request: Request) {
         creditRating: creditRating || "UNRATED",
         maxExposureLimit: 0, // Remains ₹0 until formal admin sanction
         status: "PENDING",
+        sourceChannel: "VENDOR_PUSH",
         contactPerson: contactPerson?.trim() || null,
         contactEmail: contactEmail.toLowerCase().trim(),
         contactPhone: contactPhone?.trim() || null,

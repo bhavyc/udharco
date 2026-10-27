@@ -104,7 +104,8 @@ model Anchor {
   creditRating     String    @default("UNRATED") // UNRATED, AAA, AA+, AA, A, BBB
   maxExposureLimit Float     @default(0) // Default ₹0 until formal credit risk assessment
   currentExposure  Float     @default(0) // Active funded debt
-  status           String    @default("ACTIVE") // PENDING, ACTIVE, REJECTED, SUSPENDED
+  status           String    @default("PENDING") // PENDING, ACTIVE, REJECTED, SUSPENDED
+  sourceChannel    String    @default("VENDOR_PUSH") // VENDOR_PUSH | ENTERPRISE_SALES
   contactPerson    String?
   contactEmail     String?
   contactPhone     String?
