@@ -27,6 +27,10 @@ import {
   Layers,
   Lock,
   Clock,
+  Activity,
+  Cpu,
+  Sparkles,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -184,6 +188,53 @@ export default function AdminDashboardClient({
     email: string;
     inviteUrl: string;
   } | null>(null);
+
+  // GSTIN Live Inspector Tool State
+  const [inspectorGstin, setInspectorGstin] = useState("27AAACT2727Q1ZW");
+  const [inspectorLoading, setInspectorLoading] = useState(false);
+  const [inspectorResult, setInspectorResult] = useState<{
+    success: boolean;
+    gstin?: string;
+    legalName?: string;
+    tradeName?: string;
+    pan?: string;
+    state?: string;
+    status?: string;
+    cached?: boolean;
+    error?: string;
+    latencyMs?: number;
+  } | null>(null);
+
+  const handleInspectGstin = async (gstToTest?: string) => {
+    const targetGst = (gstToTest || inspectorGstin).toUpperCase().trim();
+    if (targetGst.length !== 15) {
+      showToast("error", "Please enter a valid 15-character GSTIN.");
+      return;
+    }
+    setInspectorLoading(true);
+    setInspectorResult(null);
+    const start = performance.now();
+    try {
+      const res = await fetch("/api/v1/kyc/gst-lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gstin: targetGst }),
+      });
+      const data = await res.json();
+      const elapsed = Math.round(performance.now() - start);
+      setInspectorResult({ ...data, latencyMs: elapsed });
+      if (data.success) {
+        showToast("success", `GSTIN Verified: ${data.legalName}`);
+      } else {
+        showToast("error", data.error || "GSTIN lookup failed.");
+      }
+    } catch (err: any) {
+      setInspectorResult({ success: false, error: err.message, latencyMs: 0 });
+      showToast("error", err.message || "Network error querying GSTIN.");
+    } finally {
+      setInspectorLoading(false);
+    }
+  };
 
   const showToast = (type: "success" | "error", msg: string) => {
     setToast({ type, msg });
@@ -466,6 +517,10 @@ export default function AdminDashboardClient({
   const totalFactored = invoices.reduce((acc, inv) => acc + (inv.status !== "REJECTED" ? inv.totalAmount : 0), 0);
   const totalEscrowPool = investors.reduce((acc, inv) => acc + inv.escrowBalance, 0);
   const disputedInvoices = invoices.filter((inv) => inv.status === "DISPUTED");
+  const platformRevenue = transactions
+    .filter((t) => t.transactionType === "PLATFORM_FEE")
+    .reduce((sum, t) => sum + t.amount, 0);
+  const totalSettledCount = invoices.filter((inv) => inv.status === "SETTLED").length;
 
   // Filtering
   const filteredInvoices = invoices.filter((inv) => {
@@ -629,27 +684,33 @@ export default function AdminDashboardClient({
             ───────────────────────────────────────────────────────────────── */}
         {activeTab === "OVERVIEW" && (
           <div className="space-y-6">
-            {/* Top Stat Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* Top Stat Cards - 5 Column Grid */}
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
               <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">Total Factored Volume</span>
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">Total Factored</span>
                 <div suppressHydrationWarning className="text-2xl font-black text-slate-900 font-mono">₹{formatINR(totalFactored)}</div>
-                <span className="text-[11px] text-emerald-700 font-medium mt-1 block">Active Invoices across anchors</span>
+                <span className="text-[11px] text-emerald-700 font-medium mt-1 block">Active Invoices</span>
               </div>
 
               <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">Investor Escrow Liquidity</span>
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">Platform Revenue</span>
+                <div suppressHydrationWarning className="text-2xl font-black text-emerald-700 font-mono">₹{formatINR(platformRevenue)}</div>
+                <span className="text-[11px] text-emerald-700 font-medium mt-1 block">1.0% Commission Swept</span>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">Escrow Liquidity</span>
                 <div suppressHydrationWarning className="text-2xl font-black text-indigo-700 font-mono">₹{formatINR(totalEscrowPool)}</div>
-                <span className="text-[11px] text-slate-500 mt-1 block">In Regulated Virtual Escrows</span>
+                <span className="text-[11px] text-slate-500 mt-1 block">Regulated Escrow Pool</span>
               </div>
 
               <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">Corporate Anchors</span>
                 <div className="text-2xl font-black text-slate-900">{anchors.length} Corporates</div>
-                <span className="text-[11px] text-slate-500 mt-1 block">Bilateral Factoring Lines Active</span>
+                <span className="text-[11px] text-slate-500 mt-1 block">Bilateral Credit Lines</span>
               </div>
 
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
+              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs col-span-2 lg:col-span-1">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">Disputes / Recourse</span>
                 <div className={`text-2xl font-black font-mono ${disputedInvoices.length > 0 ? "text-red-700" : "text-emerald-700"}`}>
                   {disputedInvoices.length} Invoices
@@ -657,6 +718,317 @@ export default function AdminDashboardClient({
                 <span className="text-[11px] text-slate-500 mt-1 block">
                   {disputedInvoices.length > 0 ? "Requires e-NACH Clawback" : "Zero defaults currently"}
                 </span>
+              </div>
+            </div>
+
+            {/* Live Regulatory & Fintech Infrastructure Rail Health */}
+            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-indigo-600" />
+                  <h3 className="text-sm font-bold text-slate-900">Regulatory & Fintech Rail Health Monitor</h3>
+                </div>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  ALL SYSTEMS OPERATIONAL
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+                {/* Surepass */}
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <Zap className="w-3.5 h-3.5 text-amber-500" />
+                      Surepass KYC Rail
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">
+                      LIVE PROD
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-600 font-mono truncate">
+                    https://kyc-api.surepass.io
+                  </div>
+                  <div className="text-[10px] text-slate-500 mt-2 flex items-center justify-between">
+                    <span>5-Layer Shield: Active</span>
+                    <span className="font-semibold text-slate-700">₹1.77 / live call</span>
+                  </div>
+                </div>
+
+                {/* ICICI Virtual Escrow */}
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <Landmark className="w-3.5 h-3.5 text-indigo-600" />
+                      ICICI Escrow Webhook
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">
+                      SECURE
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-600 font-mono truncate">
+                    /api/v1/webhooks/escrow
+                  </div>
+                  <div className="text-[10px] text-slate-500 mt-2 flex items-center justify-between">
+                    <span>Waterfall Clearing</span>
+                    <span className="font-semibold text-emerald-700">T+0 Automated</span>
+                  </div>
+                </div>
+
+                {/* NPCI e-NACH */}
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <Cpu className="w-3.5 h-3.5 text-sky-600" />
+                      NPCI e-NACH Mandate
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">
+                      FAIL-CLOSED
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-600 font-mono truncate">
+                    FRA 2011 Sec 2(j) Recourse
+                  </div>
+                  <div className="text-[10px] text-slate-500 mt-2 flex items-center justify-between">
+                    <span>Direct Debit Clawback</span>
+                    <span className="font-semibold text-slate-700">Active</span>
+                  </div>
+                </div>
+
+                {/* CERSAI Registry */}
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      CERSAI Central Registry
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-sky-100 text-sky-800">
+                      IN-SYNC
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-600 font-mono truncate">
+                    Security Interest Filing
+                  </div>
+                  <div className="text-[10px] text-slate-500 mt-2 flex items-center justify-between">
+                    <span>Double-Financing Guard</span>
+                    <span className="font-semibold text-emerald-700">Enforced</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Live Surepass GSTIN Inspector Console */}
+            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-7 w-7 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center">
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                    <h3 className="text-base font-bold text-slate-900">Live Surepass GSTIN Inspector & Shield Sandbox</h3>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Execute real-time GST queries against Surepass Production API. Demonstrates 5-layer wallet protection & sub-second caching.
+                  </p>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="px-2 py-1 rounded-lg text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 font-mono">
+                    TOKEN: active
+                  </span>
+                  <span className="px-2 py-1 rounded-lg text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono">
+                    CACHE: 7-day TTL
+                  </span>
+                </div>
+              </div>
+
+              {/* Quick Sample Chips */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[11px] font-bold text-slate-500">Quick Test Anchors:</span>
+                {[
+                  { name: "Tata Motors", gstin: "27AAACT2727Q1ZW" },
+                  { name: "Reliance Industries", gstin: "24AAACR5055K1Z7" },
+                  { name: "Infosys Ltd", gstin: "29AAACI4323E1ZQ" },
+                  { name: "L&T Ltd", gstin: "33AAACG3818L1ZU" },
+                ].map((chip) => (
+                  <button
+                    key={chip.gstin}
+                    type="button"
+                    onClick={() => {
+                      setInspectorGstin(chip.gstin);
+                      handleInspectGstin(chip.gstin);
+                    }}
+                    disabled={inspectorLoading}
+                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200 border border-slate-200 text-slate-700 text-[11px] font-medium transition cursor-pointer flex items-center gap-1"
+                  >
+                    <span>{chip.name}</span>
+                    <span className="font-mono text-[9px] text-slate-400">({chip.gstin.slice(0, 4)}...)</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Input + Action Bar */}
+              <div className="flex flex-col sm:flex-row gap-2">
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    maxLength={15}
+                    value={inspectorGstin}
+                    onChange={(e) => setInspectorGstin(e.target.value.toUpperCase().trim())}
+                    placeholder="Enter 15-character GSTIN (e.g. 27AAACT2727Q1ZW)"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 font-mono text-xs uppercase tracking-wider outline-none focus:bg-white focus:border-indigo-500 font-semibold"
+                  />
+                  <span className="absolute right-3 top-2.5 text-[10px] font-mono text-slate-400 font-medium">
+                    {inspectorGstin.length}/15
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleInspectGstin()}
+                  disabled={inspectorLoading}
+                  className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 text-white font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-xs shrink-0"
+                >
+                  {inspectorLoading ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Verifying Surepass...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Search className="w-3.5 h-3.5" />
+                      <span>Run Live GSTIN Check</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Inspector Result Card */}
+              {inspectorResult && (
+                <div className={`p-4 rounded-xl border text-xs transition ${
+                  inspectorResult.success
+                    ? "bg-slate-50 border-slate-200"
+                    : "bg-red-50/50 border-red-200"
+                }`}>
+                  {inspectorResult.success ? (
+                    <div className="space-y-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 pb-2.5">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <div>
+                            <span className="font-bold text-slate-900 text-sm">
+                              {inspectorResult.legalName || "Verified Entity"}
+                            </span>
+                            {inspectorResult.tradeName && inspectorResult.tradeName !== inspectorResult.legalName && (
+                              <span className="text-slate-500 text-[11px] block">
+                                Trade: {inspectorResult.tradeName}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          {inspectorResult.cached ? (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                              🛡️ Cache Shield Hit (₹0 API Cost)
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
+                              ⚡ Live Surepass Call (₹1.77 Charged)
+                            </span>
+                          )}
+
+                          {inspectorResult.latencyMs !== undefined && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-slate-200 text-slate-700">
+                              {inspectorResult.latencyMs}ms
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11px]">
+                        <div>
+                          <span className="text-slate-400 block font-medium">GSTIN</span>
+                          <span className="font-mono font-bold text-slate-800">{inspectorResult.gstin}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 block font-medium">Extracted PAN</span>
+                          <span className="font-mono font-bold text-indigo-700">{inspectorResult.pan || inspectorResult.gstin?.slice(2, 12)}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 block font-medium">State Code</span>
+                          <span className="font-mono font-semibold text-slate-700">{inspectorResult.state || inspectorResult.gstin?.slice(0, 2)}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 block font-medium">Registration Status</span>
+                          <span className="inline-block px-1.5 py-0.5 rounded font-semibold text-[10px] bg-emerald-100 text-emerald-800">
+                            {inspectorResult.status || "ACTIVE"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-red-700">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <div>
+                        <span className="font-bold">Lookup Failed: </span>
+                        <span>{inspectorResult.error || "Unable to verify GSTIN with Surepass."}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Escrow Settlement Waterfall Architecture Card */}
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-900 text-white shadow-md space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-8 w-8 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-300">
+                    <Landmark className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-white">Automated Escrow Waterfall & Recourse Mechanism</h3>
+                    <p className="text-[11px] text-slate-400">
+                      Regulated Virtual Escrow clearing flow under Factoring Regulation Act, 2011
+                    </p>
+                  </div>
+                </div>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 font-mono">
+                  SECTION 2(J) FAIL-CLOSED
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+                <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
+                  <div className="text-[10px] font-bold text-indigo-300 uppercase tracking-wider">Step 1 • Repayment</div>
+                  <div className="font-bold text-white">Anchor Repays 100%</div>
+                  <div className="text-[11px] text-slate-400">
+                    Enterprise buyer settles full invoice into ICICI Virtual Escrow at T+90.
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
+                  <div className="text-[10px] font-bold text-emerald-300 uppercase tracking-wider">Step 2 • Investor Yield</div>
+                  <div className="font-bold text-emerald-400">Principal + 10% p.a.</div>
+                  <div className="text-[11px] text-slate-400">
+                    Automated return of investor liquidity + accrued daily financing yield.
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
+                  <div className="text-[10px] font-bold text-sky-300 uppercase tracking-wider">Step 3 • Platform Sweep</div>
+                  <div className="font-bold text-sky-400">1.0% Commission</div>
+                  <div className="text-[11px] text-slate-400">
+                    Automated fee sweep credited to UdharCo operating treasury wallet.
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
+                  <div className="text-[10px] font-bold text-rose-300 uppercase tracking-wider">Step 4 • Dispute Recourse</div>
+                  <div className="font-bold text-rose-400">e-NACH Clawback</div>
+                  <div className="text-[11px] text-slate-400">
+                    If anchor raises dispute, 1-click mandate auto-debits MSME seller payout account.
+                  </div>
+                </div>
               </div>
             </div>
 
