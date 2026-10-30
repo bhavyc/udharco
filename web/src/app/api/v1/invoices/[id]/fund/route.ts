@@ -69,60 +69,41 @@ export async function POST(
 
     const now = new Date();
 
-    // 4. ATOMIC FINTECH TRANSACTION: Escrow deduction + Bid creation + Status change
+    // 4. ATOMIC FINTECH TRANSACTION: Atomic conditional SQL UPDATE
     const [updatedInvestor, updatedInvoice, bid, tx] = await prisma.$transaction(async (tx) => {
-      // Re-fetch Investor within transaction lock to prevent race conditions / double-spending
-      const freshInvestor = await tx.investor.findUnique({
-        where: { id: investor.id },
-      });
+      // 1. Atomically deduct capital ONLY IF escrowBalance >= requiredCapital
+      const affectedInvestorRows = await tx.$executeRaw`
+        UPDATE "investors"
+        SET "escrowBalance" = "escrowBalance" - ${requiredCapital}
+        WHERE "id" = ${investor.id}
+          AND "escrowBalance" >= ${requiredCapital}
+      `;
 
-      if (!freshInvestor) {
-        throw new Error("Investor entity not found.");
-      }
-
-      if (freshInvestor.escrowBalance < requiredCapital) {
+      if (affectedInvestorRows === 0) {
+        const freshInvestor = await tx.investor.findUnique({ where: { id: investor.id } });
+        const bal = freshInvestor?.escrowBalance || 0;
         throw new Error(
-          `INSUFFICIENT_ESCROW_BALANCE: Investor escrow balance ₹${freshInvestor.escrowBalance.toLocaleString()} is insufficient. Required: ₹${requiredCapital.toLocaleString()}.`
+          `INSUFFICIENT_ESCROW_BALANCE: Investor escrow balance ₹${bal.toLocaleString()} is insufficient. Required: ₹${requiredCapital.toLocaleString()}. Concurrent overdraft prevented at database lock.`
         );
       }
 
-      // Re-fetch Invoice within transaction to ensure it is still in LISTED status
-      const freshInvoice = await tx.invoice.findUnique({
-        where: { id },
-      });
+      // 2. Atomically transition invoice from LISTED to FUNDED
+      const cersaiSecId = `CERSAI-SEC-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
+      const affectedInvoiceRows = await tx.$executeRaw`
+        UPDATE "invoices"
+        SET "status" = 'FUNDED',
+            "fundedAt" = ${now},
+            "cersaiSecurityId" = ${cersaiSecId},
+            "cersaiStatus" = 'REGISTERED'
+        WHERE "id" = ${id}
+          AND "status" = 'LISTED'
+      `;
 
-      if (!freshInvoice || freshInvoice.status !== "LISTED") {
-        throw new Error(
-          `ALREADY_FUNDED_OR_INVALID: Invoice is no longer open for funding (Current status: '${freshInvoice?.status || "UNKNOWN"}').`
-        );
+      if (affectedInvoiceRows === 0) {
+        throw new Error("ALREADY_FUNDED_OR_INVALID: Invoice is no longer open for funding or was funded concurrently.");
       }
 
-      // A. Deduct capital from Investor Escrow wallet
-      const updInvestor = await tx.investor.update({
-        where: { id: investor.id },
-        data: {
-          escrowBalance: {
-            decrement: requiredCapital,
-          },
-        },
-      });
-
-      // B. Update Invoice status to FUNDED and register CERSAI charge
-      const updInvoice = await tx.invoice.update({
-        where: { id },
-        data: {
-          status: "FUNDED",
-          fundedAt: now,
-          cersaiSecurityId: `CERSAI-SEC-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
-          cersaiStatus: "REGISTERED",
-        },
-        include: {
-          seller: { select: { legalName: true, bankAccountNo: true, bankIfsc: true } },
-          anchor: { select: { corporateName: true, creditRating: true } },
-        },
-      });
-
-      // C. Create Funding Bid Record
+      // 3. Create Bid Record
       const bidRecord = await tx.fundingBid.create({
         data: {
           invoiceId: invoice.id,
@@ -133,13 +114,22 @@ export async function POST(
         },
       });
 
-      // D. Record Escrow Disbursement Transaction (Direct Escrow to Seller Bank Account per RBI Guidelines)
+      // 4. Record Escrow Disbursement Transaction
       const txRecord = await tx.escrowTransaction.create({
         data: {
           invoiceId: invoice.id,
           transactionType: "SELLER_DISBURSEMENT",
           amount: invoice.upfrontDisbursedAmount,
           notes: `RBI COMPLIANT DIRECT DISBURSEMENT: Virtual Escrow payout directly to MSME Seller ${invoice.seller.legalName} (A/C: ${invoice.seller.bankAccountNo}, IFSC: ${invoice.seller.bankIfsc}). Zero platform pooling.`,
+        },
+      });
+
+      const updInvestor = await tx.investor.findUniqueOrThrow({ where: { id: investor.id } });
+      const updInvoice = await tx.invoice.findUniqueOrThrow({
+        where: { id },
+        include: {
+          seller: { select: { legalName: true, bankAccountNo: true, bankIfsc: true } },
+          anchor: { select: { corporateName: true, creditRating: true } },
         },
       });
 
