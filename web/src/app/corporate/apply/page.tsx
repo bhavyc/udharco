@@ -36,6 +36,7 @@ export default function CorporateApplyPage() {
   const [creditRating, setCreditRating] = useState("AAA");
   const [requestedLimit, setRequestedLimit] = useState(50000000); // ₹5 Cr default
   const [annualProcurement, setAnnualProcurement] = useState(250000000); // ₹25 Cr default
+  const [standardPaymentTerms, setStandardPaymentTerms] = useState<number>(30); // 30 days default MSME cycle
 
   // Submission State
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -109,6 +110,7 @@ export default function CorporateApplyPage() {
           creditRating,
           requestedExposureLimit: Number(requestedLimit),
           annualProcurement: Number(annualProcurement),
+          standardPaymentTerms: Number(standardPaymentTerms),
         }),
       });
 
@@ -392,6 +394,37 @@ export default function CorporateApplyPage() {
                     />
                     <span className="text-[10px] text-slate-500 mt-1 block">
                       ₹{(annualProcurement / 10000000).toFixed(2)} Crores
+                    </span>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="text-slate-700 block mb-1.5 font-semibold">
+                      Typical Vendor Payment Cycle (Standard Terms)
+                    </label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+                      {[
+                        { days: 30, label: "30 Days", desc: "MSME Standard" },
+                        { days: 45, label: "45 Days", desc: "MSMED Act Cap" },
+                        { days: 60, label: "60 Days", desc: "Industrial Regular" },
+                        { days: 90, label: "90 Days", desc: "Extended Trade" },
+                      ].map((t) => (
+                        <button
+                          key={t.days}
+                          type="button"
+                          onClick={() => setStandardPaymentTerms(t.days)}
+                          className={`p-2.5 rounded-2xl border text-left transition cursor-pointer ${
+                            standardPaymentTerms === t.days
+                              ? "bg-indigo-50 border-indigo-600 text-indigo-900 shadow-xs"
+                              : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+                          }`}
+                        >
+                          <div className="text-xs font-bold font-mono">{t.label}</div>
+                          <div className="text-[10px] text-slate-500 mt-0.5">{t.desc}</div>
+                        </button>
+                      ))}
+                    </div>
+                    <span className="text-[10px] text-slate-400 mt-1.5 block">
+                      💡 Self-declared typical payment terms to MSME suppliers. Used as an onboarding estimate for initial credit line calculation. Individual invoices are always funded & settled per their actual bill due-dates.
                     </span>
                   </div>
                 </div>

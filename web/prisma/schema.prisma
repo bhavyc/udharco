@@ -110,6 +110,7 @@ model Anchor {
   contactEmail     String?
   contactPhone     String?
   annualProcurement Float?
+  standardPaymentTerms Int?  @default(30) // Self-declared typical payment cycle in days (for onboarding estimate only)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 

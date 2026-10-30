@@ -14,6 +14,7 @@ export async function POST(request: Request) {
       creditRating,
       requestedExposureLimit,
       annualProcurement,
+      standardPaymentTerms,
     } = body;
 
     if (!gstin || typeof gstin !== "string" || gstin.trim().length !== 15) {
@@ -85,6 +86,7 @@ export async function POST(request: Request) {
         contactEmail: contactEmail.toLowerCase().trim(),
         contactPhone: contactPhone?.trim() || null,
         annualProcurement: typeof annualProcurement === "number" ? annualProcurement : null,
+        standardPaymentTerms: typeof standardPaymentTerms === "number" ? Number(standardPaymentTerms) : 30,
       },
     });
 
@@ -100,6 +102,8 @@ export async function POST(request: Request) {
           corporateName: newAnchor.corporateName,
           gstin: cleanGst,
           requestedExposureLimit: requestedExposureLimit || 0,
+          annualProcurement: annualProcurement || null,
+          standardPaymentTerms: standardPaymentTerms || 30,
           creditRating: creditRating || "UNRATED",
           contactPerson: contactPerson || "",
           contactEmail: contactEmail || "",
