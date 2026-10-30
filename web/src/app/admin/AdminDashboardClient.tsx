@@ -2009,8 +2009,8 @@ export default function AdminDashboardClient({
 
         {/* 6. Review & Sanction Anchor Modal */}
         {reviewAnchorModal && (
-          <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-            <div className="max-w-xl w-full max-h-[92vh] flex flex-col bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs overflow-y-auto p-4 sm:p-6 flex justify-center items-center">
+            <div className="max-w-xl w-full h-[85vh] max-h-[85vh] flex flex-col bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
               {/* Sticky Top Header */}
               <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between shrink-0 bg-white">
                 <div className="flex items-center gap-2.5 text-emerald-700">
@@ -2030,9 +2030,9 @@ export default function AdminDashboardClient({
                 </button>
               </div>
 
-              <form onSubmit={handleApproveAnchor} className="flex flex-col flex-1 overflow-hidden">
+              <form onSubmit={handleApproveAnchor} className="flex flex-col flex-1 min-h-0 overflow-hidden">
                 {/* Scrollable Modal Body */}
-                <div className="p-6 overflow-y-auto space-y-4 text-xs flex-1">
+                <div className="p-6 overflow-y-auto space-y-4 text-xs flex-1 min-h-0">
                   {/* Applicant Profile Summary */}
                   <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-2 text-slate-700">
                 <div className="flex justify-between border-b border-slate-200 pb-2">
