@@ -13,6 +13,7 @@ const PUBLIC_ROUTES = [
   "/api/v1/auth/seller/verify-otp",
   "/api/v1/auth/seller/complete-signup",
   "/api/v1/auth/login",          // Anchor / Investor invite login
+  "/api/v1/auth/invite",         // Anchor / Investor invite validation
   "/api/v1/kyc",                 // KYC lookup during signup (GSTIN, bank penny drop)
   "/api/v1/webhooks",            // Webhooks are validated by their own signature check
   "/corporate/apply",            // Semi-Self-Service Anchor Application Form
