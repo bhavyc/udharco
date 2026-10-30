@@ -26,7 +26,7 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const inviteParam = searchParams.get("invite");
 
-  const [activeTab, setActiveTab] = useState<LoginTab>("SELLER");
+  const [activeTab, setActiveTab] = useState<LoginTab>(inviteParam ? "ANCHOR" : "SELLER");
 
   // Seller Mobile OTP state
   const [mobile, setMobile] = useState("");
@@ -38,6 +38,24 @@ function LoginContent() {
   const [password, setPassword] = useState("");
   const [inviteToken, setInviteToken] = useState(inviteParam || "");
   const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [verifyingInvite, setVerifyingInvite] = useState(false);
+  const [inviteDetails, setInviteDetails] = useState<{
+    role: string;
+    email: string | null;
+    anchor?: {
+      id: string;
+      corporateName: string;
+      gstin: string;
+      maxExposureLimit: number;
+      status: string;
+    } | null;
+    investor?: {
+      id: string;
+      entityName: string;
+      investorType: string;
+    } | null;
+  } | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -46,6 +64,27 @@ function LoginContent() {
   useEffect(() => {
     if (inviteParam) {
       setInviteToken(inviteParam);
+      setVerifyingInvite(true);
+      fetch(`/api/v1/auth/invite?token=${encodeURIComponent(inviteParam.trim())}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setInviteDetails(data);
+            if (data.role === "INVESTOR") {
+              setActiveTab("INVESTOR");
+            } else {
+              setActiveTab("ANCHOR");
+            }
+          } else {
+            setErrorMsg(data.error || "Invalid or expired invite link.");
+          }
+        })
+        .catch((err) => {
+          setErrorMsg("Could not verify invite token: " + err.message);
+        })
+        .finally(() => {
+          setVerifyingInvite(false);
+        });
     }
   }, [inviteParam]);
 
@@ -136,6 +175,17 @@ function LoginContent() {
     setErrorMsg(null);
     setSuccessMsg(null);
 
+    if (inviteToken) {
+      if (!newPassword || newPassword.length < 8) {
+        setErrorMsg("Treasury password must be at least 8 characters.");
+        return;
+      }
+      if (confirmPassword && newPassword !== confirmPassword) {
+        setErrorMsg("Passwords do not match. Please re-enter.");
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       const payload: any = {};
@@ -157,7 +207,7 @@ function LoginContent() {
         throw new Error(data.error || "Authentication failed.");
       }
 
-      setSuccessMsg("Authentication verified. Loading corporate portal...");
+      setSuccessMsg("Account activated & verified. Loading corporate portal...");
       setTimeout(() => {
         window.location.href = "/";
       }, 500);
@@ -217,10 +267,16 @@ function LoginContent() {
         <div className="rounded-2xl border border-slate-200 bg-white shadow-xl p-6 sm:p-8">
           <div className="text-center mb-6">
             <h2 className="text-xl font-bold text-slate-900 tracking-tight">
-              Sign In to Your Workspace
+              {inviteToken && inviteDetails?.anchor
+                ? "Activate Corporate Treasury Portal"
+                : inviteToken && inviteDetails?.investor
+                ? "Activate Institutional Funder Portal"
+                : "Sign In to Your Workspace"}
             </h2>
             <p className="text-xs text-slate-500 mt-1">
-              Select your role to access your personalized invoice and escrow portal.
+              {inviteToken && (inviteDetails?.anchor || inviteDetails?.investor)
+                ? "Set your corporate master password to access sanctioned factoring facilities."
+                : "Select your role to access your personalized invoice and escrow portal."}
             </p>
           </div>
 
@@ -373,129 +429,345 @@ function LoginContent() {
           {/* TAB 2: CORPORATE BUYER LOGIN */}
           {activeTab === "ANCHOR" && (
             <div>
-              <div className="p-3 mb-5 rounded-xl bg-sky-50/70 border border-sky-100 text-xs text-sky-900">
-                🏢 <strong>Corporate Treasury Portal:</strong> Review & approve bills uploaded by your suppliers.
-              </div>
-
-              <form onSubmit={handleEntityLogin} autoComplete="off" className="space-y-4">
+              {inviteToken ? (
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                    Official Corporate Email
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                      <Mail className="w-4 h-4" />
+                  {verifyingInvite ? (
+                    <div className="py-8 text-center space-y-2">
+                      <div className="w-8 h-8 border-3 border-sky-600 border-t-transparent rounded-full animate-spin mx-auto" />
+                      <p className="text-xs font-semibold text-slate-600">Verifying enterprise invite link...</p>
                     </div>
-                    <input
-                      type="email"
-                      value={email}
-                      autoComplete="off"
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="corporate.email@company.com"
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 text-slate-900 text-sm outline-none font-medium placeholder:text-slate-400 bg-white"
-                      required
-                    />
+                  ) : inviteDetails?.anchor ? (
+                    <div className="space-y-4">
+                      {/* Verified Corporate Highlight Card */}
+                      <div className="p-4 rounded-xl bg-gradient-to-br from-sky-50 to-indigo-50/40 border border-sky-200">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-600 text-white flex items-center gap-1">
+                            <ShieldCheck className="w-3 h-3" />
+                            Verified Corporate Buyer Invite
+                          </span>
+                          <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                            Credit Line Sanctioned
+                          </span>
+                        </div>
+
+                        <h3 className="text-base font-bold text-slate-900 leading-tight">
+                          {inviteDetails.anchor.corporateName}
+                        </h3>
+                        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-600">
+                          <span>GSTIN: <strong className="font-semibold text-slate-800">{inviteDetails.anchor.gstin}</strong></span>
+                          <span>•</span>
+                          <span>Sanctioned Limit: <strong className="font-bold text-emerald-700">
+                            {inviteDetails.anchor.maxExposureLimit >= 10000000
+                              ? `₹${(inviteDetails.anchor.maxExposureLimit / 10000000).toFixed(2)} Cr`
+                              : `₹${(inviteDetails.anchor.maxExposureLimit / 100000).toFixed(2)} Lakhs`}
+                          </strong></span>
+                        </div>
+                        {inviteDetails.email && (
+                          <div className="mt-2 text-xs text-slate-500 flex items-center gap-1.5 bg-white/70 px-2.5 py-1 rounded-lg border border-slate-200/60">
+                            <Mail className="w-3.5 h-3.5 text-slate-400" />
+                            <span>Official Email: <strong>{inviteDetails.email}</strong></span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="text-xs text-slate-600 leading-relaxed">
+                        Your enterprise factoring line is sanctioned. Please create a permanent treasury password to activate your corporate portal and approve vendor invoices.
+                      </div>
+
+                      <form onSubmit={handleEntityLogin} autoComplete="off" className="space-y-3.5">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-1">
+                            Create Treasury Password
+                          </label>
+                          <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                              <Lock className="w-4 h-4" />
+                            </div>
+                            <input
+                              type="password"
+                              value={newPassword}
+                              autoComplete="new-password"
+                              onChange={(e) => setNewPassword(e.target.value)}
+                              placeholder="Minimum 8 characters"
+                              minLength={8}
+                              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 text-slate-900 text-sm outline-none font-medium placeholder:text-slate-400 bg-white"
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-1">
+                            Confirm Treasury Password
+                          </label>
+                          <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                              <Lock className="w-4 h-4" />
+                            </div>
+                            <input
+                              type="password"
+                              value={confirmPassword}
+                              autoComplete="new-password"
+                              onChange={(e) => setConfirmPassword(e.target.value)}
+                              placeholder="Re-enter same password"
+                              minLength={8}
+                              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 text-slate-900 text-sm outline-none font-medium placeholder:text-slate-400 bg-white"
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={loading || newPassword.length < 8 || newPassword !== confirmPassword}
+                          className="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm flex items-center justify-center gap-2 transition shadow-sm hover:shadow cursor-pointer disabled:opacity-50"
+                        >
+                          {loading ? "Activating Corporate Account..." : "Set Password & Launch Corporate Portal"}
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
+                      </form>
+
+                      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <span className="text-slate-500 font-medium">Already set your password?</span>
+                        <button
+                          type="button"
+                          onClick={() => setInviteToken("")}
+                          className="font-bold text-sky-700 hover:text-sky-800 hover:underline cursor-pointer"
+                        >
+                          Sign in with email →
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2.5">
+                        <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                        <div>
+                          <strong className="block font-semibold">Invite Token Expired or Not Found</strong>
+                          <span>This link might have already been used, expired, or was entered incorrectly. You can sign in directly or contact support.</span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setInviteToken("");
+                          setErrorMsg(null);
+                        }}
+                        className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm cursor-pointer"
+                      >
+                        Proceed to Standard Email Sign In
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <div className="p-3 mb-5 rounded-xl bg-sky-50/70 border border-sky-100 text-xs text-sky-900">
+                    🏢 <strong>Corporate Treasury Portal:</strong> Review & approve bills uploaded by your suppliers.
+                  </div>
+
+                  <form onSubmit={handleEntityLogin} autoComplete="off" className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                        Official Corporate Email
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                          <Mail className="w-4 h-4" />
+                        </div>
+                        <input
+                          type="email"
+                          value={email}
+                          autoComplete="off"
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="corporate.email@company.com"
+                          className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 text-slate-900 text-sm outline-none font-medium placeholder:text-slate-400 bg-white"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                        Password
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                          <Lock className="w-4 h-4" />
+                        </div>
+                        <input
+                          type="password"
+                          value={password}
+                          autoComplete="new-password"
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="Enter password"
+                          className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 text-slate-900 text-sm outline-none font-medium placeholder:text-slate-400 bg-white"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm flex items-center justify-center gap-2 transition shadow-sm cursor-pointer disabled:opacity-50"
+                    >
+                      {loading ? "Authenticating..." : "Sign In to Corporate Portal"}
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </form>
+
+                  <div className="mt-5 pt-4 border-t border-slate-100 text-center">
+                    <Link
+                      href="/corporate/apply"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-sky-700 hover:text-sky-800"
+                    >
+                      Apply for Enterprise Credit Line (GST Auto-Fill) →
+                    </Link>
                   </div>
                 </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                      <Lock className="w-4 h-4" />
-                    </div>
-                    <input
-                      type="password"
-                      value={password}
-                      autoComplete="new-password"
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter password"
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 text-slate-900 text-sm outline-none font-medium placeholder:text-slate-400 bg-white"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm flex items-center justify-center gap-2 transition shadow-sm cursor-pointer disabled:opacity-50"
-                >
-                  {loading ? "Authenticating..." : "Sign In to Corporate Portal"}
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </form>
-
-              <div className="mt-5 pt-4 border-t border-slate-100 text-center">
-                <Link
-                  href="/corporate/apply"
-                  className="inline-flex items-center gap-1 text-xs font-bold text-sky-700 hover:text-sky-800"
-                >
-                  Apply for Enterprise Credit Line (GST Auto-Fill) →
-                </Link>
-              </div>
+              )}
             </div>
           )}
 
           {/* TAB 3: INSTITUTIONAL INVESTOR LOGIN */}
           {activeTab === "INVESTOR" && (
             <div>
-              <div className="p-3 mb-5 rounded-xl bg-purple-50/70 border border-purple-100 text-xs text-purple-900">
-                🏦 <strong>Institutional Funder Access:</strong> Deploy capital into RBI-compliant escrow factoring assets.
-              </div>
-
-              <form onSubmit={handleEntityLogin} autoComplete="off" className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                    Treasury / NBFC Email
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                      <Mail className="w-4 h-4" />
+              {inviteToken && inviteDetails?.investor ? (
+                <div className="space-y-4">
+                  <div className="p-4 rounded-xl bg-gradient-to-br from-purple-50 to-indigo-50/40 border border-purple-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-600 text-white flex items-center gap-1">
+                        <ShieldCheck className="w-3 h-3" />
+                        Verified Institutional Funder Invite
+                      </span>
                     </div>
-                    <input
-                      type="email"
-                      value={email}
-                      autoComplete="off"
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="treasury@nbfc-or-bank.com"
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 text-slate-900 text-sm outline-none font-medium placeholder:text-slate-400 bg-white"
-                      required
-                    />
-                  </div>
-                </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                      <Lock className="w-4 h-4" />
+                    <h3 className="text-base font-bold text-slate-900 leading-tight">
+                      {inviteDetails.investor.entityName}
+                    </h3>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-600">
+                      <span>Type: <strong className="font-semibold text-slate-800">{inviteDetails.investor.investorType}</strong></span>
                     </div>
-                    <input
-                      type="password"
-                      value={password}
-                      autoComplete="new-password"
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 text-slate-900 text-sm outline-none font-medium placeholder:text-slate-400 bg-white"
-                      required
-                    />
+                    {inviteDetails.email && (
+                      <div className="mt-2 text-xs text-slate-500 flex items-center gap-1.5 bg-white/70 px-2.5 py-1 rounded-lg border border-slate-200/60">
+                        <Mail className="w-3.5 h-3.5 text-slate-400" />
+                        <span>Official Email: <strong>{inviteDetails.email}</strong></span>
+                      </div>
+                    )}
                   </div>
-                </div>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm flex items-center justify-center gap-2 transition shadow-sm cursor-pointer disabled:opacity-50"
-                >
-                  {loading ? "Authenticating..." : "Sign In to Investor Portal"}
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </form>
+                  <form onSubmit={handleEntityLogin} autoComplete="off" className="space-y-3.5">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Create Funder Account Password
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                          <Lock className="w-4 h-4" />
+                        </div>
+                        <input
+                          type="password"
+                          value={newPassword}
+                          autoComplete="new-password"
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          placeholder="Minimum 8 characters"
+                          minLength={8}
+                          className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 text-slate-900 text-sm outline-none font-medium placeholder:text-slate-400 bg-white"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Confirm Password
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                          <Lock className="w-4 h-4" />
+                        </div>
+                        <input
+                          type="password"
+                          value={confirmPassword}
+                          autoComplete="new-password"
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          placeholder="Re-enter same password"
+                          minLength={8}
+                          className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 text-slate-900 text-sm outline-none font-medium placeholder:text-slate-400 bg-white"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading || newPassword.length < 8 || newPassword !== confirmPassword}
+                      className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm flex items-center justify-center gap-2 transition shadow-sm cursor-pointer disabled:opacity-50"
+                    >
+                      {loading ? "Activating Funder Account..." : "Set Password & Launch Portal"}
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </form>
+                </div>
+              ) : (
+                <div>
+                  <div className="p-3 mb-5 rounded-xl bg-purple-50/70 border border-purple-100 text-xs text-purple-900">
+                    🏦 <strong>Institutional Funder Access:</strong> Deploy capital into RBI-compliant escrow factoring assets.
+                  </div>
+
+                  <form onSubmit={handleEntityLogin} autoComplete="off" className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                        Treasury / NBFC Email
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                          <Mail className="w-4 h-4" />
+                        </div>
+                        <input
+                          type="email"
+                          value={email}
+                          autoComplete="off"
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="treasury@nbfc-or-bank.com"
+                          className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 text-slate-900 text-sm outline-none font-medium placeholder:text-slate-400 bg-white"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                        Password
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                          <Lock className="w-4 h-4" />
+                        </div>
+                        <input
+                          type="password"
+                          value={password}
+                          autoComplete="new-password"
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="••••••••"
+                          className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 text-slate-900 text-sm outline-none font-medium placeholder:text-slate-400 bg-white"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm flex items-center justify-center gap-2 transition shadow-sm cursor-pointer disabled:opacity-50"
+                    >
+                      {loading ? "Authenticating..." : "Sign In to Investor Portal"}
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </form>
+                </div>
+              )}
             </div>
           )}
         </div>
