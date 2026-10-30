@@ -38,6 +38,8 @@ interface Seller {
   bankIfsc: string;
   enachMandateId?: string;
   enachMandateStatus?: string;
+  creditLimit?: number;
+  creditLimitStatus?: string;
 }
 
 interface Anchor {
@@ -242,6 +244,14 @@ export default function DashboardClient({
   // 1. Submit Invoice
   const handleUploadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!uploadForm.totalAmount || uploadForm.totalAmount <= 0) {
+      showToast("error", "Please enter a valid invoice bill amount.");
+      return;
+    }
+    if (isUploadAmountExceeded) {
+      showToast("error", `Invoice amount exceeds maximum allowed credit line of ₹${formatINR(effectiveMaxLimit)}.`);
+      return;
+    }
     if (!attachedFile) {
       showToast("error", "Please upload a Tax Invoice document (PDF/Image) as proof.");
       return;
@@ -402,6 +412,21 @@ export default function DashboardClient({
   const totalEscrow = investors.reduce((sum, inv) => sum + inv.escrowBalance, 0);
   const totalVolume = invoices.reduce((sum, inv) => sum + inv.totalAmount, 0);
   const activeExposure = anchors.reduce((sum, a) => sum + a.currentExposure, 0);
+
+  // Dynamic Upload Limit Calculations
+  const selectedUploadSeller = sellers.find((s) => s.id === uploadForm.sellerId) || sellers[0];
+  const selectedUploadAnchor = anchors.find((a) => a.id === uploadForm.anchorId) || anchors[0];
+
+  const sellerLimit = selectedUploadSeller?.creditLimit && selectedUploadSeller.creditLimit > 0
+    ? selectedUploadSeller.creditLimit
+    : 2000000;
+
+  const anchorExposureAvailable = selectedUploadAnchor?.maxExposureLimit && selectedUploadAnchor.maxExposureLimit > 0
+    ? Math.max(0, selectedUploadAnchor.maxExposureLimit - (selectedUploadAnchor.currentExposure || 0))
+    : 5000000;
+
+  const effectiveMaxLimit = Math.min(sellerLimit, anchorExposureAvailable > 0 ? anchorExposureAvailable : sellerLimit);
+  const isUploadAmountExceeded = uploadForm.totalAmount > effectiveMaxLimit;
 
   return (
     <div className="space-y-8 font-sans">
@@ -1004,6 +1029,9 @@ export default function DashboardClient({
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-50 text-sky-700 border border-sky-200">
                       e-NACH ACTIVE
                     </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
+                      LINE: ₹{formatINR(sellerLimit)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -1118,21 +1146,27 @@ export default function DashboardClient({
                 <div>
                   <div className="flex justify-between items-center mb-1">
                     <label className="text-xs font-bold text-slate-700">Total Bill Value (₹) *</label>
-                    {uploadForm.totalAmount > 0 && (
-                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
-                        {uploadForm.totalAmount >= 10000000
-                          ? `₹${(uploadForm.totalAmount / 10000000).toFixed(2)} Cr`
-                          : uploadForm.totalAmount >= 100000
-                          ? `₹${(uploadForm.totalAmount / 100000).toFixed(2)} Lakh`
-                          : `₹${uploadForm.totalAmount.toLocaleString("en-IN")}`}
-                      </span>
-                    )}
+                    <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded border ${
+                      isUploadAmountExceeded
+                        ? "text-red-700 bg-red-50 border-red-200"
+                        : "text-emerald-700 bg-emerald-50 border-emerald-200"
+                    }`}>
+                      {isUploadAmountExceeded
+                        ? `Exceeds Max Cap: ₹${formatINR(effectiveMaxLimit)}`
+                        : uploadForm.totalAmount > 0
+                        ? (uploadForm.totalAmount >= 10000000
+                            ? `₹${(uploadForm.totalAmount / 10000000).toFixed(2)} Cr`
+                            : uploadForm.totalAmount >= 100000
+                            ? `₹${(uploadForm.totalAmount / 100000).toFixed(2)} Lakh`
+                            : `₹${uploadForm.totalAmount.toLocaleString("en-IN")}`)
+                        : `Max Line: ₹${formatINR(effectiveMaxLimit)}`}
+                    </span>
                   </div>
                   <input
                     type="number"
                     required
                     min={10000}
-                    max={500000000}
+                    max={effectiveMaxLimit}
                     step={10000}
                     value={uploadForm.totalAmount || ""}
                     onChange={(e) => {
@@ -1141,9 +1175,24 @@ export default function DashboardClient({
                         setUploadForm({ ...uploadForm, totalAmount: val ? Number(val) : 0 });
                       }
                     }}
-                    placeholder="e.g. 1000000"
-                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none"
+                    placeholder={`e.g. 1000000 (Max ₹${formatINR(effectiveMaxLimit)})`}
+                    className={`w-full bg-white border rounded-lg px-3 py-2 text-xs text-slate-900 font-mono outline-none transition ${
+                      isUploadAmountExceeded
+                        ? "border-red-500 focus:border-red-500 ring-2 ring-red-100 text-red-900"
+                        : "border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                    }`}
                   />
+                  {isUploadAmountExceeded && (
+                    <div className="mt-1.5 p-2 rounded-lg bg-red-50 border border-red-200 text-[11px] text-red-700 font-medium flex items-start gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-red-600" />
+                      <div>
+                        <strong>Amount exceeds your sanctioned credit line!</strong>
+                        <div className="text-[10px] text-red-600 mt-0.5">
+                          Maximum you can discount for this invoice is <strong>₹{formatINR(effectiveMaxLimit)}</strong> (Seller line: ₹{formatINR(sellerLimit)}, Buyer facility: ₹{formatINR(anchorExposureAvailable)}).
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1302,13 +1351,22 @@ export default function DashboardClient({
                 </button>
                 <button
                   type="submit"
-                  disabled={loadingAction === "upload"}
-                  className="px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs hover:shadow transition cursor-pointer flex items-center gap-2"
+                  disabled={loadingAction === "upload" || isUploadAmountExceeded || !uploadForm.totalAmount || uploadForm.totalAmount <= 0}
+                  className={`px-5 py-2.5 rounded-lg text-white text-xs font-bold shadow-xs transition flex items-center gap-2 ${
+                    isUploadAmountExceeded || !uploadForm.totalAmount || uploadForm.totalAmount <= 0
+                      ? "bg-slate-300 text-slate-500 cursor-not-allowed"
+                      : "bg-emerald-600 hover:bg-emerald-700 hover:shadow cursor-pointer"
+                  }`}
                 >
                   {loadingAction === "upload" ? (
                     <>
                       <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                       <span>Validating & Uploading...</span>
+                    </>
+                  ) : isUploadAmountExceeded ? (
+                    <>
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      <span>Exceeds Sanctioned Limit (Max ₹{formatINR(effectiveMaxLimit)})</span>
                     </>
                   ) : (
                     <>
