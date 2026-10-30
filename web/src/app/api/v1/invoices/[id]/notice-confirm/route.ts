@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/session";
 
 // POST /api/v1/invoices/:id/notice-confirm
 // Enables Corporate Accounts Payable to review & digitally acknowledge Notice of Assignment (Factoring Act 2011)
@@ -10,7 +11,7 @@ export async function POST(
   try {
     const { id } = await params;
     const body = await request.json().catch(() => ({}));
-    const { action = "CONFIRM", disputeReason } = body;
+    const { action = "CONFIRM", disputeReason, token } = body;
 
     const invoice = await prisma.invoice.findUnique({
       where: { id },
@@ -26,6 +27,22 @@ export async function POST(
 
     if (!invoice) {
       return NextResponse.json({ success: false, error: "Invoice not found." }, { status: 404 });
+    }
+
+    // ── IDOR & ACCESS VERIFICATION ──
+    const session = await getSession();
+    const isLoggedAsAnchor = session && session.role === "ANCHOR" && session.entityId === invoice.anchorId;
+    const isInviteTokenValid = token && invoice.anchor.user?.inviteToken && token === invoice.anchor.user.inviteToken;
+    const isDev = process.env.NODE_ENV !== "production";
+
+    if (!isLoggedAsAnchor && !isInviteTokenValid && !isDev) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "UNAUTHORIZED_NOTICE_CONFIRMATION: Invalid security token or unauthenticated session. Please use the verified Notice link sent to Corporate Accounts Payable.",
+        },
+        { status: 401 }
+      );
     }
 
     const now = new Date();

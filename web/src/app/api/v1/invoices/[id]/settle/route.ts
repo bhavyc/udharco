@@ -55,6 +55,20 @@ export async function POST(
       );
     }
 
+    // ── STRICT OBJECT-LEVEL AUTHORIZATION (BOLA Defense) ──
+    const isAuthorizedAnchor = auth.role === "ANCHOR" && invoice.anchorId === auth.entityId;
+    const isAuthorizedInvestor = auth.role === "INVESTOR" && fundingBid.investorId === auth.entityId;
+
+    if (!isAuthorizedAnchor && !isAuthorizedInvestor) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "FORBIDDEN: You do not have authorization to settle this invoice. Only the participating Corporate Anchor or Funding Investor may execute escrow settlement.",
+        },
+        { status: 403 }
+      );
+    }
+
     const effectiveRepayment = isDefault ? 0 : Number(repaymentAmount);
     const flatPlatformFee = Number(
       ((invoice.totalAmount * invoice.platformFeePct) / 100).toFixed(2)

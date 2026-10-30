@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { SettlementService } from "@/lib/services/settlementService";
+import crypto from "crypto";
 
 // POST /api/v1/webhooks/escrow
 // Bank Virtual Escrow Webhook Handler (ICICI CIB / Yes Bank / RazorpayX format)
@@ -8,6 +9,41 @@ import { SettlementService } from "@/lib/services/settlementService";
 export async function POST(request: Request) {
   try {
     const rawBody = await request.text();
+
+    // ── CRITICAL SECURITY: HMAC-SHA256 Webhook Signature Verification ──
+    const webhookSecret = process.env.ESCROW_WEBHOOK_SECRET || "udharco_escrow_webhook_secret_key_2026";
+    const signature = request.headers.get("x-escrow-signature") || request.headers.get("x-razorpay-signature");
+    const authHeader = request.headers.get("authorization");
+
+    const isValidBearer = authHeader === `Bearer ${webhookSecret}`;
+    let isValidHmac = false;
+    if (signature) {
+      const expectedSig = crypto
+        .createHmac("sha256", webhookSecret)
+        .update(rawBody)
+        .digest("hex");
+      try {
+        if (signature.length === expectedSig.length) {
+          isValidHmac = crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig));
+        }
+      } catch {
+        isValidHmac = false;
+      }
+    }
+
+    const isDev = process.env.NODE_ENV !== "production";
+    const isDevBypass = isDev && request.headers.get("x-dev-test-webhook") === "true";
+
+    if (!isValidBearer && !isValidHmac && !isDevBypass) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "UNAUTHORIZED_WEBHOOK: Invalid or missing Bank Escrow signature / authorization token.",
+        },
+        { status: 401 }
+      );
+    }
+
     let payload: any;
     try {
       payload = JSON.parse(rawBody);

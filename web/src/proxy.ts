@@ -9,6 +9,7 @@ import { decryptSession, decryptAdminSession } from "@/lib/session";
 const PUBLIC_ROUTES = [
   "/login",
   "/signup",
+  "/notice",                     // Digital Notice of Assignment portal for Corporate Buyers
   "/api/v1/auth/seller/request-otp",
   "/api/v1/auth/seller/verify-otp",
   "/api/v1/auth/seller/complete-signup",
@@ -53,9 +54,10 @@ export async function proxy(request: NextRequest) {
   }
 
   // ── 2. Public user routes ──────────────────────────────────────────────────
-  const isPublic = PUBLIC_ROUTES.some(
-    (route) => pathname === route || pathname.startsWith(route + "/")
-  );
+  const isPublic =
+    PUBLIC_ROUTES.some(
+      (route) => pathname === route || pathname.startsWith(route + "/")
+    ) || pathname.includes("/notice-confirm");
   if (isPublic) {
     return NextResponse.next();
   }
