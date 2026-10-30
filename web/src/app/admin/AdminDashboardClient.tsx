@@ -33,6 +33,7 @@ import {
   Zap,
   Calculator,
   Info,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -2008,15 +2009,32 @@ export default function AdminDashboardClient({
 
         {/* 6. Review & Sanction Anchor Modal */}
         {reviewAnchorModal && (
-          <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="max-w-lg w-full bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
-              <div className="flex items-center gap-2.5 text-emerald-700">
-                <CheckCircle2 className="w-5 h-5" />
-                <h3 className="text-lg font-bold text-slate-900">Review & Sanction Factoring Facility</h3>
+          <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div className="max-w-xl w-full max-h-[92vh] flex flex-col bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+              {/* Sticky Top Header */}
+              <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between shrink-0 bg-white">
+                <div className="flex items-center gap-2.5 text-emerald-700">
+                  <CheckCircle2 className="w-5 h-5 shrink-0" />
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900">Review & Sanction Factoring Facility</h3>
+                    <p className="text-[11px] text-slate-500">Corporate credit assessment & bilateral limit sanction</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setReviewAnchorModal(null)}
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                  title="Close Modal"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
-              {/* Applicant Profile Summary */}
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-2 text-slate-700">
+              <form onSubmit={handleApproveAnchor} className="flex flex-col flex-1 overflow-hidden">
+                {/* Scrollable Modal Body */}
+                <div className="p-6 overflow-y-auto space-y-4 text-xs flex-1">
+                  {/* Applicant Profile Summary */}
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-2 text-slate-700">
                 <div className="flex justify-between border-b border-slate-200 pb-2">
                   <span className="text-slate-500">Corporate Entity:</span>
                   <span className="text-slate-900 font-bold">{reviewAnchorModal.corporateName}</span>
@@ -2128,7 +2146,9 @@ export default function AdminDashboardClient({
                     <span className="font-mono text-slate-800">{reviewAnchorModal.contactPhone}</span>
                   </div>
                 )}
-                {/* Route A Underwriting Sanity Engine */}
+              </div>
+
+              {/* Route A Underwriting Sanity Engine */}
                 <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
@@ -2255,11 +2275,10 @@ export default function AdminDashboardClient({
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <form onSubmit={handleApproveAnchor} className="space-y-4 text-xs">
-                <div>
-                  <label className="text-slate-700 block mb-1 font-semibold">Verified Credit Rating</label>
+                <div className="space-y-4 pt-1">
+                  <div>
+                    <label className="text-slate-700 block mb-1 font-semibold">Verified Credit Rating</label>
                   <select
                     value={reviewAnchorForm.creditRating}
                     onChange={(e) => setReviewAnchorForm({ ...reviewAnchorForm, creditRating: e.target.value })}
@@ -2292,22 +2311,25 @@ export default function AdminDashboardClient({
                   </span>
                 </div>
 
-                <p className="text-[11px] text-slate-500 leading-relaxed">
-                  Approving this application transitions status to <strong>ACTIVE</strong> and generates a secure activation token dispatchable to the corporate treasury officer.
-                </p>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    Approving this application transitions status to <strong>ACTIVE</strong> and generates a secure activation token dispatchable to the corporate treasury officer.
+                  </p>
+                </div>
+              </div>
 
-                <div className="flex gap-2 pt-2">
+              {/* Sticky Bottom Actions Footer */}
+                <div className="p-4 border-t border-slate-200 bg-slate-50 flex gap-2.5 shrink-0 rounded-b-3xl">
                   <button
                     type="button"
                     onClick={() => setReviewAnchorModal(null)}
-                    className="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition cursor-pointer"
+                    className="flex-1 py-2.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-semibold transition cursor-pointer text-xs"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={loadingAction === "approve-anchor"}
-                    className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition cursor-pointer shadow-xs"
+                    className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition cursor-pointer shadow-xs text-xs"
                   >
                     {loadingAction === "approve-anchor" ? "Sanctioning & Generating..." : "Sanction & Approve"}
                   </button>
