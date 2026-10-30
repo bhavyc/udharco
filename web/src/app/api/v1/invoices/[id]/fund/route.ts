@@ -63,19 +63,6 @@ export async function POST(
     // Seller receives 84% face value upfront (the Investor's actual principal deployed)
     const requiredCapital = invoice.upfrontDisbursedAmount;
     const annualRate = Math.max(10.0, invoice.discountRatePa - 1.0);
-
-    if (investor.escrowBalance < requiredCapital) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "INSUFFICIENT_ESCROW_BALANCE",
-          message: `Investor escrow balance ₹${investor.escrowBalance.toLocaleString()} is insufficient. Required: ₹${requiredCapital.toLocaleString()}.`,
-        },
-        { status: 400 }
-      );
-    }
-
-    // 3. Calculate Investor Expected Return
     const expectedInterest = Number(
       ((requiredCapital * (annualRate / 100) * invoice.tenureDays) / 365).toFixed(2)
     );
@@ -83,19 +70,45 @@ export async function POST(
     const now = new Date();
 
     // 4. ATOMIC FINTECH TRANSACTION: Escrow deduction + Bid creation + Status change
-    const [updatedInvestor, updatedInvoice, bid, tx] = await prisma.$transaction([
+    const [updatedInvestor, updatedInvoice, bid, tx] = await prisma.$transaction(async (tx) => {
+      // Re-fetch Investor within transaction lock to prevent race conditions / double-spending
+      const freshInvestor = await tx.investor.findUnique({
+        where: { id: investor.id },
+      });
+
+      if (!freshInvestor) {
+        throw new Error("Investor entity not found.");
+      }
+
+      if (freshInvestor.escrowBalance < requiredCapital) {
+        throw new Error(
+          `INSUFFICIENT_ESCROW_BALANCE: Investor escrow balance ₹${freshInvestor.escrowBalance.toLocaleString()} is insufficient. Required: ₹${requiredCapital.toLocaleString()}.`
+        );
+      }
+
+      // Re-fetch Invoice within transaction to ensure it is still in LISTED status
+      const freshInvoice = await tx.invoice.findUnique({
+        where: { id },
+      });
+
+      if (!freshInvoice || freshInvoice.status !== "LISTED") {
+        throw new Error(
+          `ALREADY_FUNDED_OR_INVALID: Invoice is no longer open for funding (Current status: '${freshInvoice?.status || "UNKNOWN"}').`
+        );
+      }
+
       // A. Deduct capital from Investor Escrow wallet
-      prisma.investor.update({
+      const updInvestor = await tx.investor.update({
         where: { id: investor.id },
         data: {
           escrowBalance: {
             decrement: requiredCapital,
           },
         },
-      }),
+      });
 
       // B. Update Invoice status to FUNDED and register CERSAI charge
-      prisma.invoice.update({
+      const updInvoice = await tx.invoice.update({
         where: { id },
         data: {
           status: "FUNDED",
@@ -107,10 +120,10 @@ export async function POST(
           seller: { select: { legalName: true, bankAccountNo: true, bankIfsc: true } },
           anchor: { select: { corporateName: true, creditRating: true } },
         },
-      }),
+      });
 
       // C. Create Funding Bid Record
-      prisma.fundingBid.create({
+      const bidRecord = await tx.fundingBid.create({
         data: {
           invoiceId: invoice.id,
           investorId: investor.id,
@@ -118,18 +131,20 @@ export async function POST(
           expectedReturn: expectedInterest,
           status: "CONFIRMED",
         },
-      }),
+      });
 
       // D. Record Escrow Disbursement Transaction (Direct Escrow to Seller Bank Account per RBI Guidelines)
-      prisma.escrowTransaction.create({
+      const txRecord = await tx.escrowTransaction.create({
         data: {
           invoiceId: invoice.id,
           transactionType: "SELLER_DISBURSEMENT",
           amount: invoice.upfrontDisbursedAmount,
           notes: `RBI COMPLIANT DIRECT DISBURSEMENT: Virtual Escrow payout directly to MSME Seller ${invoice.seller.legalName} (A/C: ${invoice.seller.bankAccountNo}, IFSC: ${invoice.seller.bankIfsc}). Zero platform pooling.`,
         },
-      }),
-    ]);
+      });
+
+      return [updInvestor, updInvoice, bidRecord, txRecord];
+    });
 
     return NextResponse.json({
       success: true,
@@ -159,6 +174,8 @@ export async function POST(
       invoiceData: updatedInvoice,
     });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    const errorMsg = error.message || "Invoice funding failed.";
+    const status = errorMsg.includes("INSUFFICIENT_ESCROW_BALANCE") || errorMsg.includes("ALREADY_FUNDED") ? 400 : 500;
+    return NextResponse.json({ success: false, error: errorMsg }, { status });
   }
 }

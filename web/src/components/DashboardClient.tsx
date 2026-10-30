@@ -510,51 +510,112 @@ export default function DashboardClient({
       </section>
 
       {/* Top Metrics Row */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 transition">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Active MSME Sellers</span>
-            <Building2 className="w-4 h-4 text-emerald-600" />
-          </div>
-          <div className="text-2xl font-black text-slate-900 mt-2">{sellers.length}</div>
-          <div className="text-xs text-slate-500 mt-1">Verified Suppliers Onboarded</div>
-        </div>
+      {currentUser?.role === "ANCHOR" ? (
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {(() => {
+            const currentAnchor = anchors.find((a) => a.id === currentUser.entityId) || anchors[0];
+            const cap = currentAnchor?.maxExposureLimit || 0;
+            const used = currentAnchor?.currentExposure || 0;
+            const headroom = Math.max(0, cap - used);
+            const utilPct = cap > 0 ? ((used / cap) * 100).toFixed(1) : "0.0";
+            const pendingCount = invoices.filter((i) => i.status === "VERIFIED").length;
 
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 transition">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Anchor Buyer Exposure</span>
-            <Layers className="w-4 h-4 text-sky-600" />
-          </div>
-          <div className="text-2xl font-black text-slate-900 mt-2 font-mono">
-            ₹{(activeExposure / 100000).toFixed(1)} Lakhs
-          </div>
-          <div className="text-xs text-slate-500 mt-1">Cap: ₹{(anchors[0]?.maxExposureLimit / 10000000).toFixed(1)} Cr</div>
-        </div>
+            return (
+              <>
+                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 transition">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Approved Facility Line</span>
+                    <ShieldCheck className="w-4 h-4 text-sky-600" />
+                  </div>
+                  <div className="text-2xl font-black text-slate-900 mt-2 font-mono">
+                    {cap >= 10000000 ? `₹${(cap / 10000000).toFixed(2)} Cr` : `₹${(cap / 100000).toFixed(1)} Lakh`}
+                  </div>
+                  <div className="text-xs text-slate-500 mt-1">Sanctioned Treasury Cap</div>
+                </div>
 
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 transition">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Investor Escrow Liquidity</span>
-            <Wallet className="w-4 h-4 text-indigo-600" />
-          </div>
-          <div className="text-2xl font-black text-indigo-700 mt-2 font-mono">
-            ₹{(totalEscrow / 10000000).toFixed(2)} Cr
-          </div>
-          <div className="text-xs text-slate-500 mt-1">Available in Virtual Escrow</div>
-        </div>
+                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 transition">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Facility Utilized</span>
+                    <Layers className="w-4 h-4 text-amber-600" />
+                  </div>
+                  <div className="text-2xl font-black text-slate-900 mt-2 font-mono">
+                    {used >= 10000000 ? `₹${(used / 10000000).toFixed(2)} Cr` : `₹${(used / 100000).toFixed(1)} Lakh`}
+                  </div>
+                  <div className="text-xs text-amber-700 font-semibold mt-1">{utilPct}% Pool Utilization</div>
+                </div>
 
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 transition">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Total Invoices Volume</span>
-            <Coins className="w-4 h-4 text-purple-600" />
+                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 transition">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Available Headroom</span>
+                    <Wallet className="w-4 h-4 text-emerald-600" />
+                  </div>
+                  <div className="text-2xl font-black text-emerald-700 mt-2 font-mono">
+                    {headroom >= 10000000 ? `₹${(headroom / 10000000).toFixed(2)} Cr` : `₹${(headroom / 100000).toFixed(1)} Lakh`}
+                  </div>
+                  <div className="text-xs text-emerald-600 font-medium mt-1">Open for Supplier Invoices</div>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 transition">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Awaiting Confirmation</span>
+                    <FileText className="w-4 h-4 text-indigo-600" />
+                  </div>
+                  <div className="text-2xl font-black text-indigo-700 mt-2 font-mono">
+                    {pendingCount}
+                  </div>
+                  <div className="text-xs text-slate-500 mt-1">Invoices Ready for Approval</div>
+                </div>
+              </>
+            );
+          })()}
+        </section>
+      ) : (
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 transition">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Active MSME Sellers</span>
+              <Building2 className="w-4 h-4 text-emerald-600" />
+            </div>
+            <div className="text-2xl font-black text-slate-900 mt-2">{sellers.length}</div>
+            <div className="text-xs text-slate-500 mt-1">Verified Suppliers Onboarded</div>
           </div>
-          <div className="text-2xl font-black text-slate-900 mt-2 font-mono">
-            ₹{(totalVolume / 100000).toFixed(1)} Lakhs
+
+          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 transition">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Anchor Buyer Exposure</span>
+              <Layers className="w-4 h-4 text-sky-600" />
+            </div>
+            <div className="text-2xl font-black text-slate-900 mt-2 font-mono">
+              ₹{(activeExposure / 100000).toFixed(1)} Lakhs
+            </div>
+            <div className="text-xs text-slate-500 mt-1">Cap: ₹{(anchors[0]?.maxExposureLimit / 10000000).toFixed(1)} Cr</div>
           </div>
-          <div className="text-xs text-emerald-600 mt-1 font-semibold flex items-center gap-1">
-            <ShieldCheck className="w-3.5 h-3.5" /> 100% CERSAI Registered
+
+          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 transition">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Investor Escrow Liquidity</span>
+              <Wallet className="w-4 h-4 text-indigo-600" />
+            </div>
+            <div className="text-2xl font-black text-indigo-700 mt-2 font-mono">
+              ₹{(totalEscrow / 10000000).toFixed(2)} Cr
+            </div>
+            <div className="text-xs text-slate-500 mt-1">Available in Virtual Escrow</div>
           </div>
-        </div>
-      </section>
+
+          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 transition">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Total Invoices Volume</span>
+              <Coins className="w-4 h-4 text-purple-600" />
+            </div>
+            <div className="text-2xl font-black text-slate-900 mt-2 font-mono">
+              ₹{(totalVolume / 100000).toFixed(1)} Lakhs
+            </div>
+            <div className="text-xs text-emerald-600 mt-1 font-semibold flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5" /> 100% CERSAI Registered
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Main Table Section */}
       <section className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-6">
