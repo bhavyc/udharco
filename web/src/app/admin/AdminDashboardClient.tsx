@@ -31,6 +31,8 @@ import {
   Cpu,
   Sparkles,
   Zap,
+  Calculator,
+  Info,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -176,7 +178,9 @@ export default function AdminDashboardClient({
 
   const [anchorFilter, setAnchorFilter] = useState<"ALL" | "PENDING" | "ACTIVE">("ALL");
   const [reviewAnchorModal, setReviewAnchorModal] = useState<Anchor | null>(null);
-  const [reviewAnchorForm, setReviewAnchorForm] = useState({ maxExposureLimit: 50000000, creditRating: "AAA" });
+  const [reviewAnchorForm, setReviewAnchorForm] = useState({ maxExposureLimit: 5000000, creditRating: "AAA" });
+  const [reviewTenureDays, setReviewTenureDays] = useState<number>(90);
+  const [copiedReviewGstin, setCopiedReviewGstin] = useState(false);
 
   const [topupInvestorModal, setTopupInvestorModal] = useState<Investor | null>(null);
   const [topupAmount, setTopupAmount] = useState<number>(10000000);
@@ -1323,8 +1327,13 @@ export default function AdminDashboardClient({
                                   onClick={() => {
                                     setReviewAnchorModal(a);
                                     setReviewGstResult(null);
+                                    const defaultTenure = 90;
+                                    setReviewTenureDays(defaultTenure);
+                                    const initialSuggestedLimit = a.annualProcurement
+                                      ? Math.round(a.annualProcurement * (defaultTenure / 365))
+                                      : 5000000; // Standardized ₹50 Lakhs conservative probationary ceiling
                                     setReviewAnchorForm({
-                                      maxExposureLimit: a.annualProcurement ? Math.round(a.annualProcurement * 0.2) : 50000000,
+                                      maxExposureLimit: initialSuggestedLimit,
                                       creditRating: a.creditRating && a.creditRating !== "UNRATED" ? a.creditRating : "AAA",
                                     });
                                   }}
@@ -2011,10 +2020,44 @@ export default function AdminDashboardClient({
                   <span className="text-slate-500">Corporate Entity:</span>
                   <span className="text-slate-900 font-bold">{reviewAnchorModal.corporateName}</span>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-2">
                   <span className="text-slate-500">GSTIN:</span>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-indigo-700 font-semibold">{reviewAnchorModal.gstin}</span>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="font-mono text-indigo-700 font-bold bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 text-xs">
+                      {reviewAnchorModal.gstin}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(reviewAnchorModal.gstin);
+                        setCopiedReviewGstin(true);
+                        setTimeout(() => setCopiedReviewGstin(false), 2000);
+                      }}
+                      className="px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 text-[10px] font-medium flex items-center gap-1 transition cursor-pointer"
+                      title="Copy GSTIN for manual verification"
+                    >
+                      {copiedReviewGstin ? (
+                        <>
+                          <Check className="w-3 h-3 text-emerald-600" />
+                          <span className="text-emerald-700 font-semibold">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3" />
+                          <span>Copy</span>
+                        </>
+                      )}
+                    </button>
+                    <a
+                      href="https://services.gst.gov.in/services/searchtp"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2 py-0.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 text-[10px] font-bold flex items-center gap-1 transition cursor-pointer shadow-2xs"
+                      title="Route A (Free): Search taxpayer on the official government GST portal (Zero API Cost)"
+                    >
+                      <span>🏛️ Govt GST Portal</span>
+                      <ExternalLink className="w-2.5 h-2.5" />
+                    </a>
                     <button
                       type="button"
                       onClick={() => handleVerifyAnchorGst(reviewAnchorModal.gstin)}
@@ -2024,16 +2067,19 @@ export default function AdminDashboardClient({
                       {reviewGstLoading ? (
                         <>
                           <RefreshCw className="w-3 h-3 animate-spin" />
-                          <span>Verifying...</span>
+                          <span>Checking...</span>
                         </>
                       ) : (
                         <>
                           <Search className="w-3 h-3" />
-                          <span>Verify with Surepass</span>
+                          <span>Surepass API</span>
                         </>
                       )}
                     </button>
                   </div>
+                </div>
+                <div className="text-[10px] text-slate-400">
+                  💡 <strong>Route A (Zero Cost):</strong> Click &ldquo;Govt GST Portal&rdquo; & paste GSTIN to inspect active taxpayer registration, filing regularity, and turnover slab without third-party fees.
                 </div>
 
                 {/* Inline Live Surepass Verification Result */}
@@ -2081,14 +2127,119 @@ export default function AdminDashboardClient({
                     <span className="font-mono text-slate-800">{reviewAnchorModal.contactPhone}</span>
                   </div>
                 )}
-                {reviewAnchorModal.annualProcurement ? (
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Annual MSME Procurement:</span>
-                    <span className="font-mono text-purple-700 font-bold">
-                      ₹{reviewAnchorModal.annualProcurement.toLocaleString()} (₹{(reviewAnchorModal.annualProcurement / 10000000).toFixed(2)} Cr)
+                {/* Route A Underwriting Sanity Engine */}
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                      <Calculator className="w-3.5 h-3.5 text-indigo-600" />
+                      Tenure-Dynamic Working Capital Calculator
+                    </span>
+                    <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800">
+                      Procurement × (Tenure ÷ 365)
                     </span>
                   </div>
-                ) : null}
+
+                  {reviewAnchorModal.annualProcurement ? (
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-slate-600 font-medium">Declared Annual MSME Procurement:</span>
+                      <span className="font-mono text-purple-700 font-bold">
+                        ₹{reviewAnchorModal.annualProcurement.toLocaleString()} (₹{(reviewAnchorModal.annualProcurement / 10000000).toFixed(2)} Cr)
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="text-[11px] text-amber-700 bg-amber-50 p-2 rounded-lg border border-amber-200">
+                      ⚠️ Annual Procurement was not declared during self-serve onboarding. Standard ₹50.00L probationary ceiling applies.
+                    </div>
+                  )}
+
+                  {/* Interactive Dynamic Tenure Selector */}
+                  <div>
+                    <div className="flex items-center justify-between text-[11px] text-slate-600 mb-1.5">
+                      <span>Working Capital Cycle (Invoice Tenure):</span>
+                      <span className="font-bold text-slate-900 font-mono">{reviewTenureDays} Days</span>
+                    </div>
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {[30, 60, 90, 120].map((days) => (
+                        <button
+                          key={days}
+                          type="button"
+                          onClick={() => {
+                            setReviewTenureDays(days);
+                            if (reviewAnchorModal.annualProcurement) {
+                              const dynamicSuggested = Math.round(
+                                reviewAnchorModal.annualProcurement * (days / 365)
+                              );
+                              setReviewAnchorForm((prev) => ({
+                                ...prev,
+                                maxExposureLimit: dynamicSuggested,
+                              }));
+                            }
+                          }}
+                          className={`py-1 px-2 rounded-lg text-xs font-semibold font-mono transition text-center border cursor-pointer ${
+                            reviewTenureDays === days
+                              ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
+                              : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
+                          }`}
+                        >
+                          {days}d
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Dynamic Math Display */}
+                  {reviewAnchorModal.annualProcurement && (
+                    <div className="p-2.5 bg-white rounded-lg border border-slate-200 text-xs space-y-1">
+                      <div className="flex justify-between items-center text-slate-600">
+                        <span>Suggested Exposure Limit ({reviewTenureDays}d):</span>
+                        <span className="font-mono font-bold text-indigo-700 text-sm">
+                          ₹{Math.round(reviewAnchorModal.annualProcurement * (reviewTenureDays / 365)).toLocaleString()}
+                          <span className="text-[10px] text-slate-500 font-normal ml-1">
+                            (~₹{((reviewAnchorModal.annualProcurement * (reviewTenureDays / 365)) / 10000000).toFixed(2)} Cr)
+                          </span>
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-slate-500 font-mono">
+                        ₹{(reviewAnchorModal.annualProcurement / 10000000).toFixed(2)} Cr × ({reviewTenureDays} ÷ 365) = {((reviewTenureDays / 365) * 100).toFixed(2)}% working capital cycle requirement
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Non-Statutory Heuristic Estimate Card */}
+                  <div className="p-2.5 rounded-lg bg-amber-50/90 border border-amber-200 text-[10px] text-amber-900 space-y-1">
+                    <div className="font-bold flex items-center gap-1 text-amber-950">
+                      <Info className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                      Non-Statutory Heuristic Estimate (Unverified Rule-of-Thumb)
+                    </div>
+                    <p className="leading-relaxed text-amber-800">
+                      In manufacturing/ancillary supply chains, raw material procurement is typically ~40%–60% of top-line revenue (COGS rule-of-thumb). <strong>This is NOT an RBI or statutory benchmark.</strong> Admin must cross-check unlisted corporate filings against audited P&L (&ldquo;Cost of Materials Consumed&rdquo;) before sanctioning large lines.
+                    </p>
+                  </div>
+
+                  {/* Standardized Probationary Cap Card */}
+                  <div className="p-2 bg-slate-100 rounded-lg flex items-center justify-between text-[11px] text-slate-700">
+                    <div>
+                      <span className="font-semibold text-slate-800">Standard Probationary Cap:</span>
+                      <span className="text-slate-500 ml-1">(New/Unrated Entities)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono font-bold text-slate-900">₹50.00 Lakhs</span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setReviewAnchorForm((prev) => ({
+                            ...prev,
+                            maxExposureLimit: 5000000,
+                          }))
+                        }
+                        className="px-2 py-0.5 rounded bg-white hover:bg-slate-200 border border-slate-300 text-[10px] font-bold text-slate-700 transition cursor-pointer"
+                        title="Cap limit to conservative ₹50 Lakhs probationary ceiling"
+                      >
+                        Apply ₹50L Cap
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <form onSubmit={handleApproveAnchor} className="space-y-4 text-xs">
@@ -2104,6 +2255,7 @@ export default function AdminDashboardClient({
                     <option value="AA">CRISIL / ICRA AA (Quality)</option>
                     <option value="A">CRISIL / ICRA A (Upper Medium)</option>
                     <option value="BBB">CRISIL / ICRA BBB (Investment Grade)</option>
+                    <option value="UNRATED">UNRATED (Subject to ₹50L Probationary Cap)</option>
                   </select>
                 </div>
 
