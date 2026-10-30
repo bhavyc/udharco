@@ -124,6 +124,18 @@ export async function POST(request: Request) {
       );
     }
 
+    // Security Gate: Enforce Seller Sanctioned Credit Limit
+    if (seller.creditLimit > 0 && amount > seller.creditLimit) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "SELLER_CREDIT_LIMIT_EXCEEDED",
+          message: `Invoice amount ₹${amount.toLocaleString("en-IN")} exceeds your sanctioned invoice discounting line of ₹${seller.creditLimit.toLocaleString("en-IN")}. Maximum allowed is ₹${seller.creditLimit.toLocaleString("en-IN")}.`,
+        },
+        { status: 400 }
+      );
+    }
+
     // 3. CRITICAL FINTECH GATE: Double-Financing Fraud Registry Check
     const invoiceHash = FraudService.generateInvoiceHash(seller.gstin, invoiceNumber, effectiveFY);
     const fraudCheck = await FraudService.checkDuplicateFinancing(invoiceHash);
