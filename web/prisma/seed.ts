@@ -32,6 +32,10 @@ async function main() {
   console.log("✅ Seeded Seller:", seller.legalName);
 
   // Link Seller User (Mobile OTP based: 9876543210)
+  await prisma.user.updateMany({
+    where: { sellerId: seller.id, NOT: { mobile: "9876543210" } },
+    data: { sellerId: null },
+  });
   const sellerUser = await prisma.user.upsert({
     where: { mobile: "9876543210" },
     update: { sellerId: seller.id, isActive: true },
@@ -55,10 +59,54 @@ async function main() {
       maxExposureLimit: 50000000, // ₹5 Cr limit
       currentExposure: 0,
       status: "ACTIVE",
-      sourceChannel: "ENTERPRISE_SALES",
+      annualProcurement: 250000000, // ₹25 Cr procurement
     },
   });
-  console.log("✅ Seeded Anchor:", anchor.corporateName);
+  console.log("✅ Seeded Active Anchor:", anchor.corporateName);
+
+  // 2b. Seed Pending Corporate Anchor (For Admin Underwriting & Review Testing)
+  const pendingAnchor1 = await prisma.anchor.upsert({
+    where: { gstin: "27AABCM6789P1Z3" },
+    update: {
+      annualProcurement: 240000000,
+    },
+    create: {
+      corporateName: "Mahindra Auto Ancillaries Ltd",
+      gstin: "27AABCM6789P1Z3",
+      creditRating: "AA+",
+      maxExposureLimit: 0, // Fail-closed default ₹0 until admin review
+      currentExposure: 0,
+      status: "PENDING",
+      sourceChannel: "VENDOR_PUSH",
+      contactPerson: "Rajesh Sharma",
+      contactEmail: "treasury@mahindra-ancillaries.com",
+      contactPhone: "+91 98200 11223",
+      annualProcurement: 240000000, // ₹24 Crore annual procurement
+    },
+  });
+  console.log("✅ Seeded Pending Anchor (AA+):", pendingAnchor1.corporateName);
+
+  // 2c. Seed Unrated Pending Anchor (For Testing ₹50L Probationary Cap)
+  const pendingAnchor2 = await prisma.anchor.upsert({
+    where: { gstin: "27AABCA4321D1Z9" },
+    update: {
+      annualProcurement: 80000000,
+    },
+    create: {
+      corporateName: "Apex Plastic Components Pvt Ltd",
+      gstin: "27AABCA4321D1Z9",
+      creditRating: "UNRATED",
+      maxExposureLimit: 0, // Fail-closed default ₹0 until admin review
+      currentExposure: 0,
+      status: "PENDING",
+      sourceChannel: "VENDOR_PUSH",
+      contactPerson: "Vikas Patil",
+      contactEmail: "finance@apexplastic.in",
+      contactPhone: "+91 98334 45566",
+      annualProcurement: 80000000, // ₹8 Crore annual procurement
+    },
+  });
+  console.log("✅ Seeded Pending Anchor (UNRATED):", pendingAnchor2.corporateName);
 
   // Link Anchor User (Email: tata.motors@tatamotors.com / Anchor@123456)
   const anchorPasswordHash = await bcrypt.hash("Anchor@123456", 12);
