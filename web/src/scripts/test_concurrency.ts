@@ -70,7 +70,7 @@ async function main() {
     if (res.success) {
       console.log(`  ✅ ${res.reqName} (₹${res.amount.toLocaleString()}): SUCCESS (Allocated)`);
     } else {
-      console.log(`  ❌ ${res.reqName} (₹${res.amount.toLocaleString()}): REJECTED (${res.error})`);
+      console.log(` ❌ ${res.reqName} (₹${res.amount.toLocaleString()}): REJECTED (${res.error})`);
     }
   }
 
