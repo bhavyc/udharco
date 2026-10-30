@@ -1,10 +1,23 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAuth, requireAdminAuth } from "@/lib/auth";
 
-// GET /api/v1/entities/sellers - List all onboarded sellers
+// GET /api/v1/entities/sellers - List onboarded sellers (Safe Public/Authorized View with PII Masking)
 export async function GET() {
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+
   try {
+    // Only return safe non-sensitive business fields (Do NOT expose bank accounts, IFSC, or PAN)
     const sellers = await prisma.seller.findMany({
+      select: {
+        id: true,
+        legalName: true,
+        gstin: true,
+        kycStatus: true,
+        creditLimitStatus: true,
+        creditLimit: auth.role === "SELLER" ? true : false,
+      },
       orderBy: { createdAt: "desc" },
     });
     return NextResponse.json({ success: true, count: sellers.length, data: sellers });
@@ -13,11 +26,14 @@ export async function GET() {
   }
 }
 
-// POST /api/v1/entities/sellers - Onboard a new MSME seller with duplicate GSTIN check
+// POST /api/v1/entities/sellers - Admin-only manual provisioning of MSME seller
 export async function POST(request: Request) {
+  const auth = await requireAdminAuth();
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const body = await request.json();
-    const { legalName, gstin, pan, bankAccountNo, bankIfsc } = body;
+    const { legalName, gstin, pan, bankAccountNo, bankIfsc, creditLimit = 5000000 } = body;
 
     // Validation
     if (!legalName || !gstin || !pan || !bankAccountNo || !bankIfsc) {
@@ -53,12 +69,13 @@ export async function POST(request: Request) {
         pan: pan.toUpperCase().trim(),
         bankAccountNo: bankAccountNo.trim(),
         bankIfsc: bankIfsc.toUpperCase().trim(),
+        creditLimit: Number(creditLimit) || 5000000,
         kycStatus: "VERIFIED",
       },
     });
 
     return NextResponse.json(
-      { success: true, message: "Seller onboarded successfully.", data: seller },
+      { success: true, message: "Seller onboarded successfully by Admin.", data: seller },
       { status: 201 }
     );
   } catch (error: any) {

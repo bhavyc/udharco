@@ -7,6 +7,19 @@ import { prisma } from "@/lib/prisma";
 // - Day 15: Rejects invoice due to Anchor confirmation timeout (safe fintech posture)
 export async function POST(request: Request) {
   try {
+    // ── CRITICAL SECURITY: Authorized Cron Secret Verification ──
+    const cronSecret = process.env.CRON_SECRET || process.env.ADMIN_SESSION_SECRET || "udharco_cron_secret_key_2026";
+    const authHeader = request.headers.get("x-cron-secret") || request.headers.get("authorization");
+    const isAuthorized = authHeader === `Bearer ${cronSecret}` || authHeader === cronSecret;
+
+    const isDev = process.env.NODE_ENV !== "production";
+    if (!isAuthorized && !isDev) {
+      return NextResponse.json(
+        { success: false, error: "UNAUTHORIZED: Valid CRON_SECRET or Admin authorization required." },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json().catch(() => ({}));
     const { simulatedDaysElapsed } = body;
 
@@ -25,7 +38,8 @@ export async function POST(request: Request) {
       // Calculate age of NOA
       const sentDate = inv.noaSentAt || inv.createdAt;
       const actualDays = Math.floor((now.getTime() - new Date(sentDate).getTime()) / (1000 * 60 * 60 * 24));
-      const effectiveDays = typeof simulatedDaysElapsed === "number" ? simulatedDaysElapsed : actualDays;
+      // In production, NEVER trust client-supplied days parameter; only use real elapsed days
+      const effectiveDays = (isDev && typeof simulatedDaysElapsed === "number") ? simulatedDaysElapsed : actualDays;
 
       // 1. Day 15 Timeout Gate: Reject Invoice
       if (effectiveDays >= 15) {

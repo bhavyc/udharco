@@ -31,12 +31,21 @@ export interface AdminSessionPayload {
 // Key derivation — separate secrets for user and admin sessions
 // ---------------------------------------------------------------------------
 
+if (process.env.NODE_ENV === "production") {
+  if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32) {
+    throw new Error("SECURITY_FATAL: SESSION_SECRET must be at least 32 characters in production.");
+  }
+  if (!process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_SESSION_SECRET.length < 32) {
+    throw new Error("SECURITY_FATAL: ADMIN_SESSION_SECRET must be at least 32 characters in production.");
+  }
+}
+
 const USER_SESSION_SECRET =
   process.env.SESSION_SECRET ||
-  "udharco_super_secure_user_jwt_secret_key_32bytes_min";
+  "udharco_dev_only_super_secure_user_jwt_secret_32bytes_min";
 const ADMIN_SESSION_SECRET =
   process.env.ADMIN_SESSION_SECRET ||
-  "udharco_super_secure_admin_jwt_secret_key_32bytes_min";
+  "udharco_dev_only_super_secure_admin_jwt_secret_32bytes_min";
 
 const userKey = new TextEncoder().encode(USER_SESSION_SECRET);
 const adminKey = new TextEncoder().encode(ADMIN_SESSION_SECRET);
