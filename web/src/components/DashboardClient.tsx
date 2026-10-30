@@ -1132,175 +1132,98 @@ export default function DashboardClient({
       })()}
 
       {/* MODAL 1: Upload Invoice Modal */}
+      {/* MODAL 1: Upload New Invoice with Inline Vendor-Push Buyer */}
       {isUploadOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-white border border-slate-200 rounded-2xl max-w-2xl w-full p-6 space-y-5 shadow-2xl my-8 text-slate-900">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-emerald-600" />
-                  <h3 className="text-base font-bold text-slate-900">Upload New Invoice for Instant Discounting</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-sm">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-slate-900 animate-in fade-in zoom-in-95">
+            {/* Pinned Header */}
+            <div className="p-4 sm:p-4.5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100">
+                  <Sparkles className="w-4 h-4" />
                 </div>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Attach your GST invoice copy & verified IRN hash to receive 84% instant advance.
-                </p>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900">Upload Invoice for Instant Discounting</h3>
+                  <p className="text-[11px] text-slate-500">
+                    Get 84% instant advance against GST e-invoices with automatic buyer notice
+                  </p>
+                </div>
               </div>
               <button
+                type="button"
                 onClick={() => setIsUploadOpen(false)}
-                className="text-slate-400 hover:text-slate-700 text-lg font-bold p-1 rounded-lg hover:bg-slate-100 transition"
+                className="text-slate-400 hover:text-slate-700 text-base font-bold p-1 rounded-lg hover:bg-slate-100 transition cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleUploadSubmit} className="space-y-4">
-              {/* 1. SELLER IDENTITY SECTION */}
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                <div className="flex items-center gap-2">
-                  <UserCheck className="w-4 h-4 text-emerald-600" />
-                  <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                    Seller Entity (MSME Vendor)
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between bg-white p-2.5 rounded-lg border border-slate-200">
-                  <div>
-                    <div className="text-sm font-bold text-slate-900">
-                      {sellers.find((s) => s.id === uploadForm.sellerId)?.legalName || sellers[0]?.legalName || "MSME Seller Pvt Ltd"}
-                    </div>
-                    <div className="text-[11px] font-mono text-slate-500 mt-0.5">
-                      GSTIN: {sellers.find((s) => s.id === uploadForm.sellerId)?.gstin || sellers[0]?.gstin} • Bank Account Verified
-                    </div>
-                  </div>
+            {/* Scrollable Form Body */}
+            <form onSubmit={handleUploadSubmit} className="flex flex-col flex-1 overflow-hidden">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3.5 custom-scrollbar text-slate-900">
+                {/* 1. SELLER IDENTITY (Compact) */}
+                <div className="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      KYC VERIFIED
-                    </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-50 text-sky-700 border border-sky-200">
-                      e-NACH ACTIVE
-                    </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
-                      LINE: ₹{formatINR(sellerLimit)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* 2. INVOICE DOCUMENT UPLOAD FIELD */}
-              <div>
-                <label className="text-xs font-bold text-slate-700 flex items-center justify-between mb-1.5">
-                  <span className="flex items-center gap-1.5">
-                    <Paperclip className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Invoice Document Proof (PDF / Image) *</span>
-                  </span>
-                  <span className="text-[11px] text-slate-400">Required under Factoring Act 2011</span>
-                </label>
-
-                <input
-                  id="invoice-document-file"
-                  type="file"
-                  accept=".pdf,.png,.jpg,.jpeg"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-
-                {attachedFile ? (
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-50 border border-emerald-200">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-emerald-100 text-emerald-700">
-                        <FileCheck className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-slate-900 flex items-center gap-2">
-                          <span>{attachedFile.name}</span>
-                          <span className="text-[10px] font-mono text-emerald-700 bg-emerald-100/60 px-1.5 py-0.2 rounded">
-                            {attachedFile.size}
-                          </span>
-                        </div>
-                        <div className="text-[11px] text-emerald-700 font-medium mt-0.5">
-                          ✓ Signed Tax Invoice Attached & Ready for Verification
-                        </div>
+                    <div className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[11px]">
+                      M
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                        <span>{sellers.find((s) => s.id === uploadForm.sellerId)?.legalName || sellers[0]?.legalName || "MSME Seller Pvt Ltd"}</span>
+                        <span className="text-[9px] font-mono text-emerald-700 bg-emerald-100/60 px-1 py-0.2 rounded font-semibold">
+                          {sellers.find((s) => s.id === uploadForm.sellerId)?.gstin || sellers[0]?.gstin}
+                        </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <label
-                        htmlFor="invoice-document-file"
-                        className="px-2.5 py-1 rounded bg-white hover:bg-slate-50 text-[11px] text-slate-700 border border-slate-300 font-semibold transition cursor-pointer"
-                      >
-                        Change
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => setAttachedFile(null)}
-                        className="text-slate-400 hover:text-red-600 text-xs font-bold p-1 cursor-pointer"
-                        title="Remove file"
-                      >
-                        ✕
-                      </button>
-                    </div>
                   </div>
-                ) : (
-                  <label
-                    htmlFor="invoice-document-file"
-                    className="flex flex-col items-center justify-center p-5 rounded-xl border-2 border-dashed border-slate-300 hover:border-emerald-500 bg-slate-50 hover:bg-emerald-50/20 transition cursor-pointer text-center group"
-                  >
-                    <UploadCloud className="w-8 h-8 text-slate-400 group-hover:text-emerald-600 mb-1.5 transition" />
-                    <div className="text-xs font-bold text-slate-700 group-hover:text-slate-900">
-                      Click to Browse or Drag & Drop Tax Invoice Copy
-                    </div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">
-                      Supports PDF, PNG, JPG (Original digitally signed GST tax invoice, max 15MB)
-                    </div>
-                  </label>
-                )}
-              </div>
-
-              {/* 3. INVOICE CORE DETAILS: Number, Anchor, Face Value */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Invoice Number *</label>
-                  <input
-                    type="text"
-                    required
-                    value={uploadForm.invoiceNumber}
-                    onChange={(e) => setUploadForm({ ...uploadForm, invoiceNumber: e.target.value })}
-                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none"
-                    placeholder="INV/2026/0891"
-                  />
+                  <div className="flex items-center gap-1.5 text-[9px] font-bold">
+                    <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">KYC VERIFIED</span>
+                    <span className="px-1.5 py-0.5 rounded bg-sky-100 text-sky-800">e-NACH ACTIVE</span>
+                    <span className="px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 font-mono">CAP: ₹{formatINR(sellerLimit)}</span>
+                  </div>
                 </div>
-                <div>
-                  <div className="flex justify-between items-center mb-1">
-                    <label className="text-xs font-bold text-slate-700">Corporate Buyer *</label>
-                    <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-md border border-slate-200 text-[10px]">
+
+                {/* 2. CORPORATE BUYER SECTION (Segmented Pre-Approved vs New) */}
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <Building2 className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Corporate Buyer (Debtor Entity) *</span>
+                    </label>
+
+                    {/* Segmented Switcher */}
+                    <div className="flex items-center bg-slate-200/80 p-0.5 rounded-lg text-[10px] font-bold">
                       <button
                         type="button"
                         onClick={() => setBuyerMode("EXISTING")}
-                        className={`px-2 py-0.5 rounded transition cursor-pointer font-medium ${
+                        className={`px-2.5 py-1 rounded-md transition cursor-pointer ${
                           buyerMode === "EXISTING"
-                            ? "bg-white text-slate-900 shadow-xs font-bold"
-                            : "text-slate-500 hover:text-slate-700"
+                            ? "bg-white text-slate-900 shadow-xs"
+                            : "text-slate-600 hover:text-slate-900"
                         }`}
                       >
-                        Pre-Approved
+                        Pre-Approved ({anchors.length})
                       </button>
                       <button
                         type="button"
                         onClick={() => setBuyerMode("NEW")}
-                        className={`px-2 py-0.5 rounded transition cursor-pointer font-medium flex items-center gap-0.5 ${
+                        className={`px-2.5 py-1 rounded-md transition cursor-pointer flex items-center gap-1 ${
                           buyerMode === "NEW"
-                            ? "bg-emerald-600 text-white shadow-xs font-bold"
-                            : "text-emerald-700 hover:text-emerald-800"
+                            ? "bg-emerald-600 text-white shadow-xs"
+                            : "text-emerald-800 hover:text-emerald-950"
                         }`}
                       >
-                        <span>+ New Buyer</span>
+                        <Sparkles className="w-2.5 h-2.5" />
+                        <span>+ Add New Buyer</span>
                       </button>
                     </div>
                   </div>
+
                   {buyerMode === "EXISTING" ? (
                     <select
                       value={uploadForm.anchorId}
                       onChange={(e) => setUploadForm({ ...uploadForm, anchorId: e.target.value })}
-                      className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none"
+                      className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 focus:border-emerald-500 outline-none"
                     >
                       {anchors.map((a) => (
                         <option key={a.id} value={a.id}>
@@ -1309,332 +1232,296 @@ export default function DashboardClient({
                       ))}
                     </select>
                   ) : (
-                    <div className="w-full bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-lg px-3 py-2 text-xs font-bold flex items-center justify-between">
-                      <span>Adding New Unregistered Corporate</span>
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 bg-emerald-200 text-emerald-900 rounded">Inline Form Below ↓</span>
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <div className="flex justify-between items-center mb-1">
-                    <label className="text-xs font-bold text-slate-700">Total Bill Value (₹) *</label>
-                    <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded border ${
-                      isUploadAmountExceeded
-                        ? "text-red-700 bg-red-50 border-red-200"
-                        : "text-emerald-700 bg-emerald-50 border-emerald-200"
-                    }`}>
-                      {isUploadAmountExceeded
-                        ? `Exceeds Max Cap: ₹${formatINR(effectiveMaxLimit)}`
-                        : uploadForm.totalAmount > 0
-                        ? (uploadForm.totalAmount >= 10000000
-                            ? `₹${(uploadForm.totalAmount / 10000000).toFixed(2)} Cr`
-                            : uploadForm.totalAmount >= 100000
-                            ? `₹${(uploadForm.totalAmount / 100000).toFixed(2)} Lakh`
-                            : `₹${uploadForm.totalAmount.toLocaleString("en-IN")}`)
-                        : `Max Line: ₹${formatINR(effectiveMaxLimit)}`}
-                    </span>
-                  </div>
-                  <input
-                    type="number"
-                    required
-                    min={10000}
-                    max={effectiveMaxLimit}
-                    step={10000}
-                    value={uploadForm.totalAmount || ""}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, "");
-                      if (val.length <= 10) {
-                        setUploadForm({ ...uploadForm, totalAmount: val ? Number(val) : 0 });
-                      }
-                    }}
-                    placeholder={`e.g. 1000000 (Max ₹${formatINR(effectiveMaxLimit)})`}
-                    className={`w-full bg-white border rounded-lg px-3 py-2 text-xs text-slate-900 font-mono outline-none transition ${
-                      isUploadAmountExceeded
-                        ? "border-red-500 focus:border-red-500 ring-2 ring-red-100 text-red-900"
-                        : "border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-                    }`}
-                  />
-                  {isUploadAmountExceeded && (
-                    <div className="mt-1.5 p-2 rounded-lg bg-red-50 border border-red-200 text-[11px] text-red-700 font-medium flex items-start gap-1.5">
-                      <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-red-600" />
-                      <div>
-                        <strong>Amount exceeds your sanctioned credit line!</strong>
-                        <div className="text-[10px] text-red-600 mt-0.5">
-                          Maximum you can discount for this invoice is <strong>₹{formatINR(effectiveMaxLimit)}</strong> (Seller line: ₹{formatINR(sellerLimit)}, Buyer facility: ₹{formatINR(anchorExposureAvailable)}).
+                    /* Clean, unified 2x2 grid for New Buyer */
+                    <div className="space-y-2 pt-0.5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {/* GSTIN */}
+                        <div>
+                          <div className="flex items-center justify-between mb-0.5">
+                            <label className="text-[10px] font-bold text-slate-600">Buyer GSTIN *</label>
+                            <button
+                              type="button"
+                              onClick={handleVerifyNewBuyerGst}
+                              disabled={isVerifyingGst}
+                              className="text-[10px] font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-0.5 cursor-pointer disabled:opacity-50"
+                            >
+                              <Sparkles className="w-2.5 h-2.5" />
+                              <span>{isVerifyingGst ? "Fetching..." : "Auto-Fetch Name"}</span>
+                            </button>
+                          </div>
+                          <input
+                            type="text"
+                            required
+                            maxLength={15}
+                            placeholder="e.g. 07AABCS1234F1Z5"
+                            value={newBuyerForm.gstin}
+                            onChange={(e) => setNewBuyerForm({ ...newBuyerForm, gstin: e.target.value.toUpperCase() })}
+                            className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-mono uppercase text-slate-900 focus:border-emerald-500 outline-none"
+                          />
                         </div>
+
+                        {/* Legal Name */}
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-600 block mb-0.5">Corporate Legal Name *</label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="e.g. Sharma Steels Pvt Ltd"
+                            value={newBuyerForm.corporateName}
+                            onChange={(e) => setNewBuyerForm({ ...newBuyerForm, corporateName: e.target.value })}
+                            className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 focus:border-emerald-500 outline-none"
+                          />
+                        </div>
+
+                        {/* Treasury Email */}
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-600 block mb-0.5">
+                            Accounts / Treasury Email * <span className="font-normal text-slate-400">(Notice Destination)</span>
+                          </label>
+                          <input
+                            type="email"
+                            required
+                            placeholder="accounts@company.com"
+                            value={newBuyerForm.contactEmail}
+                            onChange={(e) => setNewBuyerForm({ ...newBuyerForm, contactEmail: e.target.value })}
+                            className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-900 focus:border-emerald-500 outline-none"
+                          />
+                        </div>
+
+                        {/* Officer & Phone */}
+                        <div className="grid grid-cols-2 gap-1.5">
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-600 block mb-0.5">Contact Person</label>
+                            <input
+                              type="text"
+                              placeholder="Anil Sharma"
+                              value={newBuyerForm.contactPerson}
+                              onChange={(e) => setNewBuyerForm({ ...newBuyerForm, contactPerson: e.target.value })}
+                              className="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs text-slate-900 focus:border-emerald-500 outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-600 block mb-0.5">Phone (WhatsApp)</label>
+                            <input
+                              type="tel"
+                              maxLength={10}
+                              placeholder="9876543210"
+                              value={newBuyerForm.contactPhone}
+                              onChange={(e) => setNewBuyerForm({ ...newBuyerForm, contactPhone: e.target.value.replace(/\D/g, "") })}
+                              className="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-mono text-slate-900 focus:border-emerald-500 outline-none"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="text-[10px] text-slate-500 flex items-center gap-1.5 pt-0.5 bg-emerald-50/50 p-1.5 rounded-lg border border-emerald-200/50">
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span>Notice of Assignment will be issued on upload. Initial limit capped at ₹50L pending Admin underwriting.</span>
                       </div>
                     </div>
                   )}
                 </div>
-              </div>
 
-              {/* NEW CORPORATE BUYER INLINE SETUP (Vendor-Push) */}
-              {buyerMode === "NEW" && (
-                <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-50/80 to-sky-50/50 border border-emerald-200/80 space-y-3">
+                {/* 3. INVOICE NUMBER & VALUE (Compact 2-col) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Invoice Number *</label>
+                    <input
+                      type="text"
+                      required
+                      value={uploadForm.invoiceNumber}
+                      onChange={(e) => setUploadForm({ ...uploadForm, invoiceNumber: e.target.value })}
+                      className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 font-mono focus:border-emerald-500 outline-none"
+                      placeholder="INV/2026/0891"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="text-xs font-bold text-slate-700">Total Bill Value (₹) *</label>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded border ${
+                        isUploadAmountExceeded
+                          ? "text-red-700 bg-red-50 border-red-200"
+                          : "text-emerald-700 bg-emerald-50 border-emerald-200"
+                      }`}>
+                        {isUploadAmountExceeded
+                          ? `Exceeds Cap: ₹${formatINR(effectiveMaxLimit)}`
+                          : `Cap: ₹${formatINR(effectiveMaxLimit)}`}
+                      </span>
+                    </div>
+                    <input
+                      type="number"
+                      required
+                      min={10000}
+                      max={effectiveMaxLimit}
+                      step={10000}
+                      value={uploadForm.totalAmount || ""}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "");
+                        if (val.length <= 10) {
+                          setUploadForm({ ...uploadForm, totalAmount: val ? Number(val) : 0 });
+                        }
+                      }}
+                      placeholder={`e.g. 1000000 (Max ₹${formatINR(effectiveMaxLimit)})`}
+                      className={`w-full bg-white border rounded-lg px-3 py-1.5 text-xs text-slate-900 font-mono outline-none transition ${
+                        isUploadAmountExceeded
+                          ? "border-red-500 focus:border-red-500 ring-2 ring-red-100 text-red-900"
+                          : "border-slate-300 focus:border-emerald-500"
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                {/* 4. ATTACH INVOICE DOCUMENT (Compact Strip) */}
+                <div>
+                  <input
+                    id="invoice-document-file"
+                    type="file"
+                    accept=".pdf,.png,.jpg,.jpeg"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  {attachedFile ? (
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs">
+                      <div className="flex items-center gap-2">
+                        <FileCheck className="w-4 h-4 text-emerald-700" />
+                        <div>
+                          <span className="font-bold text-slate-900">{attachedFile.name}</span>
+                          <span className="text-[10px] font-mono text-emerald-700 ml-2">({attachedFile.size})</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <label htmlFor="invoice-document-file" className="text-[11px] text-slate-600 hover:text-slate-900 font-semibold cursor-pointer">
+                          Change
+                        </label>
+                        <button type="button" onClick={() => setAttachedFile(null)} className="text-slate-400 hover:text-red-600 text-xs font-bold p-1">✕</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <label htmlFor="invoice-document-file" className="flex items-center justify-between p-2.5 rounded-xl border border-dashed border-slate-300 hover:border-emerald-500 bg-slate-50 hover:bg-emerald-50/20 transition cursor-pointer">
+                      <div className="flex items-center gap-2">
+                        <Paperclip className="w-4 h-4 text-emerald-600" />
+                        <span className="text-xs font-bold text-slate-700">Attach Tax Invoice Proof (PDF/Image) *</span>
+                        <span className="text-[10px] text-slate-400 font-normal">(Factoring Act 2011)</span>
+                      </div>
+                      <span className="text-[11px] font-semibold text-emerald-700 bg-white border border-slate-200 px-2 py-0.5 rounded-md">
+                        Browse File
+                      </span>
+                    </label>
+                  )}
+                </div>
+
+                {/* 5. e-INVOICE IRN HASH (Compact) */}
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="p-1.5 rounded-lg bg-emerald-600 text-white">
-                        <Building2 className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-bold text-slate-900">New Corporate Buyer Details</h4>
-                        <p className="text-[10px] text-slate-500">Provide buyer finance contact to dispatch Digital Notice of Assignment</p>
-                      </div>
-                    </div>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
-                      Channel: Vendor-Push (Initial Cap ₹50L)
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className="text-[11px] font-bold text-slate-700">Buyer GSTIN *</label>
-                        <button
-                          type="button"
-                          onClick={handleVerifyNewBuyerGst}
-                          disabled={isVerifyingGst}
-                          className="text-[10px] font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 cursor-pointer disabled:opacity-50"
-                        >
-                          <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
-                          <span>{isVerifyingGst ? "Verifying..." : "Auto-Fetch Company"}</span>
-                        </button>
-                      </div>
-                      <input
-                        type="text"
-                        required
-                        maxLength={15}
-                        placeholder="e.g. 07AABCS1234F1Z5"
-                        value={newBuyerForm.gstin}
-                        onChange={(e) => setNewBuyerForm({ ...newBuyerForm, gstin: e.target.value.toUpperCase() })}
-                        className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono uppercase text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[11px] font-bold text-slate-700 block mb-1">Corporate Legal Entity Name *</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. Sharma Steels Private Limited"
-                        value={newBuyerForm.corporateName}
-                        onChange={(e) => setNewBuyerForm({ ...newBuyerForm, corporateName: e.target.value })}
-                        className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className="text-[11px] font-bold text-slate-700">Corporate Accounts / Treasury Email *</label>
-                        <span className="text-[9px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.2 rounded border border-indigo-200">
-                          Digital Notice Destination
-                        </span>
-                      </div>
-                      <input
-                        type="email"
-                        required
-                        placeholder="e.g. accounts@sharmasteels.com / cfo@sharmasteels.com"
-                        value={newBuyerForm.contactEmail}
-                        onChange={(e) => setNewBuyerForm({ ...newBuyerForm, contactEmail: e.target.value })}
-                        className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="text-[11px] font-bold text-slate-700 block mb-1">Finance Officer Name</label>
-                        <input
-                          type="text"
-                          placeholder="e.g. Anil Sharma"
-                          value={newBuyerForm.contactPerson}
-                          onChange={(e) => setNewBuyerForm({ ...newBuyerForm, contactPerson: e.target.value })}
-                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none"
-                        />
-                      </div>
-                      <div>
-                        <div className="flex items-center justify-between mb-1">
-                          <label className="text-[11px] font-bold text-slate-700">Mobile Phone</label>
-                          <span className="text-[9px] font-bold text-emerald-700">WhatsApp Alert</span>
-                        </div>
-                        <input
-                          type="tel"
-                          maxLength={10}
-                          placeholder="e.g. 9876543210"
-                          value={newBuyerForm.contactPhone}
-                          onChange={(e) => setNewBuyerForm({ ...newBuyerForm, contactPhone: e.target.value.replace(/\D/g, "") })}
-                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-2.5 rounded-lg bg-white/80 border border-emerald-200/60 flex items-start gap-2 text-[11px] text-slate-600">
-                    <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <div>
-                      <strong className="text-slate-800">Fail-Closed Underwriting Gate: </strong>
-                      Upon upload, Udharco will issue a Digital Notice of Assignment directly to this corporate. The credit limit will start at ₹0 and Admin will review their GST credentials with a ₹50L probationary cap before investor bidding opens.
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* 4. e-INVOICE 64-CHAR IRN HASH */}
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                    <QrCode className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Government e-Invoice IRN Hash *</span>
-                  </label>
-                  <button
-                    type="button"
-                    onClick={generateCompliantIRN}
-                    className="text-[11px] text-emerald-700 hover:text-emerald-800 font-bold flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>⚡ Auto-Generate Govt IRN</span>
-                  </button>
-                </div>
-
-                <div className="relative">
-                  <input
-                    type="text"
-                    required
-                    value={uploadForm.irn}
-                    onChange={(e) => setUploadForm({ ...uploadForm, irn: e.target.value.trim().toLowerCase() })}
-                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-[11px] text-slate-900 font-mono focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none pr-10"
-                    placeholder="64-character hexadecimal IRN generated by NIC GST Portal"
-                  />
-                  <div className="absolute right-3 top-2.5">
-                    {uploadForm.irn.length === 64 ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    ) : (
-                      <AlertTriangle className="w-4 h-4 text-amber-500" />
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between text-[11px]">
-                  <span className={uploadForm.irn.length === 64 ? "text-emerald-700 font-semibold" : "text-amber-700 font-medium"}>
-                    {uploadForm.irn.length} / 64 characters {uploadForm.irn.length === 64 ? "(Valid SHA-256)" : "(Incomplete)"}
-                  </span>
-                  <span className="text-slate-500">Validated against GSTN & Anti-Fraud Registry</span>
-                </div>
-              </div>
-
-              {/* 5. PURCHASE ORDER (PO) & CREDIT TENURE */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">
-                    Purchase Order (PO) Number <span className="text-slate-400 font-normal">(Optional)</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={uploadForm.poNumber}
-                    onChange={(e) => setUploadForm({ ...uploadForm, poNumber: e.target.value })}
-                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none"
-                    placeholder="PO-AUTO-9021"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Payment Tenure (Credit Period)</label>
-                  <select
-                    value={uploadForm.tenureDays}
-                    onChange={(e) => setUploadForm({ ...uploadForm, tenureDays: Number(e.target.value) })}
-                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:border-emerald-500 outline-none font-medium cursor-pointer"
-                  >
-                    <option value={30}>30 Days Credit Period</option>
-                    <option value={60}>60 Days Credit Period</option>
-                    <option value={90}>90 Days Credit Period</option>
-                    <option value={120}>120 Days Credit Period</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* 7. LIVE 84/15/1 DISBURSEMENT MATH PREVIEW */}
-              <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200 space-y-2 text-xs">
-                <div className="font-bold text-slate-900 flex items-center justify-between">
-                  <span>Cash Advance Breakdown:</span>
-                  <span className="text-emerald-800 font-semibold text-[11px]">11.0% p.a. Benchmark</span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1.5 border-t border-emerald-200/80 font-mono">
-                  <div className="min-w-0 bg-white/90 p-2.5 rounded-lg border border-emerald-200/60 overflow-hidden">
-                    <div className="text-slate-600 text-[10px] font-sans font-medium uppercase tracking-wider">Instant 84% Advance</div>
-                    <div
-                      suppressHydrationWarning
-                      className="text-emerald-800 font-black text-sm truncate mt-0.5"
-                      title={`₹${formatINR(Math.round(uploadForm.totalAmount * 0.84))}`}
+                    <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <QrCode className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>NIC Govt e-Invoice IRN Hash *</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={generateCompliantIRN}
+                      className="text-[11px] text-emerald-700 hover:text-emerald-800 font-bold cursor-pointer"
                     >
-                      ₹{formatINR(Math.round(uploadForm.totalAmount * 0.84))}
-                    </div>
-                    {uploadForm.totalAmount >= 100000 && (
-                      <div className="text-[10px] text-emerald-700 font-sans font-semibold mt-0.5 truncate">
-                        {uploadForm.totalAmount * 0.84 >= 10000000
-                          ? `≈ ₹${((uploadForm.totalAmount * 0.84) / 10000000).toFixed(2)} Cr`
-                          : `≈ ₹${((uploadForm.totalAmount * 0.84) / 100000).toFixed(2)} Lakh`}
-                      </div>
-                    )}
+                      ⚡ Auto-Generate Govt IRN
+                    </button>
                   </div>
-
-                  <div className="min-w-0 bg-white/90 p-2.5 rounded-lg border border-emerald-200/60 overflow-hidden">
-                    <div className="text-slate-600 text-[10px] font-sans font-medium uppercase tracking-wider">15% Escrow Margin</div>
-                    <div
-                      suppressHydrationWarning
-                      className="text-amber-800 font-bold text-sm truncate mt-0.5"
-                      title={`₹${formatINR(Math.round(uploadForm.totalAmount * 0.15))}`}
-                    >
-                      ₹{formatINR(Math.round(uploadForm.totalAmount * 0.15))}
+                  <div className="relative">
+                    <input
+                      type="text"
+                      required
+                      value={uploadForm.irn}
+                      onChange={(e) => setUploadForm({ ...uploadForm, irn: e.target.value.trim().toLowerCase() })}
+                      className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-[11px] text-slate-900 font-mono focus:border-emerald-500 outline-none pr-8"
+                      placeholder="64-character hexadecimal IRN generated by NIC GST Portal"
+                    />
+                    <div className="absolute right-2.5 top-2">
+                      {uploadForm.irn.length === 64 ? (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      ) : (
+                        <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+                      )}
                     </div>
-                    {uploadForm.totalAmount >= 100000 && (
-                      <div className="text-[10px] text-amber-700 font-sans font-semibold mt-0.5 truncate">
-                        {uploadForm.totalAmount * 0.15 >= 10000000
-                          ? `≈ ₹${((uploadForm.totalAmount * 0.15) / 10000000).toFixed(2)} Cr`
-                          : `≈ ₹${((uploadForm.totalAmount * 0.15) / 100000).toFixed(2)} Lakh`}
-                      </div>
-                    )}
                   </div>
+                  <div className="flex items-center justify-between text-[10px] text-slate-500 font-mono">
+                    <span>{uploadForm.irn.length} / 64 characters {uploadForm.irn.length === 64 ? "(Valid SHA-256)" : "(Incomplete)"}</span>
+                    <span>Validated against GSTN Registry</span>
+                  </div>
+                </div>
 
-                  <div className="min-w-0 bg-white/90 p-2.5 rounded-lg border border-emerald-200/60 overflow-hidden">
-                    <div className="text-slate-600 text-[10px] font-sans font-medium uppercase tracking-wider">1% Platform Fee</div>
-                    <div
-                      suppressHydrationWarning
-                      className="text-slate-700 font-bold text-sm truncate mt-0.5"
-                      title={`₹${formatINR(Math.round(uploadForm.totalAmount * 0.01))}`}
+                {/* 6. PO & TENURE (Compact 2-col) */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">
+                      Purchase Order (PO) <span className="text-slate-400 font-normal">(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={uploadForm.poNumber}
+                      onChange={(e) => setUploadForm({ ...uploadForm, poNumber: e.target.value })}
+                      className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 font-mono focus:border-emerald-500 outline-none"
+                      placeholder="PO-AUTO-9021"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Payment Tenure</label>
+                    <select
+                      value={uploadForm.tenureDays}
+                      onChange={(e) => setUploadForm({ ...uploadForm, tenureDays: Number(e.target.value) })}
+                      className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 focus:border-emerald-500 outline-none cursor-pointer"
                     >
-                      ₹{formatINR(Math.round(uploadForm.totalAmount * 0.01))}
+                      <option value={30}>30 Days Credit Period</option>
+                      <option value={60}>60 Days Credit Period</option>
+                      <option value={90}>90 Days Credit Period</option>
+                      <option value={120}>120 Days Credit Period</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* 7. CASH ADVANCE BREAKDOWN (Compact Strip) */}
+                <div className="p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-200 text-xs">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-slate-800 mb-1.5">
+                    <span>Cash Advance Breakdown:</span>
+                    <span className="text-emerald-800 font-mono">11.0% p.a. Benchmark</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 font-mono text-center">
+                    <div className="bg-white/90 p-1.5 rounded-lg border border-emerald-200/60">
+                      <div className="text-[9px] text-slate-500 font-sans uppercase font-medium">84% Upfront Cash</div>
+                      <div className="font-bold text-emerald-800 text-xs mt-0.5">₹{formatINR(Math.round(uploadForm.totalAmount * 0.84))}</div>
                     </div>
-                    {uploadForm.totalAmount >= 100000 && (
-                      <div className="text-[10px] text-slate-500 font-sans font-semibold mt-0.5 truncate">
-                        {uploadForm.totalAmount * 0.01 >= 10000000
-                          ? `≈ ₹${((uploadForm.totalAmount * 0.01) / 10000000).toFixed(2)} Cr`
-                          : `≈ ₹${((uploadForm.totalAmount * 0.01) / 100000).toFixed(2)} Lakh`}
-                      </div>
-                    )}
+                    <div className="bg-white/90 p-1.5 rounded-lg border border-emerald-200/60">
+                      <div className="text-[9px] text-slate-500 font-sans uppercase font-medium">15% Escrow Reserve</div>
+                      <div className="font-bold text-amber-800 text-xs mt-0.5">₹{formatINR(Math.round(uploadForm.totalAmount * 0.15))}</div>
+                    </div>
+                    <div className="bg-white/90 p-1.5 rounded-lg border border-emerald-200/60">
+                      <div className="text-[9px] text-slate-500 font-sans uppercase font-medium">1% Platform Fee</div>
+                      <div className="font-bold text-slate-700 text-xs mt-0.5">₹{formatINR(Math.round(uploadForm.totalAmount * 0.01))}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 8. RECOURSE DISCLAIMER */}
+                <div className="flex items-start gap-2 p-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-500 text-[10px]">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                  <div>
+                    <strong className="text-slate-700">With-Recourse Factoring: </strong>
+                    Backed by your e-NACH mandate per RBI Factoring Regulation Act, 2011.
                   </div>
                 </div>
               </div>
 
-              {/* 8. LEGAL RECOURSE & e-NACH DISCLOSURE (RBI Transparency) */}
-              <div className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 text-[11px] leading-relaxed">
-                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <div>
-                  <span className="font-bold text-slate-800">With-Recourse Factoring: </span>
-                  This invoice is discounted under your Master Factoring Agreement backed by your Step 4 e-NACH mandate. If the corporate buyer raises an unresolved commercial dispute, recourse applies per RBI Factoring Regulation Act, 2011.
-                </div>
-              </div>
-
-              {/* 9. ACTIONS */}
-              <div className="flex justify-end gap-3 pt-2">
+              {/* Pinned Footer Actions */}
+              <div className="p-3.5 sm:p-4 border-t border-slate-100 flex items-center justify-between shrink-0 bg-slate-50">
                 <button
                   type="button"
                   onClick={() => setIsUploadOpen(false)}
-                  className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loadingAction === "upload" || isUploadAmountExceeded || !uploadForm.totalAmount || uploadForm.totalAmount <= 0}
-                  className={`px-5 py-2.5 rounded-lg text-white text-xs font-bold shadow-xs transition flex items-center gap-2 ${
+                  className={`px-5 py-2.5 rounded-xl text-white text-xs font-bold shadow-xs transition flex items-center gap-2 ${
                     isUploadAmountExceeded || !uploadForm.totalAmount || uploadForm.totalAmount <= 0
                       ? "bg-slate-300 text-slate-500 cursor-not-allowed"
                       : "bg-emerald-600 hover:bg-emerald-700 hover:shadow cursor-pointer"
@@ -1648,7 +1535,7 @@ export default function DashboardClient({
                   ) : isUploadAmountExceeded ? (
                     <>
                       <AlertCircle className="w-3.5 h-3.5" />
-                      <span>Exceeds Sanctioned Limit (Max ₹{formatINR(effectiveMaxLimit)})</span>
+                      <span>Exceeds Limit (Max ₹{formatINR(effectiveMaxLimit)})</span>
                     </>
                   ) : (
                     <>
