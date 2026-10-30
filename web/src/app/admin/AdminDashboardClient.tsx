@@ -153,6 +153,7 @@ export default function AdminDashboardClient({
 
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [toast, setToast] = useState<{ type: "success" | "error"; msg: string } | null>(null);
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
 
   // Modals
   const [isAnchorModalOpen, setIsAnchorModalOpen] = useState(false);
@@ -731,443 +732,411 @@ export default function AdminDashboardClient({
             ───────────────────────────────────────────────────────────────── */}
         {activeTab === "OVERVIEW" && (
           <div className="space-y-6">
-            {/* Top Stat Cards - 5 Column Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">Total Factored</span>
-                <div suppressHydrationWarning className="text-2xl font-black text-slate-900 font-mono">₹{formatINR(totalFactored)}</div>
-                <span className="text-[11px] text-emerald-700 font-medium mt-1 block">Active Invoices</span>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">Platform Revenue</span>
-                <div suppressHydrationWarning className="text-2xl font-black text-emerald-700 font-mono">₹{formatINR(platformRevenue)}</div>
-                <span className="text-[11px] text-emerald-700 font-medium mt-1 block">1.0% Commission Swept</span>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">Escrow Liquidity</span>
-                <div suppressHydrationWarning className="text-2xl font-black text-indigo-700 font-mono">₹{formatINR(totalEscrowPool)}</div>
-                <span className="text-[11px] text-slate-500 mt-1 block">Regulated Escrow Pool</span>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">Corporate Anchors</span>
-                <div className="text-2xl font-black text-slate-900">{anchors.length} Corporates</div>
-                <span className="text-[11px] text-slate-500 mt-1 block">Bilateral Credit Lines</span>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs col-span-2 lg:col-span-1">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">Disputes / Recourse</span>
-                <div className={`text-2xl font-black font-mono ${disputedInvoices.length > 0 ? "text-red-700" : "text-emerald-700"}`}>
-                  {disputedInvoices.length} Invoices
-                </div>
-                <span className="text-[11px] text-slate-500 mt-1 block">
-                  {disputedInvoices.length > 0 ? "Requires e-NACH Clawback" : "Zero defaults currently"}
-                </span>
-              </div>
-            </div>
-
-            {/* Live Regulatory & Fintech Infrastructure Rail Health */}
-            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-indigo-600" />
-                  <h3 className="text-sm font-bold text-slate-900">Regulatory & Fintech Rail Health Monitor</h3>
-                </div>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  ALL SYSTEMS OPERATIONAL
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
-                {/* Surepass */}
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                      <Zap className="w-3.5 h-3.5 text-amber-500" />
-                      Surepass KYC Rail
-                    </span>
-                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">
-                      LIVE PROD
-                    </span>
-                  </div>
-                  <div className="text-[11px] text-slate-600 font-mono truncate">
-                    https://kyc-api.surepass.io
-                  </div>
-                  <div className="text-[10px] text-slate-500 mt-2 flex items-center justify-between">
-                    <span>5-Layer Shield: Active</span>
-                    <span className="font-semibold text-slate-700">₹1.77 / live call</span>
-                  </div>
-                </div>
-
-                {/* ICICI Virtual Escrow */}
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                      <Landmark className="w-3.5 h-3.5 text-indigo-600" />
-                      ICICI Escrow Webhook
-                    </span>
-                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">
-                      SECURE
-                    </span>
-                  </div>
-                  <div className="text-[11px] text-slate-600 font-mono truncate">
-                    /api/v1/webhooks/escrow
-                  </div>
-                  <div className="text-[10px] text-slate-500 mt-2 flex items-center justify-between">
-                    <span>Waterfall Clearing</span>
-                    <span className="font-semibold text-emerald-700">T+0 Automated</span>
-                  </div>
-                </div>
-
-                {/* NPCI e-NACH */}
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                      <Cpu className="w-3.5 h-3.5 text-sky-600" />
-                      NPCI e-NACH Mandate
-                    </span>
-                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">
-                      FAIL-CLOSED
-                    </span>
-                  </div>
-                  <div className="text-[11px] text-slate-600 font-mono truncate">
-                    FRA 2011 Sec 2(j) Recourse
-                  </div>
-                  <div className="text-[10px] text-slate-500 mt-2 flex items-center justify-between">
-                    <span>Direct Debit Clawback</span>
-                    <span className="font-semibold text-slate-700">Active</span>
-                  </div>
-                </div>
-
-                {/* CERSAI Registry */}
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                      CERSAI Central Registry
-                    </span>
-                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-sky-100 text-sky-800">
-                      IN-SYNC
-                    </span>
-                  </div>
-                  <div className="text-[11px] text-slate-600 font-mono truncate">
-                    Security Interest Filing
-                  </div>
-                  <div className="text-[10px] text-slate-500 mt-2 flex items-center justify-between">
-                    <span>Double-Financing Guard</span>
-                    <span className="font-semibold text-emerald-700">Enforced</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Live Surepass GSTIN Inspector Console */}
-            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            {/* 1. KEY OPERATIONAL KPIS (4 Clean Cards) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center gap-2">
-                    <div className="h-7 w-7 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center">
-                      <Sparkles className="w-4 h-4" />
-                    </div>
-                    <h3 className="text-base font-bold text-slate-900">Live Surepass GSTIN Inspector & Shield Sandbox</h3>
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">
+                    Factored Capital Volume
+                  </span>
+                  <div suppressHydrationWarning className="text-2xl font-black text-slate-900 font-mono">
+                    ₹{formatINR(totalFactored)}
                   </div>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Execute real-time GST queries against Surepass Production API. Demonstrates 5-layer wallet protection & sub-second caching.
-                  </p>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="px-2 py-1 rounded-lg text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 font-mono">
-                    TOKEN: active
-                  </span>
-                  <span className="px-2 py-1 rounded-lg text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono">
-                    CACHE: 7-day TTL
+                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500">{invoices.length} Invoices on Record</span>
+                  <span className="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">
+                    {totalSettledCount} Settled
                   </span>
                 </div>
               </div>
 
-              {/* Quick Sample Chips */}
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[11px] font-bold text-slate-500">Quick Test Anchors:</span>
-                {[
-                  { name: "Tata Motors", gstin: "27AAACT2727Q1ZW" },
-                  { name: "Reliance Industries", gstin: "24AAACR5055K1Z7" },
-                  { name: "Infosys Ltd", gstin: "29AAACI4323E1ZQ" },
-                  { name: "L&T Ltd", gstin: "33AAACG3818L1ZU" },
-                ].map((chip) => (
+              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">
+                    Escrow Liquidity Pool
+                  </span>
+                  <div suppressHydrationWarning className="text-2xl font-black text-indigo-700 font-mono">
+                    ₹{formatINR(totalEscrowPool)}
+                  </div>
+                </div>
+                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500">Regulated Virtual Escrow</span>
+                  <span className="text-indigo-700 font-bold bg-indigo-50 px-1.5 py-0.5 rounded">
+                    {investors.length} NBFCs Active
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">
+                    Platform Revenue Swept
+                  </span>
+                  <div suppressHydrationWarning className="text-2xl font-black text-emerald-700 font-mono">
+                    ₹{formatINR(platformRevenue)}
+                  </div>
+                </div>
+                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500">1.0% Commission</span>
+                  <span className="text-emerald-700 font-semibold font-mono">T+0 Clearing</span>
+                </div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">
+                    Risk & Recourse Status
+                  </span>
+                  <div className={`text-2xl font-black font-mono ${disputedInvoices.length > 0 ? "text-red-700" : "text-emerald-700"}`}>
+                    {disputedInvoices.length > 0 ? `${disputedInvoices.length} Disputes` : "Zero Defaults"}
+                  </div>
+                </div>
+                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500">NPCI e-NACH Clawback</span>
+                  <span className="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">
+                    FAIL-CLOSED
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. URGENT ACTION QUEUE: Pending Corporates Awaiting Limit Sanction */}
+            {anchors.filter((a) => a.status === "PENDING").length > 0 && (
+              <div className="p-5 rounded-2xl bg-amber-50/80 border border-amber-300 shadow-xs space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-8 w-8 rounded-xl bg-amber-200 text-amber-900 flex items-center justify-center font-bold">
+                      <Clock className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-amber-950">
+                        Immediate Action Required: {anchors.filter((a) => a.status === "PENDING").length} Corporate Buyer(s) Awaiting Underwriting
+                      </h4>
+                      <p className="text-xs text-amber-800">
+                        New enterprise buyers have been onboarded with ₹0 initial limit. Review GSTIN and sanction credit facility before investor bidding unlocks.
+                      </p>
+                    </div>
+                  </div>
                   <button
-                    key={chip.gstin}
-                    type="button"
                     onClick={() => {
-                      setInspectorGstin(chip.gstin);
-                      handleInspectGstin(chip.gstin);
+                      setAnchorFilter("PENDING");
+                      setActiveTab("ANCHORS");
                     }}
-                    disabled={inspectorLoading}
-                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200 border border-slate-200 text-slate-700 text-[11px] font-medium transition cursor-pointer flex items-center gap-1"
+                    className="px-3 py-1.5 rounded-lg bg-amber-700 hover:bg-amber-800 text-white font-semibold text-xs shadow-xs transition cursor-pointer"
                   >
-                    <span>{chip.name}</span>
-                    <span className="font-mono text-[9px] text-slate-400">({chip.gstin.slice(0, 4)}...)</span>
+                    View All Pending ({anchors.filter((a) => a.status === "PENDING").length})
                   </button>
-                ))}
-              </div>
-
-              {/* Input + Action Bar */}
-              <div className="flex flex-col sm:flex-row gap-2">
-                <div className="relative flex-1">
-                  <input
-                    type="text"
-                    maxLength={15}
-                    value={inspectorGstin}
-                    onChange={(e) => setInspectorGstin(e.target.value.toUpperCase().trim())}
-                    placeholder="Enter 15-character GSTIN (e.g. 27AAACT2727Q1ZW)"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 font-mono text-xs uppercase tracking-wider outline-none focus:bg-white focus:border-indigo-500 font-semibold"
-                  />
-                  <span className="absolute right-3 top-2.5 text-[10px] font-mono text-slate-400 font-medium">
-                    {inspectorGstin.length}/15
-                  </span>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleInspectGstin()}
-                  disabled={inspectorLoading}
-                  className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 text-white font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-xs shrink-0"
-                >
-                  {inspectorLoading ? (
-                    <>
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Verifying Surepass...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Search className="w-3.5 h-3.5" />
-                      <span>Run Live GSTIN Check</span>
-                    </>
-                  )}
-                </button>
-              </div>
 
-              {/* Inspector Result Card */}
-              {inspectorResult && (
-                <div className={`p-4 rounded-xl border text-xs transition ${
-                  inspectorResult.success
-                    ? "bg-slate-50 border-slate-200"
-                    : "bg-red-50/50 border-red-200"
-                }`}>
-                  {inspectorResult.success ? (
-                    <div className="space-y-3">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 pb-2.5">
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <div>
-                            <span className="font-bold text-slate-900 text-sm">
-                              {inspectorResult.legalName || "Verified Entity"}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                  {anchors
+                    .filter((a) => a.status === "PENDING")
+                    .slice(0, 2)
+                    .map((pendingAnchor) => (
+                      <div
+                        key={pendingAnchor.id}
+                        className="p-3.5 bg-white rounded-xl border border-amber-200 flex items-center justify-between shadow-2xs"
+                      >
+                        <div>
+                          <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                            <span>{pendingAnchor.corporateName}</span>
+                            <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-100 text-amber-900 font-mono font-semibold">
+                              {pendingAnchor.gstin}
                             </span>
-                            {inspectorResult.tradeName && inspectorResult.tradeName !== inspectorResult.legalName && (
-                              <span className="text-slate-500 text-[11px] block">
-                                Trade: {inspectorResult.tradeName}
-                              </span>
-                            )}
+                          </div>
+                          <div className="text-[11px] text-slate-500 mt-0.5">
+                            Source: {pendingAnchor.sourceChannel || "VENDOR_PUSH"} • Limit: ₹0 (Probationary)
                           </div>
                         </div>
-
-                        <div className="flex items-center gap-2 shrink-0">
-                          {inspectorResult.cached ? (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
-                              🛡️ Cache Shield Hit (₹0 API Cost)
-                            </span>
-                          ) : (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
-                              ⚡ Live Surepass Call (₹1.77 Charged)
-                            </span>
-                          )}
-
-                          {inspectorResult.latencyMs !== undefined && (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-slate-200 text-slate-700">
-                              {inspectorResult.latencyMs}ms
-                            </span>
-                          )}
-                        </div>
+                        <button
+                          onClick={() => {
+                            setReviewAnchorModal(pendingAnchor);
+                            setReviewAnchorForm({
+                              maxExposureLimit: 5000000,
+                              creditRating: "A",
+                            });
+                          }}
+                          className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition cursor-pointer shrink-0"
+                        >
+                          Review & Sanction Limit
+                        </button>
                       </div>
-
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11px]">
-                        <div>
-                          <span className="text-slate-400 block font-medium">GSTIN</span>
-                          <span className="font-mono font-bold text-slate-800">{inspectorResult.gstin}</span>
-                        </div>
-                        <div>
-                          <span className="text-slate-400 block font-medium">Extracted PAN</span>
-                          <span className="font-mono font-bold text-indigo-700">{inspectorResult.pan || inspectorResult.gstin?.slice(2, 12)}</span>
-                        </div>
-                        <div>
-                          <span className="text-slate-400 block font-medium">State Code</span>
-                          <span className="font-mono font-semibold text-slate-700">{inspectorResult.state || inspectorResult.gstin?.slice(0, 2)}</span>
-                        </div>
-                        <div>
-                          <span className="text-slate-400 block font-medium">Registration Status</span>
-                          <span className="inline-block px-1.5 py-0.5 rounded font-semibold text-[10px] bg-emerald-100 text-emerald-800">
-                            {inspectorResult.status || "ACTIVE"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 text-red-700">
-                      <AlertCircle className="w-4 h-4 shrink-0" />
-                      <div>
-                        <span className="font-bold">Lookup Failed: </span>
-                        <span>{inspectorResult.error || "Unable to verify GSTIN with Surepass."}</span>
-                      </div>
-                    </div>
-                  )}
+                    ))}
                 </div>
-              )}
-            </div>
-
-            {/* Escrow Settlement Waterfall Architecture Card */}
-            <div className="p-5 rounded-2xl bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-900 text-white shadow-md space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="h-8 w-8 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-300">
-                    <Landmark className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-white">Automated Escrow Waterfall & Recourse Mechanism</h3>
-                    <p className="text-[11px] text-slate-400">
-                      Regulated Virtual Escrow clearing flow under Factoring Regulation Act, 2011
-                    </p>
-                  </div>
-                </div>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 font-mono">
-                  SECTION 2(J) FAIL-CLOSED
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
-                <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
-                  <div className="text-[10px] font-bold text-indigo-300 uppercase tracking-wider">Step 1 • Repayment</div>
-                  <div className="font-bold text-white">Anchor Repays 100%</div>
-                  <div className="text-[11px] text-slate-400">
-                    Enterprise buyer settles full invoice into ICICI Virtual Escrow at T+90.
-                  </div>
-                </div>
-
-                <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
-                  <div className="text-[10px] font-bold text-emerald-300 uppercase tracking-wider">Step 2 • Investor Yield</div>
-                  <div className="font-bold text-emerald-400">Principal + 10% p.a.</div>
-                  <div className="text-[11px] text-slate-400">
-                    Automated return of investor liquidity + accrued daily financing yield.
-                  </div>
-                </div>
-
-                <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
-                  <div className="text-[10px] font-bold text-sky-300 uppercase tracking-wider">Step 3 • Platform Sweep</div>
-                  <div className="font-bold text-sky-400">1.0% Commission</div>
-                  <div className="text-[11px] text-slate-400">
-                    Automated fee sweep credited to UdharCo operating treasury wallet.
-                  </div>
-                </div>
-
-                <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
-                  <div className="text-[10px] font-bold text-rose-300 uppercase tracking-wider">Step 4 • Dispute Recourse</div>
-                  <div className="font-bold text-rose-400">e-NACH Clawback</div>
-                  <div className="text-[11px] text-slate-400">
-                    If anchor raises dispute, 1-click mandate auto-debits MSME seller payout account.
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Pending Corporate Applications Alert */}
-            {anchors.filter((a) => a.status === "PENDING").length > 0 && (
-              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
-                    <Clock className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900">
-                      {anchors.filter((a) => a.status === "PENDING").length} Corporate Application(s) Pending Underwriting
-                    </h4>
-                    <p className="text-xs text-slate-600 mt-0.5">
-                      New enterprise buyers applied with verified GSTIN. Review and assign credit exposure limit.
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => {
-                    setAnchorFilter("PENDING");
-                    setActiveTab("ANCHORS");
-                  }}
-                  className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shrink-0 transition cursor-pointer"
-                >
-                  Review Applications
-                </button>
               </div>
             )}
 
-            {/* Quick Actions & Protocol Status */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {/* Provision Anchor Card */}
-              <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between space-y-4">
-                <div>
-                  <div className="h-10 w-10 rounded-xl bg-sky-50 border border-sky-200 text-sky-700 flex items-center justify-center mb-3">
-                    <Building2 className="w-5 h-5" />
+            {/* 3. CORE TWO-COLUMN OPERATIONS DASHBOARD */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left Column (2 Cols): Live Invoices & Marketplace Activity */}
+              <div className="lg:col-span-2 space-y-4">
+                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-indigo-600" />
+                        <span>Live Factoring Pipeline & Recent Invoices</span>
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Real-time status of all trade receivables across MSMEs and Corporates
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setActiveTab("INVOICES")}
+                      className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer"
+                    >
+                      <span>View All ({invoices.length})</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
                   </div>
-                  <h4 className="text-base font-bold text-slate-900">Provision Corporate Anchor</h4>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Onboard enterprise buyers (Tata Motors, Reliance, etc.) post bilateral agreement.
-                  </p>
+
+                  {invoices.length === 0 ? (
+                    <div className="text-center py-8 text-slate-400 text-xs">
+                      No invoices uploaded yet. MSMEs can upload bills via their dashboard.
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs">
+                        <thead>
+                          <tr className="border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            <th className="pb-2.5">Invoice #</th>
+                            <th className="pb-2.5">Seller (MSME)</th>
+                            <th className="pb-2.5">Buyer (Corporate)</th>
+                            <th className="pb-2.5 text-right">Face Value</th>
+                            <th className="pb-2.5 text-center">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {invoices.slice(0, 5).map((inv) => (
+                            <tr key={inv.id} className="hover:bg-slate-50/80 transition">
+                              <td className="py-2.5 font-mono font-bold text-slate-900 truncate max-w-[140px]" title={inv.invoiceNumber}>
+                                {inv.invoiceNumber}
+                              </td>
+                              <td className="py-2.5 text-slate-700 font-medium truncate max-w-[140px]">
+                                {inv.seller?.legalName || "MSME Vendor"}
+                              </td>
+                              <td className="py-2.5 text-slate-700 font-medium truncate max-w-[140px]">
+                                {inv.anchor?.corporateName || "Corporate Buyer"}
+                              </td>
+                              <td className="py-2.5 font-mono text-slate-900 font-bold text-right">
+                                ₹{formatINR(inv.totalAmount)}
+                              </td>
+                              <td className="py-2.5 text-center">
+                                <span
+                                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold inline-block ${
+                                    inv.status === "FUNDED"
+                                      ? "bg-emerald-100 text-emerald-800"
+                                      : inv.status === "LISTED"
+                                      ? "bg-sky-100 text-sky-800"
+                                      : inv.status === "SETTLED"
+                                      ? "bg-slate-100 text-slate-700"
+                                      : inv.status === "DISPUTED"
+                                      ? "bg-red-100 text-red-800"
+                                      : "bg-amber-100 text-amber-800"
+                                  }`}
+                                >
+                                  {inv.status}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
-                <button
-                  onClick={() => setIsAnchorModalOpen(true)}
-                  className="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-xs"
-                >
-                  <PlusCircle className="w-4 h-4" />
-                  <span>Provision Anchor</span>
-                </button>
               </div>
 
-              {/* Provision Investor Card */}
-              <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between space-y-4">
-                <div>
-                  <div className="h-10 w-10 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 flex items-center justify-center mb-3">
-                    <Wallet className="w-5 h-5" />
-                  </div>
-                  <h4 className="text-base font-bold text-slate-900">Onboard Regulated Investor</h4>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Provision NBFC or Bank treasury accounts with virtual escrow allocations.
-                  </p>
-                </div>
-                <button
-                  onClick={() => setIsInvestorModalOpen(true)}
-                  className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-xs"
-                >
-                  <PlusCircle className="w-4 h-4" />
-                  <span>Onboard Investor</span>
-                </button>
-              </div>
+              {/* Right Column (1 Col): Quick Admin Operations & Ecosystem Snapshot */}
+              <div className="space-y-4">
+                {/* Quick Actions Card */}
+                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3">
+                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    Quick Operations
+                  </h3>
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => setIsAnchorModalOpen(true)}
+                      className="w-full p-2.5 rounded-xl bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 text-slate-800 hover:text-indigo-900 text-xs font-bold flex items-center justify-between transition cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Building2 className="w-4 h-4 text-indigo-600" />
+                        <span>Provision Corporate Anchor</span>
+                      </div>
+                      <PlusCircle className="w-3.5 h-3.5 text-slate-400" />
+                    </button>
 
-              {/* CERSAI & Factoring Compliance Card */}
-              <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between space-y-4">
-                <div>
-                  <div className="h-10 w-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center mb-3">
-                    <ShieldCheck className="w-5 h-5" />
+                    <button
+                      onClick={() => setIsInvestorModalOpen(true)}
+                      className="w-full p-2.5 rounded-xl bg-slate-50 hover:bg-purple-50 border border-slate-200 hover:border-purple-200 text-slate-800 hover:text-purple-900 text-xs font-bold flex items-center justify-between transition cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Wallet className="w-4 h-4 text-purple-600" />
+                        <span>Onboard / Top-up Investor</span>
+                      </div>
+                      <PlusCircle className="w-3.5 h-3.5 text-slate-400" />
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        const url = `${window.location.origin}/corporate/apply`;
+                        navigator.clipboard.writeText(url);
+                        showToast("success", "Corporate Apply Link copied to clipboard!");
+                      }}
+                      className="w-full p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-200 text-slate-800 hover:text-emerald-900 text-xs font-bold flex items-center justify-between transition cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <ExternalLink className="w-4 h-4 text-emerald-600" />
+                        <span>Copy Public Corporate Apply Link</span>
+                      </div>
+                      <Copy className="w-3.5 h-3.5 text-slate-400" />
+                    </button>
                   </div>
-                  <h4 className="text-base font-bold text-slate-900">Legal & Regulatory Engine</h4>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Factoring Regulation Act 2011 • Section 2(j) Recourse • NPCI e-Mandate Engine Active.
-                  </p>
                 </div>
-                <button
-                  onClick={() => setActiveTab("AUDIT")}
-                  className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer"
-                >
-                  <History className="w-4 h-4" />
-                  <span>View System Audit Trail</span>
-                </button>
+
+                {/* Ecosystem Breakdown Card */}
+                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3">
+                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    Ecosystem Snapshot
+                  </h3>
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div
+                      onClick={() => setActiveTab("ANCHORS")}
+                      className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 cursor-pointer transition"
+                    >
+                      <div className="text-base font-black text-slate-900">{anchors.length}</div>
+                      <div className="text-[10px] text-slate-500 font-semibold mt-0.5">Anchors</div>
+                    </div>
+                    <div
+                      onClick={() => setActiveTab("SELLERS")}
+                      className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 cursor-pointer transition"
+                    >
+                      <div className="text-base font-black text-slate-900">{sellers.length}</div>
+                      <div className="text-[10px] text-slate-500 font-semibold mt-0.5">MSMEs</div>
+                    </div>
+                    <div
+                      onClick={() => setActiveTab("INVESTORS")}
+                      className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 cursor-pointer transition"
+                    >
+                      <div className="text-base font-black text-slate-900">{investors.length}</div>
+                      <div className="text-[10px] text-slate-500 font-semibold mt-0.5">NBFCs</div>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-100 space-y-1.5 text-[11px] text-slate-600">
+                    <div className="flex items-center justify-between">
+                      <span>Factoring Regulation Act, 2011</span>
+                      <span className="font-bold text-emerald-700">✓ ENFORCED</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>CERSAI Asset Charge Filing</span>
+                      <span className="font-bold text-sky-700">✓ IN-SYNC</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>NPCI e-NACH Direct Debit</span>
+                      <span className="font-bold text-emerald-700">✓ ACTIVE</span>
+                    </div>
+                  </div>
+                </div>
               </div>
+            </div>
+
+            {/* 4. COLLAPSIBLE DEVELOPER & DIAGNOSTIC SANDBOX (Tucked away at the bottom) */}
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => setShowDiagnostics(!showDiagnostics)}
+                className="w-full p-3 rounded-xl bg-slate-100 hover:bg-slate-200/80 border border-slate-200 text-slate-600 text-xs font-semibold flex items-center justify-between transition cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <Sliders className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Developer & Diagnostic Tools (Surepass GSTIN Inspector & Rail Health)</span>
+                </div>
+                <span className="text-[11px] font-mono font-bold text-slate-500">
+                  {showDiagnostics ? "Hide ▲" : "Show ▼"}
+                </span>
+              </button>
+
+              {showDiagnostics && (
+                <div className="mt-4 space-y-4 p-5 rounded-2xl bg-white border border-slate-200 shadow-xs animate-in fade-in duration-200">
+                  {/* Live Surepass GSTIN Inspector Console */}
+                  <div className="space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-indigo-600" />
+                          <h4 className="text-xs font-bold text-slate-900">Live Surepass GSTIN Inspector & Shield Sandbox</h4>
+                        </div>
+                        <p className="text-[11px] text-slate-500">
+                          Execute real-time GST queries against Surepass Production API. Demonstrates 5-layer wallet protection & sub-second caching.
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[9px] font-mono">
+                        <span className="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">TOKEN: active</span>
+                        <span className="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">CACHE: 7-day TTL</span>
+                      </div>
+                    </div>
+
+                    {/* Quick Sample Chips */}
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-[10px] font-bold text-slate-400">Sample GSTINs:</span>
+                      {[
+                        { name: "Tata Motors", gstin: "27AAACT2727Q1ZW" },
+                        { name: "Reliance", gstin: "24AAACR5055K1Z7" },
+                        { name: "Infosys", gstin: "29AAACI4323E1ZQ" },
+                      ].map((chip) => (
+                        <button
+                          key={chip.gstin}
+                          type="button"
+                          onClick={() => {
+                            setInspectorGstin(chip.gstin);
+                            handleInspectGstin(chip.gstin);
+                          }}
+                          disabled={inspectorLoading}
+                          className="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-indigo-50 text-slate-700 text-[10px] font-medium border border-slate-200 cursor-pointer"
+                        >
+                          {chip.name}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        maxLength={15}
+                        value={inspectorGstin}
+                        onChange={(e) => setInspectorGstin(e.target.value.toUpperCase().trim())}
+                        placeholder="Enter 15-character GSTIN"
+                        className="flex-1 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 font-mono text-xs uppercase"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleInspectGstin()}
+                        disabled={inspectorLoading}
+                        className="px-4 py-1.5 rounded-lg bg-slate-900 text-white font-bold text-xs hover:bg-slate-800 cursor-pointer shrink-0"
+                      >
+                        {inspectorLoading ? "Verifying..." : "Run GSTIN Check"}
+                      </button>
+                    </div>
+
+                    {inspectorResult && (
+                      <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs">
+                        {inspectorResult.success ? (
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-slate-900">{inspectorResult.legalName}</span>
+                            <span className="text-[10px] font-mono text-emerald-700">
+                              {inspectorResult.cached ? "🛡️ Cache Hit (₹0)" : "⚡ Live API"} • {inspectorResult.latencyMs}ms
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-red-700">{inspectorResult.error}</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
