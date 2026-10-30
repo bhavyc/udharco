@@ -1322,7 +1322,85 @@ export default function DashboardClient({
                   )}
                 </div>
 
-                {/* 3. INVOICE NUMBER & VALUE (Compact 2-col) */}
+                {/* 3. ATTACH INVOICE DOCUMENT / IMAGE PROOF (Prominent Dropzone) */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <UploadCloud className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Upload Tax Invoice Copy (PDF / PNG / JPG) *</span>
+                    </label>
+                    <span className="text-[10px] text-slate-400 font-mono">Max 15MB • Factoring Act 2011</span>
+                  </div>
+
+                  <input
+                    id="invoice-document-file"
+                    type="file"
+                    accept=".pdf,.png,.jpg,.jpeg"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+
+                  {attachedFile ? (
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-50 border border-emerald-200">
+                      <div className="flex items-center gap-3">
+                        {attachedFile.dataUrl?.startsWith("data:image/") ? (
+                          <img
+                            src={attachedFile.dataUrl}
+                            alt="Invoice preview"
+                            className="w-12 h-12 object-cover rounded-lg border border-emerald-300 shadow-xs shrink-0"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold shrink-0">
+                            <FileCheck className="w-6 h-6" />
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <div className="text-xs font-bold text-slate-900 flex items-center gap-2">
+                            <span className="truncate max-w-[220px] sm:max-w-xs">{attachedFile.name}</span>
+                            <span className="text-[10px] font-mono text-emerald-700 font-semibold shrink-0">({attachedFile.size})</span>
+                          </div>
+                          <div className="text-[10px] text-emerald-700 font-medium mt-0.5 flex items-center gap-1">
+                            <Check className="w-3 h-3 shrink-0" />
+                            <span>Document attached & ready for legal factoring verification</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <label
+                          htmlFor="invoice-document-file"
+                          className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-50 text-[11px] text-slate-700 border border-slate-300 font-semibold transition cursor-pointer"
+                        >
+                          Change
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setAttachedFile(null)}
+                          className="text-slate-400 hover:text-red-600 text-sm font-bold p-1 cursor-pointer"
+                          title="Remove file"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <label
+                      htmlFor="invoice-document-file"
+                      className="flex flex-col items-center justify-center py-3.5 px-4 rounded-xl border-2 border-dashed border-emerald-300 hover:border-emerald-500 bg-emerald-50/30 hover:bg-emerald-50/60 transition cursor-pointer text-center group"
+                    >
+                      <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mb-1 group-hover:scale-105 transition">
+                        <UploadCloud className="w-5 h-5" />
+                      </div>
+                      <div className="text-xs font-bold text-slate-800 group-hover:text-emerald-900">
+                        Click to Upload or Drag & Drop Tax Invoice
+                      </div>
+                      <div className="text-[10px] text-slate-500 mt-0.5">
+                        Supports PDF, PNG, JPG (Digitally signed GST tax invoice copy)
+                      </div>
+                    </label>
+                  )}
+                </div>
+
+                {/* 4. INVOICE NUMBER & VALUE (Compact 2-col) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">Invoice Number *</label>
@@ -1369,45 +1447,6 @@ export default function DashboardClient({
                       }`}
                     />
                   </div>
-                </div>
-
-                {/* 4. ATTACH INVOICE DOCUMENT (Compact Strip) */}
-                <div>
-                  <input
-                    id="invoice-document-file"
-                    type="file"
-                    accept=".pdf,.png,.jpg,.jpeg"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                  {attachedFile ? (
-                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs">
-                      <div className="flex items-center gap-2">
-                        <FileCheck className="w-4 h-4 text-emerald-700" />
-                        <div>
-                          <span className="font-bold text-slate-900">{attachedFile.name}</span>
-                          <span className="text-[10px] font-mono text-emerald-700 ml-2">({attachedFile.size})</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <label htmlFor="invoice-document-file" className="text-[11px] text-slate-600 hover:text-slate-900 font-semibold cursor-pointer">
-                          Change
-                        </label>
-                        <button type="button" onClick={() => setAttachedFile(null)} className="text-slate-400 hover:text-red-600 text-xs font-bold p-1">✕</button>
-                      </div>
-                    </div>
-                  ) : (
-                    <label htmlFor="invoice-document-file" className="flex items-center justify-between p-2.5 rounded-xl border border-dashed border-slate-300 hover:border-emerald-500 bg-slate-50 hover:bg-emerald-50/20 transition cursor-pointer">
-                      <div className="flex items-center gap-2">
-                        <Paperclip className="w-4 h-4 text-emerald-600" />
-                        <span className="text-xs font-bold text-slate-700">Attach Tax Invoice Proof (PDF/Image) *</span>
-                        <span className="text-[10px] text-slate-400 font-normal">(Factoring Act 2011)</span>
-                      </div>
-                      <span className="text-[11px] font-semibold text-emerald-700 bg-white border border-slate-200 px-2 py-0.5 rounded-md">
-                        Browse File
-                      </span>
-                    </label>
-                  )}
                 </div>
 
                 {/* 5. e-INVOICE IRN HASH (Compact) */}
