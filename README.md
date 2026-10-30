@@ -59,6 +59,23 @@ All other buyers default to **SME_COMMERCIAL** track.
 3. **Mandatory Recourse & e-NACH**:
    - All SME Commercial invoices carry non-negotiable **WITH-RECOURSE** status, backed by the seller's verified e-NACH auto-debit mandate.
 
+### 3. Corporate Anchor Exposure Underwriting (Route A & B)
+1. **Tenure-Dynamic Working Capital Formula**:
+   $$\text{Suggested Exposure Limit} = \text{Annual Procurement} \times \left(\frac{\text{Tenure Days}}{365}\right)$$
+   - **30-Day Cycle**: $\approx 8.22\%$ of Annual Procurement
+   - **60-Day Cycle**: $\approx 16.44\%$ of Annual Procurement
+   - **90-Day Cycle**: $\approx 24.66\%$ of Annual Procurement
+   - **120-Day Cycle**: $\approx 32.88\%$ of Annual Procurement
+2. **Standardized Probationary Exposure Ceiling**:
+   - Strictly standardized at **₹50.00 Lakhs (`₹50,00,000`)** as the maximum conservative ceiling for unrated / new corporate anchors with no past platform repayment history.
+   - Higher limits require prime rating (`AAA`/`AA`) or verified audited P&L statements.
+3. **Non-Statutory Heuristic Estimate Disclosure**:
+   - The ~40%–60% procurement-to-revenue ratio represents an industry heuristic (Cost of Materials Consumed / COGS in manufacturing).
+   - **Statutory Clarification**: This is **NOT an RBI guideline or statutory benchmark**; it is an underwriting rule-of-thumb. Underwriters must cross-check unlisted corporate filings against audited financial statements before approving large exposures.
+4. **Verification Pathways**:
+   - **Route A (Active, Free & Zero-Cost)**: Direct 1-click clipboard copy + official Government GST Portal lookup (`https://services.gst.gov.in/services/searchtp`) to review taxpayer status, filing regularity, and turnover slab without incurring third-party API billing.
+   - **Route B (Live Automated API)**: Instant Surepass GSTIN verification with in-memory caching shield.
+
 ---
 
 ## Third-Party Integrations & Providers
