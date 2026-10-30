@@ -236,6 +236,47 @@ export default function AdminDashboardClient({
     }
   };
 
+  // Modal inline GST verification state
+  const [reviewGstLoading, setReviewGstLoading] = useState(false);
+  const [reviewGstResult, setReviewGstResult] = useState<{
+    success: boolean;
+    gstin?: string;
+    legalName?: string;
+    tradeName?: string;
+    pan?: string;
+    state?: string;
+    status?: string;
+    cached?: boolean;
+    error?: string;
+    latencyMs?: number;
+  } | null>(null);
+
+  const handleVerifyAnchorGst = async (gstin: string) => {
+    setReviewGstLoading(true);
+    setReviewGstResult(null);
+    const start = performance.now();
+    try {
+      const res = await fetch("/api/v1/kyc/gst-lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gstin: gstin.toUpperCase().trim() }),
+      });
+      const data = await res.json();
+      const elapsed = Math.round(performance.now() - start);
+      setReviewGstResult({ ...data, latencyMs: elapsed });
+      if (data.success) {
+        showToast("success", `Surepass Verified: ${data.legalName}`);
+      } else {
+        showToast("error", data.error || "GST lookup failed.");
+      }
+    } catch (err: any) {
+      setReviewGstResult({ success: false, error: err.message, latencyMs: 0 });
+      showToast("error", err.message || "Network error querying GSTIN.");
+    } finally {
+      setReviewGstLoading(false);
+    }
+  };
+
   const showToast = (type: "success" | "error", msg: string) => {
     setToast({ type, msg });
     setTimeout(() => setToast(null), 5000);
@@ -1281,6 +1322,7 @@ export default function AdminDashboardClient({
                                 <button
                                   onClick={() => {
                                     setReviewAnchorModal(a);
+                                    setReviewGstResult(null);
                                     setReviewAnchorForm({
                                       maxExposureLimit: a.annualProcurement ? Math.round(a.annualProcurement * 0.2) : 50000000,
                                       creditRating: a.creditRating && a.creditRating !== "UNRATED" ? a.creditRating : "AAA",
@@ -1969,10 +2011,64 @@ export default function AdminDashboardClient({
                   <span className="text-slate-500">Corporate Entity:</span>
                   <span className="text-slate-900 font-bold">{reviewAnchorModal.corporateName}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex items-center justify-between">
                   <span className="text-slate-500">GSTIN:</span>
-                  <span className="font-mono text-indigo-700 font-semibold">{reviewAnchorModal.gstin}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-indigo-700 font-semibold">{reviewAnchorModal.gstin}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleVerifyAnchorGst(reviewAnchorModal.gstin)}
+                      disabled={reviewGstLoading}
+                      className="px-2 py-0.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 text-[10px] font-bold flex items-center gap-1 transition cursor-pointer"
+                    >
+                      {reviewGstLoading ? (
+                        <>
+                          <RefreshCw className="w-3 h-3 animate-spin" />
+                          <span>Verifying...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Search className="w-3 h-3" />
+                          <span>Verify with Surepass</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
+
+                {/* Inline Live Surepass Verification Result */}
+                {reviewGstResult && (
+                  <div className={`p-2.5 rounded-xl border text-[11px] ${
+                    reviewGstResult.success ? "bg-emerald-50/80 border-emerald-200 text-emerald-900" : "bg-red-50 border-red-200 text-red-800"
+                  }`}>
+                    {reviewGstResult.success ? (
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between font-bold">
+                          <span className="flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                            <span>{reviewGstResult.legalName || "Verified Entity"}</span>
+                          </span>
+                          <span className="text-[9px] px-1.5 py-0.5 rounded font-mono font-bold bg-emerald-100 text-emerald-800">
+                            {reviewGstResult.cached ? "🛡️ SHIELD CACHED" : "⚡ LIVE SUREPASS"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3 text-[10px] text-slate-600 font-mono">
+                          <span>PAN: <strong className="text-slate-800">{reviewGstResult.pan || reviewAnchorModal.gstin.slice(2, 12)}</strong></span>
+                          <span>Status: <strong className="text-emerald-700">{reviewGstResult.status || "ACTIVE"}</strong></span>
+                          <span>State: <strong className="text-slate-800">{reviewGstResult.state || reviewAnchorModal.gstin.slice(0, 2)}</strong></span>
+                          {reviewGstResult.latencyMs !== undefined && (
+                            <span className="text-slate-400">({reviewGstResult.latencyMs}ms)</span>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5 text-red-700">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{reviewGstResult.error || "GSTIN lookup failed."}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span className="text-slate-500">Authorized Treasury Contact:</span>
                   <span className="text-slate-900 font-medium">
