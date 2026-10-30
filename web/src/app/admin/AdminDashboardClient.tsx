@@ -63,6 +63,7 @@ interface Anchor {
   contactEmail?: string | null;
   contactPhone?: string | null;
   annualProcurement?: number | null;
+  standardPaymentTerms?: number | null;
   createdAt?: string;
   user?: { email: string | null; isActive: boolean; inviteToken?: string | null } | null;
 }
@@ -1327,7 +1328,7 @@ export default function AdminDashboardClient({
                                   onClick={() => {
                                     setReviewAnchorModal(a);
                                     setReviewGstResult(null);
-                                    const defaultTenure = 90;
+                                    const defaultTenure = a.standardPaymentTerms || 30;
                                     setReviewTenureDays(defaultTenure);
                                     const initialSuggestedLimit = a.annualProcurement
                                       ? Math.round(a.annualProcurement * (defaultTenure / 365))
@@ -2154,12 +2155,23 @@ export default function AdminDashboardClient({
 
                   {/* Interactive Dynamic Tenure Selector */}
                   <div>
-                    <div className="flex items-center justify-between text-[11px] text-slate-600 mb-1.5">
-                      <span>Working Capital Cycle (Invoice Tenure):</span>
-                      <span className="font-bold text-slate-900 font-mono">{reviewTenureDays} Days</span>
+                    <div className="flex items-center justify-between text-[11px] text-slate-600 mb-1.5 flex-wrap gap-1">
+                      <div className="flex items-center gap-1.5">
+                        <span>Working Capital Cycle (Invoice Tenure):</span>
+                        <span className="font-bold text-slate-900 font-mono">{reviewTenureDays} Days</span>
+                      </div>
+                      {reviewAnchorModal.standardPaymentTerms ? (
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-mono font-semibold border border-indigo-200">
+                          Company Declared: {reviewAnchorModal.standardPaymentTerms}d (unverified starting estimate, editable)
+                        </span>
+                      ) : (
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-500 font-mono">
+                          Default: 30d (MSME Standard)
+                        </span>
+                      )}
                     </div>
                     <div className="grid grid-cols-4 gap-1.5">
-                      {[30, 60, 90, 120].map((days) => (
+                      {[30, 45, 60, 90].map((days) => (
                         <button
                           key={days}
                           type="button"
@@ -2185,6 +2197,9 @@ export default function AdminDashboardClient({
                         </button>
                       ))}
                     </div>
+                    <span className="text-[10px] text-slate-400 mt-1 block">
+                      📌 <strong>Notice:</strong> This tenure is used solely as an onboarding starting estimate to calculate the corporate credit limit. When suppliers actually upload invoices, interest and settlement tenure are <strong>always calculated from that specific invoice&apos;s real bill due-date</strong>.
+                    </span>
                   </div>
 
                   {/* Dynamic Math Display */}

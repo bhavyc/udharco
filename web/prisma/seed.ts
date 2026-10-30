@@ -60,6 +60,7 @@ async function main() {
       currentExposure: 0,
       status: "ACTIVE",
       annualProcurement: 250000000, // ₹25 Cr procurement
+      standardPaymentTerms: 60,
     },
   });
   console.log("✅ Seeded Active Anchor:", anchor.corporateName);
@@ -69,6 +70,7 @@ async function main() {
     where: { gstin: "27AABCM6789P1Z3" },
     update: {
       annualProcurement: 240000000,
+      standardPaymentTerms: 45,
     },
     create: {
       corporateName: "Mahindra Auto Ancillaries Ltd",
@@ -82,6 +84,7 @@ async function main() {
       contactEmail: "treasury@mahindra-ancillaries.com",
       contactPhone: "+91 98200 11223",
       annualProcurement: 240000000, // ₹24 Crore annual procurement
+      standardPaymentTerms: 45,
     },
   });
   console.log("✅ Seeded Pending Anchor (AA+):", pendingAnchor1.corporateName);
@@ -91,6 +94,7 @@ async function main() {
     where: { gstin: "27AABCA4321D1Z9" },
     update: {
       annualProcurement: 80000000,
+      standardPaymentTerms: 30,
     },
     create: {
       corporateName: "Apex Plastic Components Pvt Ltd",
@@ -104,6 +108,7 @@ async function main() {
       contactEmail: "finance@apexplastic.in",
       contactPhone: "+91 98334 45566",
       annualProcurement: 80000000, // ₹8 Crore annual procurement
+      standardPaymentTerms: 30,
     },
   });
   console.log("✅ Seeded Pending Anchor (UNRATED):", pendingAnchor2.corporateName);

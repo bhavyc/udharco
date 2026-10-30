@@ -75,6 +75,9 @@ All other buyers default to **SME_COMMERCIAL** track.
 4. **Verification Pathways**:
    - **Route A (Active, Free & Zero-Cost)**: Direct 1-click clipboard copy + official Government GST Portal lookup (`https://services.gst.gov.in/services/searchtp`) to review taxpayer status, filing regularity, and turnover slab without incurring third-party API billing.
    - **Route B (Live Automated API)**: Instant Surepass GSTIN verification with in-memory caching shield.
+5. **Strict Decoupling: Onboarding Estimate vs. Per-Invoice Execution**:
+   - **Onboarding Heuristic Only (`Anchor.standardPaymentTerms`)**: The self-declared typical payment cycle (30/45/60/90 days) collected on `/corporate/apply` is strictly an unverified starting estimate to assist the Admin in setting the initial bilateral exposure ceiling.
+   - **Individual Invoice Integrity (`Invoice.tenureDays` & `Invoice.dueDate`)**: When MSME suppliers upload invoices, financial discounting, investor returns, platform fees, and escrow repayment maturities are **always calculated from that specific invoice's real due-date (`Invoice.dueDate`)**. The system NEVER reuses or inherits the anchor's profile-declared standard terms for actual invoice discounting.
 
 ---
 
