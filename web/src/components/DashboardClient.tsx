@@ -28,6 +28,8 @@ import {
   Eye,
   ExternalLink,
   AlertCircle,
+  Copy,
+  Send,
 } from "lucide-react";
 
 interface Seller {
@@ -172,16 +174,67 @@ export default function DashboardClient({
     financialYear: "",
   });
 
+  // State for Inline Vendor-Push Corporate Onboarding
+  const [buyerMode, setBuyerMode] = useState<"EXISTING" | "NEW">("EXISTING");
+  const [newBuyerForm, setNewBuyerForm] = useState({
+    gstin: "",
+    corporateName: "",
+    contactEmail: "",
+    contactPerson: "",
+    contactPhone: "",
+    standardPaymentTerms: 30,
+  });
+  const [isVerifyingGst, setIsVerifyingGst] = useState(false);
+  const [newBuyerNoticeModal, setNewBuyerNoticeModal] = useState<{
+    noticeUrl: string;
+    buyerName: string;
+    buyerEmail: string;
+    invoiceNumber: string;
+    amount: number;
+  } | null>(null);
+
+  const handleVerifyNewBuyerGst = async () => {
+    const clean = newBuyerForm.gstin.trim().toUpperCase();
+    if (clean.length !== 15) {
+      showToast("error", "Please enter a valid 15-character GSTIN.");
+      return;
+    }
+    setIsVerifyingGst(true);
+    try {
+      const res = await fetch("/api/v1/kyc/gst-lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gstin: clean }),
+      });
+      const data = await res.json();
+      if (data.success && data.data?.legalName) {
+        setNewBuyerForm((prev) => ({
+          ...prev,
+          corporateName: data.data.legalName,
+        }));
+        showToast("success", `GST Verified: ${data.data.legalName}`);
+      } else {
+        showToast("error", data.error || "GSTIN lookup failed.");
+      }
+    } catch (e: any) {
+      showToast("error", e.message);
+    } finally {
+      setIsVerifyingGst(false);
+    }
+  };
+
   const generateCompliantIRN = async () => {
     try {
       const selectedSeller = sellers.find((s) => s.id === uploadForm.sellerId);
-      const selectedAnchor = anchors.find((a) => a.id === uploadForm.anchorId);
+      const buyerGstin = buyerMode === "NEW"
+        ? newBuyerForm.gstin.trim().toUpperCase()
+        : anchors.find((a) => a.id === uploadForm.anchorId)?.gstin;
       const res = await fetch("/api/v1/invoices/generate-irn", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sellerGstin: selectedSeller?.gstin,
-          buyerGstin: selectedAnchor?.gstin,
+          buyerGstin: buyerGstin,
           invoiceNumber: uploadForm.invoiceNumber,
           financialYear: uploadForm.financialYear,
         }),
@@ -263,11 +316,25 @@ export default function DashboardClient({
 
     setLoadingAction("upload");
     try {
-      const payload = {
+      const payload: any = {
         ...uploadForm,
         invoiceDocumentName: attachedFile.name,
         invoiceDocumentUrl: attachedFile.dataUrl || `local-upload://${attachedFile.name}`,
       };
+
+      if (buyerMode === "NEW") {
+        if (!newBuyerForm.gstin.trim() || !newBuyerForm.corporateName.trim() || !newBuyerForm.contactEmail.trim()) {
+          showToast("error", "Buyer GSTIN, Corporate Legal Name, and Treasury Email are required.");
+          setLoadingAction(null);
+          return;
+        }
+        payload.newBuyer = {
+          ...newBuyerForm,
+          gstin: newBuyerForm.gstin.trim().toUpperCase(),
+        };
+        delete payload.anchorId;
+      }
+
       const res = await fetch("/api/v1/invoices", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -277,8 +344,19 @@ export default function DashboardClient({
       if (!res.ok) {
         showToast("error", data.message || data.error || "Invoice submission failed.");
       } else {
-        showToast("success", `Invoice #${uploadForm.invoiceNumber} uploaded with IRN shield & attached document.`);
+        showToast("success", `Invoice #${uploadForm.invoiceNumber} uploaded with IRN shield.`);
         setIsUploadOpen(false);
+
+        if (data.isNewBuyer && data.noticeUrl) {
+          setNewBuyerNoticeModal({
+            noticeUrl: data.noticeUrl,
+            buyerName: newBuyerForm.corporateName || "Corporate Buyer",
+            buyerEmail: newBuyerForm.contactEmail,
+            invoiceNumber: uploadForm.invoiceNumber,
+            amount: uploadForm.totalAmount,
+          });
+        }
+
         setUploadForm((prev) => ({
           ...prev,
           invoiceNumber: "",
@@ -287,6 +365,15 @@ export default function DashboardClient({
           poNumber: "",
           ewayBillNo: "",
         }));
+        setNewBuyerForm({
+          gstin: "",
+          corporateName: "",
+          contactEmail: "",
+          contactPerson: "",
+          contactPhone: "",
+          standardPaymentTerms: 30,
+        });
+        setBuyerMode("EXISTING");
         await refreshInvoices();
       }
     } catch (err: any) {
@@ -425,7 +512,9 @@ export default function DashboardClient({
     ? Math.max(0, selectedUploadAnchor.maxExposureLimit - (selectedUploadAnchor.currentExposure || 0))
     : 5000000;
 
-  const effectiveMaxLimit = Math.min(sellerLimit, anchorExposureAvailable > 0 ? anchorExposureAvailable : sellerLimit);
+  const effectiveMaxLimit = buyerMode === "NEW"
+    ? sellerLimit
+    : Math.min(sellerLimit, anchorExposureAvailable > 0 ? anchorExposureAvailable : sellerLimit);
   const isUploadAmountExceeded = uploadForm.totalAmount > effectiveMaxLimit;
 
   return (
@@ -1182,27 +1271,49 @@ export default function DashboardClient({
                 <div>
                   <div className="flex justify-between items-center mb-1">
                     <label className="text-xs font-bold text-slate-700">Corporate Buyer *</label>
-                    <a
-                      href="/corporate/apply"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[10px] text-sky-700 hover:underline flex items-center gap-0.5 font-semibold"
-                    >
-                      <span>+ New Corporate</span>
-                      <ExternalLink className="w-2.5 h-2.5" />
-                    </a>
+                    <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-md border border-slate-200 text-[10px]">
+                      <button
+                        type="button"
+                        onClick={() => setBuyerMode("EXISTING")}
+                        className={`px-2 py-0.5 rounded transition cursor-pointer font-medium ${
+                          buyerMode === "EXISTING"
+                            ? "bg-white text-slate-900 shadow-xs font-bold"
+                            : "text-slate-500 hover:text-slate-700"
+                        }`}
+                      >
+                        Pre-Approved
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setBuyerMode("NEW")}
+                        className={`px-2 py-0.5 rounded transition cursor-pointer font-medium flex items-center gap-0.5 ${
+                          buyerMode === "NEW"
+                            ? "bg-emerald-600 text-white shadow-xs font-bold"
+                            : "text-emerald-700 hover:text-emerald-800"
+                        }`}
+                      >
+                        <span>+ New Buyer</span>
+                      </button>
+                    </div>
                   </div>
-                  <select
-                    value={uploadForm.anchorId}
-                    onChange={(e) => setUploadForm({ ...uploadForm, anchorId: e.target.value })}
-                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none"
-                  >
-                    {anchors.map((a) => (
-                      <option key={a.id} value={a.id}>
-                        {a.corporateName} ({a.creditRating}) {a.maxExposureLimit <= 0 ? "• Limit ₹0 (Underwriting Pending)" : `• Limit: ₹${(a.maxExposureLimit / 10000000).toFixed(1)} Cr`}
-                      </option>
-                    ))}
-                  </select>
+                  {buyerMode === "EXISTING" ? (
+                    <select
+                      value={uploadForm.anchorId}
+                      onChange={(e) => setUploadForm({ ...uploadForm, anchorId: e.target.value })}
+                      className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none"
+                    >
+                      {anchors.map((a) => (
+                        <option key={a.id} value={a.id}>
+                          {a.corporateName} ({a.creditRating}) {a.maxExposureLimit <= 0 ? "• Limit ₹0 (Underwriting Pending)" : `• Limit: ₹${(a.maxExposureLimit / 10000000).toFixed(1)} Cr`}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <div className="w-full bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-lg px-3 py-2 text-xs font-bold flex items-center justify-between">
+                      <span>Adding New Unregistered Corporate</span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 bg-emerald-200 text-emerald-900 rounded">Inline Form Below ↓</span>
+                    </div>
+                  )}
                 </div>
                 <div>
                   <div className="flex justify-between items-center mb-1">
@@ -1256,6 +1367,116 @@ export default function DashboardClient({
                   )}
                 </div>
               </div>
+
+              {/* NEW CORPORATE BUYER INLINE SETUP (Vendor-Push) */}
+              {buyerMode === "NEW" && (
+                <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-50/80 to-sky-50/50 border border-emerald-200/80 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-emerald-600 text-white">
+                        <Building2 className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-900">New Corporate Buyer Details</h4>
+                        <p className="text-[10px] text-slate-500">Provide buyer finance contact to dispatch Digital Notice of Assignment</p>
+                      </div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                      Channel: Vendor-Push (Initial Cap ₹50L)
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-[11px] font-bold text-slate-700">Buyer GSTIN *</label>
+                        <button
+                          type="button"
+                          onClick={handleVerifyNewBuyerGst}
+                          disabled={isVerifyingGst}
+                          className="text-[10px] font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                        >
+                          <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
+                          <span>{isVerifyingGst ? "Verifying..." : "Auto-Fetch Company"}</span>
+                        </button>
+                      </div>
+                      <input
+                        type="text"
+                        required
+                        maxLength={15}
+                        placeholder="e.g. 07AABCS1234F1Z5"
+                        value={newBuyerForm.gstin}
+                        onChange={(e) => setNewBuyerForm({ ...newBuyerForm, gstin: e.target.value.toUpperCase() })}
+                        className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono uppercase text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-700 block mb-1">Corporate Legal Entity Name *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Sharma Steels Private Limited"
+                        value={newBuyerForm.corporateName}
+                        onChange={(e) => setNewBuyerForm({ ...newBuyerForm, corporateName: e.target.value })}
+                        className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-[11px] font-bold text-slate-700">Corporate Accounts / Treasury Email *</label>
+                        <span className="text-[9px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.2 rounded border border-indigo-200">
+                          Digital Notice Destination
+                        </span>
+                      </div>
+                      <input
+                        type="email"
+                        required
+                        placeholder="e.g. accounts@sharmasteels.com / cfo@sharmasteels.com"
+                        value={newBuyerForm.contactEmail}
+                        onChange={(e) => setNewBuyerForm({ ...newBuyerForm, contactEmail: e.target.value })}
+                        className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[11px] font-bold text-slate-700 block mb-1">Finance Officer Name</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Anil Sharma"
+                          value={newBuyerForm.contactPerson}
+                          onChange={(e) => setNewBuyerForm({ ...newBuyerForm, contactPerson: e.target.value })}
+                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none"
+                        />
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="text-[11px] font-bold text-slate-700">Mobile Phone</label>
+                          <span className="text-[9px] font-bold text-emerald-700">WhatsApp Alert</span>
+                        </div>
+                        <input
+                          type="tel"
+                          maxLength={10}
+                          placeholder="e.g. 9876543210"
+                          value={newBuyerForm.contactPhone}
+                          onChange={(e) => setNewBuyerForm({ ...newBuyerForm, contactPhone: e.target.value.replace(/\D/g, "") })}
+                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-2.5 rounded-lg bg-white/80 border border-emerald-200/60 flex items-start gap-2 text-[11px] text-slate-600">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="text-slate-800">Fail-Closed Underwriting Gate: </strong>
+                      Upon upload, Udharco will issue a Digital Notice of Assignment directly to this corporate. The credit limit will start at ₹0 and Admin will review their GST credentials with a ₹50L probationary cap before investor bidding opens.
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* 4. e-INVOICE 64-CHAR IRN HASH */}
               <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
@@ -1774,6 +1995,103 @@ export default function DashboardClient({
                   Close
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* NEW BUYER NOTICE OF ASSIGNMENT DISPATCHED MODAL */}
+      {newBuyerNoticeModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full border border-slate-200 shadow-2xl p-6 space-y-5 animate-in fade-in zoom-in-95">
+            <div className="flex items-start gap-3.5">
+              <div className="p-3 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 shrink-0">
+                <CheckCircle2 className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  Digital Notice Generated
+                </span>
+                <h3 className="text-base font-bold text-slate-900">
+                  Notice of Assignment Dispatched!
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Tax Invoice <strong>#{newBuyerNoticeModal.invoiceNumber}</strong> (<strong>₹{formatINR(newBuyerNoticeModal.amount)}</strong>) has been uploaded. An official Digital Notice has been issued for <strong>{newBuyerNoticeModal.buyerName}</strong> ({newBuyerNoticeModal.buyerEmail}).
+                </p>
+              </div>
+            </div>
+
+            {/* Link Box */}
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                <span>Direct Verification Link:</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const fullUrl = `${window.location.origin}${newBuyerNoticeModal.noticeUrl}`;
+                    navigator.clipboard.writeText(fullUrl);
+                    showToast("success", "Notice link copied to clipboard!");
+                  }}
+                  className="text-[11px] text-emerald-700 hover:text-emerald-800 font-bold flex items-center gap-1 cursor-pointer"
+                >
+                  <Copy className="w-3 h-3" />
+                  <span>Copy Link</span>
+                </button>
+              </div>
+              <div className="p-2 rounded-lg bg-white border border-slate-200 font-mono text-[11px] text-slate-600 truncate select-all">
+                {typeof window !== "undefined" ? window.location.origin : ""}{newBuyerNoticeModal.noticeUrl}
+              </div>
+            </div>
+
+            {/* WhatsApp Pre-written Notice */}
+            <div className="p-3.5 rounded-xl bg-emerald-50/60 border border-emerald-200/80 space-y-2 text-xs">
+              <div className="flex items-center justify-between font-bold text-emerald-950">
+                <span>WhatsApp Notice Message for Buyer:</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const fullUrl = `${window.location.origin}${newBuyerNoticeModal.noticeUrl}`;
+                    const text = `Namaste ${newBuyerNoticeModal.buyerName} Accounts Team,\nYour vendor has submitted Tax Invoice #${newBuyerNoticeModal.invoiceNumber} (Value: ₹${formatINR(newBuyerNoticeModal.amount)}) for supply-chain early settlement on Udharco.\nPlease review goods receipt & verify delivery here:\n${fullUrl}`;
+                    navigator.clipboard.writeText(text);
+                    showToast("success", "WhatsApp notice message copied to clipboard!");
+                  }}
+                  className="text-[11px] text-emerald-700 hover:text-emerald-800 font-bold flex items-center gap-1 cursor-pointer"
+                >
+                  <Copy className="w-3 h-3" />
+                  <span>Copy Message</span>
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-600 italic bg-white/80 p-2.5 rounded-lg border border-emerald-200/50 leading-relaxed font-sans">
+                "Namaste {newBuyerNoticeModal.buyerName} Accounts Team, your vendor has submitted Tax Invoice #{newBuyerNoticeModal.invoiceNumber} for early settlement on Udharco. Please review goods receipt & verify delivery here: [Link]"
+              </p>
+            </div>
+
+            {/* Governance Info */}
+            <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900 flex items-start gap-2">
+              <ShieldCheck className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+              <div>
+                <strong>Next Step (Fail-Closed Governance):</strong> Once the Corporate Buyer confirms receipt of goods, Udharco Admin will review their GST credentials using the Procurement Reality Meter (capped at ₹50 Lakhs) to open investor funding.
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex items-center justify-end gap-2.5 pt-1">
+              <button
+                type="button"
+                onClick={() => setNewBuyerNoticeModal(null)}
+                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer"
+              >
+                Done
+              </button>
+              <a
+                href={newBuyerNoticeModal.noticeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-xs"
+              >
+                <span>View Digital Notice</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
             </div>
           </div>
         </div>

@@ -55,6 +55,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const {
       anchorId,
+      newBuyer,
       invoiceNumber,
       financialYear = "2026-27",
       totalAmount,
@@ -74,9 +75,9 @@ export async function POST(request: Request) {
     const effectiveFY = (financialYear && String(financialYear).trim()) || RiskService.getCurrentFinancialYear();
 
     // 1. Basic Validations
-    if (!anchorId || !invoiceNumber || !totalAmount) {
+    if ((!anchorId && !newBuyer) || !invoiceNumber || !totalAmount) {
       return NextResponse.json(
-        { success: false, error: "anchorId, invoiceNumber, and totalAmount are required." },
+        { success: false, error: "Either anchorId or newBuyer details, plus invoiceNumber and totalAmount are required." },
         { status: 400 }
       );
     }
@@ -89,7 +90,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. Fetch Seller & Anchor
+    // 2. Fetch Seller
     const seller = await prisma.seller.findUnique({ where: { id: sellerId } });
     if (!seller) {
       return NextResponse.json({ success: false, error: "Seller MSME not found." }, { status: 404 });
@@ -107,13 +108,73 @@ export async function POST(request: Request) {
       );
     }
 
-    const anchor = await prisma.anchor.findUnique({ where: { id: anchorId } });
+    // 3. Resolve or Create Corporate Anchor
+    let effectiveAnchorId = anchorId;
+    let isNewVendorPushAnchor = false;
+
+    if (newBuyer) {
+      const { gstin, corporateName, contactEmail, contactPerson, contactPhone, standardPaymentTerms } = newBuyer;
+      if (!gstin || !corporateName || !contactEmail) {
+        return NextResponse.json(
+          { success: false, error: "Buyer GSTIN, Corporate Name, and Accounts Email are required for new buyers." },
+          { status: 400 }
+        );
+      }
+
+      const cleanGst = String(gstin).toUpperCase().trim();
+      let existing = await prisma.anchor.findUnique({ where: { gstin: cleanGst } });
+
+      if (!existing) {
+        const inviteToken = `inv-${Math.random().toString(36).substring(2, 12)}`;
+        existing = await prisma.anchor.create({
+          data: {
+            gstin: cleanGst,
+            corporateName: String(corporateName).trim(),
+            creditRating: "UNRATED",
+            maxExposureLimit: 0, // Fail-closed: ₹0 until Admin Sanction
+            currentExposure: 0,
+            status: "PENDING",   // Maker-checker pending
+            sourceChannel: "VENDOR_PUSH",
+            contactEmail: String(contactEmail).toLowerCase().trim(),
+            contactPerson: contactPerson ? String(contactPerson).trim() : null,
+            contactPhone: contactPhone ? String(contactPhone).trim() : null,
+            standardPaymentTerms: Number(standardPaymentTerms) || 30,
+            user: {
+              create: {
+                email: String(contactEmail).toLowerCase().trim(),
+                role: "ANCHOR",
+                inviteToken,
+                inviteExpiry: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+                isActive: false,
+              },
+            },
+          },
+        });
+
+        await prisma.auditLog.create({
+          data: {
+            entityType: "ANCHOR",
+            entityId: existing.id,
+            action: "NEW_BUYER_DISCOVERED_VIA_VENDOR_PUSH",
+            actorRole: "SELLER",
+            actorId: seller.id,
+            metadata: `MSME Seller ${seller.legalName} uploaded invoice against new un-onboarded corporate ${existing.corporateName} (GSTIN: ${cleanGst}). Notice of Assignment link generated for ${existing.contactEmail}.`,
+          },
+        });
+      }
+
+      effectiveAnchorId = existing.id;
+      isNewVendorPushAnchor = existing.status === "PENDING" || existing.maxExposureLimit <= 0;
+    }
+
+    const anchor = await prisma.anchor.findUnique({ where: { id: effectiveAnchorId } });
     if (!anchor) {
       return NextResponse.json({ success: false, error: "Corporate Anchor not found." }, { status: 404 });
     }
 
-    // Security Gate: Enforce Anchor Credit Underwriting
-    if (anchor.creditRating === "UNRATED" || anchor.maxExposureLimit <= 0) {
+    // Security Gate: Enforce Anchor Credit Underwriting ONLY for existing pre-approved anchors.
+    // For newly discovered Vendor-Push anchors, invoice is onboarded in VERIFIED state, but funding is blocked until Admin sanctions limit.
+    if (!isNewVendorPushAnchor && (anchor.creditRating === "UNRATED" || anchor.maxExposureLimit <= 0)) {
       return NextResponse.json(
         {
           success: false,
@@ -238,6 +299,7 @@ export async function POST(request: Request) {
         pricingModel: "NET_DISBURSED",
         recourseType: finalRecourseType,
         status: "UPLOADED",
+        noaSentAt: isNewVendorPushAnchor ? new Date() : null,
         poNumber: poNumber?.trim() || null,
         ewayBillNo: ewayBillNo?.trim() || null,
         invoiceDocumentUrl: invoiceDocumentUrl || null,
@@ -251,15 +313,19 @@ export async function POST(request: Request) {
       },
       include: {
         seller: { select: { legalName: true, gstin: true } },
-        anchor: { select: { corporateName: true, creditRating: true } },
+        anchor: { select: { corporateName: true, creditRating: true, contactEmail: true } },
       },
     });
 
     return NextResponse.json(
       {
         success: true,
-        message: "Invoice submitted and passed fraud registry validation.",
+        message: isNewVendorPushAnchor
+          ? `Invoice uploaded! Digital Notice of Assignment dispatched to ${anchor.corporateName} (${anchor.contactEmail}).`
+          : "Invoice submitted and passed fraud registry validation.",
         data: newInvoice,
+        isNewBuyer: isNewVendorPushAnchor,
+        noticeUrl: `/notice/${newInvoice.id}`,
         financialBreakdown: {
           totalInvoiceValue: amount,
           upfrontDisbursementToSeller: breakdown.upfrontDisbursedAmount,
