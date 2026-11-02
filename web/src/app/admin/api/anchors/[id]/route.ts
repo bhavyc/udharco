@@ -34,7 +34,7 @@ export async function PATCH(
     let generatedInviteUrl: string | null = null;
     let inviteToken: string | null = null;
 
-    // If approving a PENDING anchor, generate an invite token so they can activate their Treasury portal
+    // If approving a PENDING anchor, generate an invite token so they can activate their Treasury portal          
     if (status === "ACTIVE" && (currentAnchor.status === "PENDING" || !currentAnchor.user)) {
       inviteToken = crypto.randomBytes(32).toString("hex");
       const inviteExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days

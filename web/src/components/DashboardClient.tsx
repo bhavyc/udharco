@@ -223,28 +223,46 @@ export default function DashboardClient({
     }
   };
 
-  const generateCompliantIRN = async () => {
+  const [isVerifyingIrn, setIsVerifyingIrn] = useState(false);
+  const [irnVerifyStatus, setIrnVerifyStatus] = useState<"IDLE" | "VERIFIED" | "INVALID" | "EXEMPT">("IDLE");
+
+  const handleVerifyIrnLive = async (irnValue?: string) => {
+    const targetIrn = (irnValue !== undefined ? irnValue : uploadForm.irn).trim();
+    if (!targetIrn) {
+      setIrnVerifyStatus("EXEMPT");
+      return;
+    }
+    if (targetIrn.length !== 64) {
+      setIrnVerifyStatus("INVALID");
+      return;
+    }
+    setIsVerifyingIrn(true);
     try {
-      const selectedSeller = sellers.find((s) => s.id === uploadForm.sellerId);
       const buyerGstin = buyerMode === "NEW"
         ? newBuyerForm.gstin.trim().toUpperCase()
         : anchors.find((a) => a.id === uploadForm.anchorId)?.gstin;
-      const res = await fetch("/api/v1/invoices/generate-irn", {
+      const res = await fetch("/api/v1/invoices/verify-irn", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sellerGstin: selectedSeller?.gstin,
-          buyerGstin: buyerGstin,
-          invoiceNumber: uploadForm.invoiceNumber,
-          financialYear: uploadForm.financialYear,
+          irn: targetIrn,
+          invoiceAmount: uploadForm.totalAmount,
+          buyerGstin,
         }),
       });
       const data = await res.json();
-      if (data.success && data.irn) {
-        setUploadForm((prev) => ({ ...prev, irn: data.irn }));
+      if (res.ok && data.success && data.verification?.isValid) {
+        setIrnVerifyStatus("VERIFIED");
+        showToast("success", data.message || "e-Invoice IRN verified with Government IRP.");
+      } else {
+        setIrnVerifyStatus("INVALID");
+        showToast("error", data.message || data.error || "IRN verification failed.");
       }
-    } catch (e) {
-      console.error("IRN fetch failed:", e);
+    } catch (err: any) {
+      setIrnVerifyStatus("INVALID");
+      showToast("error", "Failed to connect to IRP verification gateway.");
+    } finally {
+      setIsVerifyingIrn(false);
     }
   };
 
@@ -309,8 +327,8 @@ export default function DashboardClient({
       showToast("error", "Please upload a Tax Invoice document (PDF/Image) as proof.");
       return;
     }
-    if (!uploadForm.irn || uploadForm.irn.length !== 64) {
-      showToast("error", "A valid 64-character GSTN IRN hash is required for anti-fraud shield.");
+    if (uploadForm.irn && uploadForm.irn.trim().length > 0 && uploadForm.irn.trim().length !== 64) {
+      showToast("error", "IRN must be a valid 64-character hexadecimal hash, or leave it blank if exempt (turnover < ₹5 Cr).");
       return;
     }
 
@@ -1452,41 +1470,69 @@ export default function DashboardClient({
                   </div>
                 </div>
 
-                {/* 5. e-INVOICE IRN HASH (Compact) */}
+                {/* 5. e-INVOICE IRN (Optional for Small MSMEs < ₹5 Cr) */}
                 <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                       <QrCode className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>NIC Govt e-Invoice IRN Hash *</span>
+                      <span>Govt e-Invoice IRN</span>
+                      <span className="text-[10px] font-normal text-slate-500 bg-slate-200/70 px-1.5 py-0.5 rounded">
+                        Optional for MSMEs &lt; ₹5 Cr
+                      </span>
                     </label>
-                    <button
-                      type="button"
-                      onClick={generateCompliantIRN}
-                      className="text-[11px] text-emerald-700 hover:text-emerald-800 font-bold cursor-pointer"
-                    >
-                      ⚡ Auto-Generate Govt IRN
-                    </button>
+                    {uploadForm.irn.trim().length === 64 && (
+                      <button
+                        type="button"
+                        onClick={() => handleVerifyIrnLive()}
+                        disabled={isVerifyingIrn}
+                        className="text-[11px] text-emerald-700 hover:text-emerald-800 font-bold cursor-pointer disabled:opacity-50 flex items-center gap-1"
+                      >
+                        {isVerifyingIrn ? "Verifying..." : "🔍 Verify with IRP"}
+                      </button>
+                    )}
                   </div>
                   <div className="relative">
                     <input
                       type="text"
-                      required
                       value={uploadForm.irn}
-                      onChange={(e) => setUploadForm({ ...uploadForm, irn: e.target.value.trim().toLowerCase() })}
+                      onChange={(e) => {
+                        const val = e.target.value.trim().toLowerCase();
+                        setUploadForm({ ...uploadForm, irn: val });
+                        if (val.length === 64) {
+                          handleVerifyIrnLive(val);
+                        } else if (val.length === 0) {
+                          setIrnVerifyStatus("IDLE");
+                        } else {
+                          setIrnVerifyStatus("INVALID");
+                        }
+                      }}
                       className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-[11px] text-slate-900 font-mono focus:border-emerald-500 outline-none pr-8"
-                      placeholder="64-character hexadecimal IRN generated by NIC GST Portal"
+                      placeholder="Optional: Paste 64-char IRN or leave empty if turnover < ₹5 Cr"
                     />
                     <div className="absolute right-2.5 top-2">
-                      {uploadForm.irn.length === 64 ? (
+                      {uploadForm.irn.length === 64 && irnVerifyStatus === "VERIFIED" ? (
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                      ) : (
+                      ) : uploadForm.irn.length > 0 && uploadForm.irn.length !== 64 ? (
                         <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
-                      )}
+                      ) : null}
                     </div>
                   </div>
                   <div className="flex items-center justify-between text-[10px] text-slate-500 font-mono">
-                    <span>{uploadForm.irn.length} / 64 characters {uploadForm.irn.length === 64 ? "(Valid SHA-256)" : "(Incomplete)"}</span>
-                    <span>Validated against GSTN Registry</span>
+                    {uploadForm.irn.trim().length === 0 ? (
+                      <span className="text-slate-500 font-sans">
+                        Small MSME Exemption active. Delivery will be confirmed via Corporate NOA.
+                      </span>
+                    ) : uploadForm.irn.trim().length === 64 ? (
+                      <span className="text-emerald-700 font-sans font-medium flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                        {irnVerifyStatus === "VERIFIED" ? "Verified Active with Government IRP" : "64-char hash ready for IRP check"}
+                      </span>
+                    ) : (
+                      <span className="text-amber-600 font-sans">
+                        {uploadForm.irn.length}/64 characters (paste full 64-char IRN or clear field)
+                      </span>
+                    )}
+                    <span className="text-slate-400">NIC / Surepass GSP</span>
                   </div>
                 </div>
 
