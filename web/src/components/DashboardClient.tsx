@@ -1165,9 +1165,12 @@ export default function DashboardClient({
                 <div className="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200">
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[11px]">
-                      M
+                      {(sellers.find((s) => s.id === uploadForm.sellerId)?.legalName || sellers[0]?.legalName || "M")[0].toUpperCase()}
                     </div>
                     <div>
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Logged-in MSME Seller</span>
+                      </div>
                       <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
                         <span>{sellers.find((s) => s.id === uploadForm.sellerId)?.legalName || sellers[0]?.legalName || "MSME Seller Pvt Ltd"}</span>
                         <span className="text-[9px] font-mono text-emerald-700 bg-emerald-100/60 px-1 py-0.2 rounded font-semibold">
