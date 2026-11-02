@@ -71,6 +71,54 @@ export async function PATCH(
       },
     });
 
+    // Auto-promote any pre-confirmed invoices to LISTED now that Anchor facility is officially SANCTIONED
+    if (status === "ACTIVE" && updatedAnchor.maxExposureLimit > 0) {
+      const preConfirmedInvoices = await prisma.invoice.findMany({
+        where: {
+          anchorId: id,
+          status: "VERIFIED",
+          anchorConfirmedAt: { not: null },
+        },
+        orderBy: { createdAt: "asc" },
+      });
+
+      let exposureToAdd = 0;
+      const invoiceIdsToList: string[] = [];
+
+      for (const inv of preConfirmedInvoices) {
+        if (updatedAnchor.currentExposure + exposureToAdd + inv.totalAmount <= updatedAnchor.maxExposureLimit) {
+          exposureToAdd += inv.totalAmount;
+          invoiceIdsToList.push(inv.id);
+        }
+      }
+
+      if (invoiceIdsToList.length > 0) {
+        await prisma.$transaction(async (tx) => {
+          await tx.anchor.update({
+            where: { id },
+            data: { currentExposure: { increment: exposureToAdd } },
+          });
+          await tx.invoice.updateMany({
+            where: { id: { in: invoiceIdsToList } },
+            data: { status: "LISTED" },
+          });
+          for (const invId of invoiceIdsToList) {
+            await tx.auditLog.create({
+              data: {
+                entityType: "INVOICE",
+                entityId: invId,
+                action: "INVOICE_AUTO_LISTED_POST_SANCTION",
+                actorRole: "ADMIN",
+                actorId: session.email,
+                metadata: `Invoice promoted to LISTED following Admin limit sanction (₹${updatedAnchor.maxExposureLimit.toLocaleString()}) for Anchor ${updatedAnchor.corporateName}.`,
+              },
+            });
+          }
+        });
+        updatedAnchor.currentExposure += exposureToAdd;
+      }
+    }
+
     // Write to audit log
     await prisma.auditLog.create({
       data: {
