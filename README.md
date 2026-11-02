@@ -79,6 +79,28 @@ All other buyers default to **SME_COMMERCIAL** track.
    - **Onboarding Heuristic Only (`Anchor.standardPaymentTerms`)**: The self-declared typical payment cycle (30/45/60/90 days) collected on `/corporate/apply` is strictly an unverified starting estimate to assist the Admin in setting the initial bilateral exposure ceiling.
    - **Individual Invoice Integrity (`Invoice.tenureDays` & `Invoice.dueDate`)**: When MSME suppliers upload invoices, financial discounting, investor returns, platform fees, and escrow repayment maturities are **always calculated from that specific invoice's real due-date (`Invoice.dueDate`)**. The system NEVER reuses or inherits the anchor's profile-declared standard terms for actual invoice discounting.
 
+### 4. Canonical Risk-Based Pricing & Waterfall Schedule
+
+To ensure strict mathematical consistency across the codebase, underwriting documentation, and NBFC partner agreements, UdharCo standardizes on the following **Canonical Pricing Matrix** (`RiskService.getDiscountRateByRating`):
+
+| Anchor Credit Tier | Example Corporates | Annual Discount Rate (`p.a.`) | Investor Net Yield (`p.a.`) | Platform Net Spread (`p.a.`) |
+| :--- | :--- | :---: | :---: | :---: |
+| **`AAA` (Prime)** | Tata Motors, L&T, Reliance | **11.0%** | 10.0% | 1.0% |
+| **`AA+`** | UltraTech, Mahindra | **12.0%** | 10.0% | 2.0% |
+| **`AA`** | Mid-Cap Listed Enterprises | **12.5%** | 10.5% | 2.0% |
+| **`A`** | High-Growth Mid-Corporates | **14.0%** | 12.0% | 2.0% |
+| **`BBB` / Commercial** | SME Corporate Buyers | **16.0%** | 13.5% | 2.5% |
+
+**Canonical ₹10 Lakh Invoice Benchmark (Tata Motors, `AAA`, 90 Days):**
+- **Total Bill Value:** ₹10,00,000
+- **Day 1 Advance Disbursed (84%):** ₹8,40,000
+- **Platform Commission (1% flat):** ₹10,000
+- **Margin Hold Reserve (15% held in Escrow):** ₹1,50,000
+- **Day 90 Discount Interest (`11% p.a.` on ₹8.4L for 90 days):** ₹22,777 *(or ~₹24,854 if rated `AA+` at 12%)*
+- **Day 90 Seller Margin Release (Residual Refund):** ₹1,50,000 − ₹22,777 = **₹1,27,223**
+- **Total Net Received by MSME Seller:** ₹8,40,000 + ₹1,27,223 = **₹9,67,223**
+- **Total Financing Cost to MSME for 90 Days:** ₹32,777 (~3.28% effective cost over 3 months)
+
 ---
 
 ## Third-Party Integrations & Providers
