@@ -285,11 +285,11 @@ export async function POST(request: Request) {
       Number(tenureDays)
     );
 
-    // Fintech Blind Spot #1: e-Invoice (IRN) Verification
-    const irnResult = FraudService.verifyIRN(irn, seller.gstin, invoiceNumber, effectiveFY);
+    // Fintech Blind Spot #1: e-Invoice (IRN) Verification (with Small MSME Exemption)
+    const irnResult = await FraudService.verifyIRN(irn, seller.gstin, invoiceNumber, effectiveFY, amount, anchor.gstin);
     if (!irnResult.isValid) {
       return NextResponse.json(
-        { success: false, error: "INVALID_IRN", message: irnResult.error },
+        { success: false, error: "INVALID_IRN", message: irnResult.message || irnResult.error },
         { status: 400 }
       );
     }
@@ -319,8 +319,8 @@ export async function POST(request: Request) {
         ewayBillNo: ewayBillNo?.trim() || null,
         invoiceDocumentUrl: invoiceDocumentUrl || null,
         invoiceDocumentName: invoiceDocumentName?.trim() || null,
-        irn: irnResult.irn,
-        irnVerified: true,
+        irn: irnResult.irn || null,
+        irnVerified: irnResult.status === "ACTIVE",
         virtualAccountNumber: `UDHAR-${invoiceNumber.trim().toUpperCase()}`,
         invoiceHash,
         sellerId: seller.id,

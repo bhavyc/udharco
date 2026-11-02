@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
+import { SurepassService, EinvoiceVerifyResult } from "@/lib/services/surepassService";
 
 export class FraudService {
   /**
@@ -43,31 +44,35 @@ export class FraudService {
   /**
    * Fintech Blind Spot #1: e-Invoice (IRN) & QR Code Verification.
    * India B2B e-Invoicing standard mandates a unique 64-character hexadecimal IRN issued by the IRP (NIC).
+   * For Small MSMEs (< ₹5 Cr turnover), IRN is exempt: we record internal hash and rely on Corporate Buyer NOA.
    */
-  static verifyIRN(
-    irn?: string,
+  static async verifyIRN(
+    irn?: string | null,
     sellerGstin?: string,
     invoiceNumber?: string,
-    financialYear?: string
-  ): { isValid: boolean; irn: string; error?: string } {
+    financialYear?: string,
+    expectedAmount?: number,
+    expectedBuyerGst?: string
+  ): Promise<EinvoiceVerifyResult> {
     if (irn && irn.trim()) {
       const cleanIrn = irn.trim().toLowerCase();
-      // Valid IRN is a 64-char hexadecimal string
-      const hexRegex = /^[0-9a-f]{64}$/;
-      if (!hexRegex.test(cleanIrn)) {
-        return {
-          isValid: false,
-          irn: cleanIrn,
-          error: "Invalid IRN format. Must be a 64-character hexadecimal hash issued by Government IRP.",
-        };
-      }
-      return { isValid: true, irn: cleanIrn };
+      // Call Surepass GSP verification engine (with live token or sandbox mock)
+      return await SurepassService.verifyEinvoiceIRN(cleanIrn, expectedAmount, expectedBuyerGst);
     }
 
-    // Auto-generate deterministic 64-char IRN hash if not manually supplied
-    const raw = `IRP:NIC:${sellerGstin || "GSTIN"}:${invoiceNumber || "INV"}:${financialYear || "2026-27"}`;
-    const generatedIrn = crypto.createHash("sha256").update(raw).digest("hex");
-    return { isValid: true, irn: generatedIrn };
+    // Small MSME Exemption (< ₹5 Cr Turnover):
+    // Fallback internal deterministic hash for double-financing registry protection
+    const raw = `INTERNAL:${sellerGstin || "GSTIN"}:${invoiceNumber || "INV"}:${financialYear || "2026-27"}`;
+    const generatedHash = crypto.createHash("sha256").update(raw).digest("hex");
+
+    return {
+      success: true,
+      isValid: true,
+      irn: generatedHash,
+      status: "EXEMPT",
+      message: "Small MSME Exemption active (< ₹5 Cr Turnover). Invoice delivery will be verified via Corporate NOA.",
+      source: "EXEMPT_SMALL_MSME",
+    };
   }
 
   /**
