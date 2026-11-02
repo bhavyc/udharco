@@ -32,10 +32,10 @@ export async function POST(
     // ── IDOR & ACCESS VERIFICATION ──
     const session = await getSession();
     const isLoggedAsAnchor = session && session.role === "ANCHOR" && session.entityId === invoice.anchorId;
-    const isInviteTokenValid = token && invoice.anchor.user?.inviteToken && token === invoice.anchor.user.inviteToken;
+    const isNoticeTokenValid = token && (token === invoice.invoiceHash || (invoice.anchor.user?.inviteToken && token === invoice.anchor.user.inviteToken));
     const isDev = process.env.NODE_ENV !== "production";
 
-    if (!isLoggedAsAnchor && !isInviteTokenValid && !isDev) {
+    if (!isLoggedAsAnchor && !isNoticeTokenValid && !isDev) {
       return NextResponse.json(
         {
           success: false,
@@ -84,7 +84,6 @@ export async function POST(
         alreadyConfirmed: true,
         confirmedAt: invoice.anchorConfirmedAt,
         anchorStatus: invoice.anchor.status,
-        inviteToken: invoice.anchor.user?.inviteToken,
       });
     }
 
@@ -134,7 +133,6 @@ export async function POST(
         message: "Commercial delivery confirmed! Invoice is now approved and listed on marketplace for investor bidding.",
         anchorStatus: "ACTIVE",
         invoiceStatus: "LISTED",
-        inviteToken: invoice.anchor.user?.inviteToken,
       });
     }
 
@@ -165,7 +163,6 @@ export async function POST(
       message: "Commercial delivery acknowledged! A copy has been logged to the statutory audit trail. Platform Admin will complete facility underwriting before funding unlocks.",
       anchorStatus: "PENDING",
       invoiceStatus: "VERIFIED",
-      inviteToken: invoice.anchor.user?.inviteToken,
     });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

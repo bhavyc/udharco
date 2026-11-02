@@ -15,6 +15,9 @@ const IFSC_BANK_NAMES: Record<string, string> = {
   INDB: "IndusInd Bank Ltd",
 };
 
+// Rate limiting tracker to prevent automated penny-drop wallet depletion
+const bankLookupRateTracker = new Map<string, { count: number; firstTime: number }>();
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -25,6 +28,26 @@ export async function POST(request: Request) {
         { success: false, error: "A valid bank account number is required." },
         { status: 400 }
       );
+    }
+
+    // ── RATE LIMITING CHECK ──
+    const cleanAcc = accountNumber.trim();
+    const now = Date.now();
+    const rateRec = bankLookupRateTracker.get(cleanAcc);
+    if (rateRec) {
+      if (now - rateRec.firstTime < 10 * 60 * 1000) {
+        if (rateRec.count >= 5) {
+          return NextResponse.json(
+            { success: false, error: "RATE_LIMIT_EXCEEDED: Too many verification attempts for this account number. Please retry later." },
+            { status: 429 }
+          );
+        }
+        rateRec.count += 1;
+      } else {
+        bankLookupRateTracker.set(cleanAcc, { count: 1, firstTime: now });
+      }
+    } else {
+      bankLookupRateTracker.set(cleanAcc, { count: 1, firstTime: now });
     }
 
     if (!ifsc || typeof ifsc !== "string" || ifsc.trim().length !== 11) {

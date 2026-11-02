@@ -35,11 +35,6 @@ export default async function NoticePage({
           status: true,
           creditRating: true,
           maxExposureLimit: true,
-          user: {
-            select: {
-              inviteToken: true,
-            },
-          },
         },
       },
     },
@@ -48,6 +43,11 @@ export default async function NoticePage({
   if (!invoice) {
     notFound();
   }
+
+  // Financial PII Defense: Mask bank account number for public Notice portal
+  const maskedBankAccount = invoice.seller.bankAccountNo
+    ? `••••••••${invoice.seller.bankAccountNo.slice(-4)}`
+    : "••••••••";
 
   return (
     <NoticeClient
@@ -67,8 +67,14 @@ export default async function NoticePage({
         anchorConfirmedAt: invoice.anchorConfirmedAt?.toISOString() || null,
         disputeReason: invoice.disputeReason,
         virtualAccountNumber: invoice.virtualAccountNumber || `UDHAR-${invoice.invoiceNumber}`,
+        verificationToken: invoice.invoiceHash,
       }}
-      seller={invoice.seller}
+      seller={{
+        legalName: invoice.seller.legalName,
+        gstin: invoice.seller.gstin,
+        bankAccountNo: maskedBankAccount,
+        bankIfsc: invoice.seller.bankIfsc,
+      }}
       anchor={{
         id: invoice.anchor.id,
         corporateName: invoice.anchor.corporateName,
@@ -78,7 +84,6 @@ export default async function NoticePage({
         status: invoice.anchor.status,
         creditRating: invoice.anchor.creditRating,
         maxExposureLimit: invoice.anchor.maxExposureLimit,
-        inviteToken: invoice.anchor.user?.inviteToken || null,
       }}
     />
   );

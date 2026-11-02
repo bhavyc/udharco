@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { FraudService } from "@/lib/services/fraudService";
 import { RiskService } from "@/lib/services/riskService";
 import { requireAuth } from "@/lib/auth";
+import crypto from "crypto";
 
 // GET /api/v1/invoices - List invoices scoped to the logged-in user's role:
 //   SELLER → only their own invoices
@@ -37,7 +38,21 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json({ success: true, count: invoices.length, data: invoices });
+    // Financial PII Defense: Mask seller bank account for Anchors & Investors
+    const safeInvoices = invoices.map((inv) => {
+      if (auth.role !== "SELLER" && inv.seller) {
+        return {
+          ...inv,
+          seller: {
+            ...inv.seller,
+            bankAccountNo: `••••••••${inv.seller.bankAccountNo.slice(-4)}`,
+          },
+        };
+      }
+      return inv;
+    });
+
+    return NextResponse.json({ success: true, count: safeInvoices.length, data: safeInvoices });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : "Internal server error.";
     return NextResponse.json({ success: false, error: msg }, { status: 500 });
@@ -125,7 +140,7 @@ export async function POST(request: Request) {
       let existing = await prisma.anchor.findUnique({ where: { gstin: cleanGst } });
 
       if (!existing) {
-        const inviteToken = `inv-${Math.random().toString(36).substring(2, 12)}`;
+        const inviteToken = crypto.randomBytes(32).toString("hex");
         existing = await prisma.anchor.create({
           data: {
             gstin: cleanGst,

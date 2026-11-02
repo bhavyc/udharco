@@ -142,7 +142,7 @@ export async function POST(
       disbursementReceipt: {
         invoiceNumber: invoice.invoiceNumber,
         beneficiarySeller: updatedInvoice.seller.legalName,
-        creditedBankAccount: updatedInvoice.seller.bankAccountNo,
+        creditedBankAccount: `••••••••${updatedInvoice.seller.bankAccountNo.slice(-4)}`,
         ifscCode: updatedInvoice.seller.bankIfsc,
         upfrontCashDisbursed: `₹${invoice.upfrontDisbursedAmount.toLocaleString()}`,
         marginHoldRetainedInEscrow: `₹${invoice.marginHeldAmount.toLocaleString()}`,

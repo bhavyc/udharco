@@ -29,8 +29,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const assignedCreditLimit = sanctionedLimit && Number(sanctionedLimit) > 0 
-      ? Number(sanctionedLimit) 
+    // Anti-Fraud Underwriting Gate: Never allow untrusted client input to bypass risk scoring
+    // New MSME onboarding limit is conservatively capped at ₹50 Lakhs maximum until formal Admin review.
+    const requestedLimit = Number(sanctionedLimit);
+    const assignedCreditLimit = !isNaN(requestedLimit) && requestedLimit > 0
+      ? Math.min(5000000, requestedLimit) // Capped at ₹50 Lakhs max for self-onboarding
       : 5000000;
 
     const isDev = process.env.NODE_ENV !== "production";

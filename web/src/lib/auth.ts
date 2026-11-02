@@ -2,6 +2,7 @@ import "server-only";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import type { SessionRole } from "@/lib/session";
+import { getSession, getAdminSession } from "@/lib/session";
 
 // ---------------------------------------------------------------------------
 // requireAuth — call at the top of any API route handler that needs auth.
@@ -26,9 +27,19 @@ export async function requireAuth(
   allowedRoles?: SessionRole | SessionRole[]
 ): Promise<AuthContext | NextResponse> {
   const headerStore = await headers();
-  const userId = headerStore.get("x-user-id");
-  const role = headerStore.get("x-user-role") as SessionRole | null;
-  const entityId = headerStore.get("x-entity-id");
+  let userId = headerStore.get("x-user-id");
+  let role = headerStore.get("x-user-role") as SessionRole | null;
+  let entityId = headerStore.get("x-entity-id");
+
+  // Fallback: verify cryptographic JWT session cookie directly if headers are not set
+  if (!userId || !role || !entityId) {
+    const session = await getSession();
+    if (session) {
+      userId = session.userId;
+      role = session.role;
+      entityId = session.entityId;
+    }
+  }
 
   if (!userId || !role || !entityId) {
     return NextResponse.json(
@@ -54,7 +65,7 @@ export async function requireAuth(
 }
 
 // ---------------------------------------------------------------------------
-// requireAdminAuth — for /admin/api routes.
+// requireAdminAuth — for /admin/api routes and admin-protected v1 APIs.
 // ---------------------------------------------------------------------------
 
 export interface AdminAuthContext {
@@ -66,8 +77,17 @@ export async function requireAdminAuth(): Promise<
   AdminAuthContext | NextResponse
 > {
   const headerStore = await headers();
-  const adminId = headerStore.get("x-admin-id");
-  const email = headerStore.get("x-admin-email");
+  let adminId = headerStore.get("x-admin-id");
+  let email = headerStore.get("x-admin-email");
+
+  // Fallback: verify cryptographic admin JWT session cookie directly
+  if (!adminId || !email) {
+    const adminSession = await getAdminSession();
+    if (adminSession) {
+      adminId = adminSession.adminId;
+      email = adminSession.email;
+    }
+  }
 
   if (!adminId || !email) {
     return NextResponse.json(
