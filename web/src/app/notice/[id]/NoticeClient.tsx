@@ -35,6 +35,7 @@ interface NoticeProps {
     anchorConfirmedAt: string | null;
     disputeReason: string | null;
     virtualAccountNumber: string;
+    verificationToken?: string;
   };
   seller: {
     legalName: string;
@@ -51,7 +52,7 @@ interface NoticeProps {
     status: string;
     creditRating: string;
     maxExposureLimit: number;
-    inviteToken: string | null;
+    inviteToken?: string | null;
   };
 }
 
@@ -91,7 +92,7 @@ export default function NoticeClient({ invoice, seller, anchor }: NoticeProps) {
       const res = await fetch(`/api/v1/invoices/${invoice.id}/notice-confirm`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "CONFIRM" }),
+        body: JSON.stringify({ action: "CONFIRM", token: invoice.verificationToken }),
       });
       const data = await res.json();
       if (data.success) {
@@ -117,7 +118,7 @@ export default function NoticeClient({ invoice, seller, anchor }: NoticeProps) {
       const res = await fetch(`/api/v1/invoices/${invoice.id}/notice-confirm`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "DISPUTE", disputeReason: disputeInput }),
+        body: JSON.stringify({ action: "DISPUTE", disputeReason: disputeInput, token: invoice.verificationToken }),
       });
       const data = await res.json();
       if (data.success) {
@@ -205,15 +206,13 @@ export default function NoticeClient({ invoice, seller, anchor }: NoticeProps) {
                 )}
               </div>
             </div>
-            {anchor.inviteToken && (
-              <Link
-                href={`/login?invite=${anchor.inviteToken}`}
-                className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg transition shrink-0"
-              >
-                <span>Activate Corporate Dashboard</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            )}
+            <Link
+              href="/login"
+              className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg transition shrink-0"
+            >
+              <span>Corporate Portal Login</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         ) : isDisputed ? (
           <div className="p-5 rounded-2xl bg-rose-950/60 border border-rose-500/30 text-rose-200 flex items-start gap-3">

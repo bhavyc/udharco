@@ -18,6 +18,7 @@ export async function POST(
       include: {
         seller: true,
         anchor: true,
+        fundingBids: { where: { status: "CONFIRMED" }, include: { investor: true } },
       },
     });
 
@@ -25,27 +26,49 @@ export async function POST(
       return NextResponse.json({ success: false, error: "Invoice not found." }, { status: 404 });
     }
 
+    if (!["FUNDED", "DISPUTED", "DEFAULTED"].includes(invoice.status)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Cannot execute e-NACH recourse against invoice in '${invoice.status}' status. Recourse can only be triggered on FUNDED, DISPUTED, or DEFAULTED bills.`,
+        },
+        { status: 400 }
+      );
+    }
+
     const mandateId = invoice.seller.enachMandateId || "MND-NPCI-882910";
     const recoveryAmount = invoice.upfrontDisbursedAmount || Math.round(invoice.totalAmount * 0.84);
 
-    // Run transaction: Create Escrow Recourse Recovery record + update invoice status to RECOURSE_EXECUTED + AuditLog
-    const [transactionRecord, updatedInvoice, audit] = await prisma.$transaction([
-      prisma.escrowTransaction.create({
+    // Run transaction: Create Escrow Recourse Recovery record + refund Investor escrow + update invoice status to SETTLED + AuditLog
+    const [transactionRecord, updatedInvoice, audit] = await prisma.$transaction(async (tx) => {
+      const txRecord = await tx.escrowTransaction.create({
         data: {
           invoiceId: invoice.id,
           transactionType: "RECOURSE_RECOVERY",
           amount: recoveryAmount,
           notes: `ADMIN TRIGGERED NPCI e-NACH RECOURSE: ₹${recoveryAmount.toLocaleString()} auto-debited from ${invoice.seller.legalName} (${mandateId}) due to buyer dispute/default.`,
         },
-      }),
-      prisma.invoice.update({
+      });
+
+      // Credit recovered principal back into the funding Investor's escrow wallet
+      if (invoice.fundingBids.length > 0) {
+        const investorId = invoice.fundingBids[0].investorId;
+        await tx.investor.update({
+          where: { id: investorId },
+          data: { escrowBalance: { increment: recoveryAmount } },
+        });
+      }
+
+      const updInv = await tx.invoice.update({
         where: { id },
         data: {
           status: "SETTLED",
           disputeReason: `RECOURSE EXECUTED: ₹${recoveryAmount.toLocaleString()} recovered via e-NACH ${mandateId}`,
+          settledAt: new Date(),
         },
-      }),
-      prisma.auditLog.create({
+      });
+
+      const auditLog = await tx.auditLog.create({
         data: {
           entityType: "INVOICE",
           entityId: id,
@@ -57,10 +80,13 @@ export async function POST(
             recoveryAmount,
             mandateId,
             sellerId: invoice.sellerId,
+            investorReimbursed: invoice.fundingBids[0]?.investorId || null,
           }),
         },
-      }),
-    ]);
+      });
+
+      return [txRecord, updInv, auditLog];
+    });
 
     return NextResponse.json({
       success: true,

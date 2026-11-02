@@ -69,7 +69,16 @@ export async function POST(
       );
     }
 
-    const effectiveRepayment = isDefault ? 0 : Number(repaymentAmount);
+    const parsedAmount = Number(repaymentAmount);
+    if (!isDefault && (isNaN(parsedAmount) || parsedAmount < 0)) {
+      return NextResponse.json(
+        { success: false, error: "Invalid repaymentAmount. Must be a non-negative number." },
+        { status: 400 }
+      );
+    }
+    // Cap repayment at invoice total face value (max 1.05x to prevent arbitrary money inflation)
+    const maxRepayment = invoice.totalAmount * 1.05;
+    const effectiveRepayment = isDefault ? 0 : Math.min(maxRepayment, Math.max(0, parsedAmount));
     const flatPlatformFee = Number(
       ((invoice.totalAmount * invoice.platformFeePct) / 100).toFixed(2)
     );
@@ -95,98 +104,93 @@ export async function POST(
     const now = new Date();
     const newStatus = waterfall.outcome === "DEFAULT" ? "DEFAULTED" : "SETTLED";
 
-    // 3. ATOMIC FINTECH TRANSACTION
-    const transactionOperations: any[] = [];
+    // 3. ATOMIC FINTECH TRANSACTION: Atomic conditional SQL UPDATE at database write-lock
+    await prisma.$transaction(async (tx) => {
+      // 1. Atomically transition status from FUNDED to newStatus
+      const affectedRows = await tx.$executeRaw`
+        UPDATE "invoices"
+        SET "status" = ${newStatus},
+            "settledAt" = ${now}
+        WHERE "id" = ${invoice.id}
+          AND "status" = 'FUNDED'
+      `;
 
-    // A. Credit Investor virtual Escrow wallet with their waterfall payout
-    if (waterfall.investorTotalPayout > 0) {
-      transactionOperations.push(
-        prisma.investor.update({
+      if (affectedRows === 0) {
+        throw new Error("ALREADY_SETTLED_OR_INVALID: Invoice is no longer open for settlement or was settled concurrently.");
+      }
+
+      // 2. Credit Investor virtual Escrow wallet with their waterfall payout
+      if (waterfall.investorTotalPayout > 0) {
+        await tx.investor.update({
           where: { id: fundingBid.investorId },
           data: {
-            escrowBalance: {
-              increment: waterfall.investorTotalPayout,
-            },
+            escrowBalance: { increment: waterfall.investorTotalPayout },
           },
-        })
-      );
+        });
 
-      transactionOperations.push(
-        prisma.escrowTransaction.create({
+        await tx.escrowTransaction.create({
           data: {
             invoiceId: invoice.id,
             transactionType: "INVESTOR_PAYOUT",
             amount: waterfall.investorTotalPayout,
             notes: `Investor ${fundingBid.investor.entityName} received ₹${waterfall.investorTotalPayout.toLocaleString()} (Principal: ₹${waterfall.investorPrincipalPaid.toLocaleString()}, Interest Yield: ₹${waterfall.investorInterestPaid.toLocaleString()}) via Escrow waterfall.`,
           },
-        })
-      );
-    }
+        });
+      }
 
-    // B. Record Platform Fee Escrow Deduction
-    if (waterfall.platformFeeDeducted > 0) {
-      transactionOperations.push(
-        prisma.escrowTransaction.create({
+      // 3. Record Platform Fee Escrow Deduction
+      if (waterfall.platformFeeDeducted > 0) {
+        await tx.escrowTransaction.create({
           data: {
             invoiceId: invoice.id,
             transactionType: "PLATFORM_FEE",
             amount: waterfall.platformFeeDeducted,
             notes: `UdharCo Platform fee of ₹${waterfall.platformFeeDeducted.toLocaleString()} successfully swept to treasury.`,
           },
-        })
-      );
-    }
+        });
+      }
 
-    // C. Record Seller Margin Release
-    if (waterfall.sellerMarginReturned > 0) {
-      transactionOperations.push(
-        prisma.escrowTransaction.create({
+      // 4. Record Seller Margin Release
+      if (waterfall.sellerMarginReturned > 0) {
+        await tx.escrowTransaction.create({
           data: {
             invoiceId: invoice.id,
             transactionType: "SELLER_MARGIN_RELEASE",
             amount: waterfall.sellerMarginReturned,
             notes: `Residual margin reserve of ₹${waterfall.sellerMarginReturned.toLocaleString()} released and credited to MSME Seller ${invoice.seller.legalName} (A/C: ${invoice.seller.bankAccountNo}).`,
           },
-        })
-      );
-    }
+        });
+      }
 
-    // D. If Shortfall & Recourse: Record Recourse Recovery (via e-NACH Auto-Debit Mandate)
-    if (waterfall.recourseTriggered && waterfall.recourseRecoveryDemand > 0) {
-      const mandateId = invoice.seller.enachMandateId || "MND-NPCI-882910";
-      const hasActiveEnach = invoice.seller.enachMandateStatus === "ACTIVE";
+      // 5. If Shortfall & Recourse: Record Recourse Recovery (via e-NACH Auto-Debit Mandate)
+      if (waterfall.recourseTriggered && waterfall.recourseRecoveryDemand > 0) {
+        const mandateId = invoice.seller.enachMandateId || "MND-NPCI-882910";
+        const hasActiveEnach = invoice.seller.enachMandateStatus === "ACTIVE";
 
-      const recourseNotes = hasActiveEnach
-        ? `NPCI e-NACH AUTO-DEBIT EXECUTED: ₹${waterfall.recourseRecoveryDemand.toLocaleString()} automatically debited from MSME Seller ${invoice.seller.legalName} bank account (Mandate: ${mandateId}) to cover buyer shortfall.`
-        : `RECOURSE DEMAND ISSUED: Legal shortfall demand notice of ₹${waterfall.recourseRecoveryDemand.toLocaleString()} raised against MSME Seller ${invoice.seller.legalName}.`;
+        const recourseNotes = hasActiveEnach
+          ? `NPCI e-NACH AUTO-DEBIT EXECUTED: ₹${waterfall.recourseRecoveryDemand.toLocaleString()} automatically debited from MSME Seller ${invoice.seller.legalName} bank account (Mandate: ${mandateId}) to cover buyer shortfall.`
+          : `RECOURSE DEMAND ISSUED: Legal shortfall demand notice of ₹${waterfall.recourseRecoveryDemand.toLocaleString()} raised against MSME Seller ${invoice.seller.legalName}.`;
 
-      transactionOperations.push(
-        prisma.escrowTransaction.create({
+        await tx.escrowTransaction.create({
           data: {
             invoiceId: invoice.id,
             transactionType: "RECOURSE_RECOVERY",
             amount: waterfall.recourseRecoveryDemand,
             notes: recourseNotes,
           },
-        })
-      );
-    }
+        });
+      }
 
-    // E. Decrement Anchor Corporate Exposure
-    transactionOperations.push(
-      prisma.anchor.update({
+      // 6. Decrement Anchor Corporate Exposure
+      await tx.anchor.update({
         where: { id: invoice.anchorId },
         data: {
-          currentExposure: {
-            decrement: invoice.totalAmount,
-          },
+          currentExposure: { decrement: invoice.totalAmount },
         },
-      })
-    );
+      });
 
-    // F. Create Settlement Record
-    transactionOperations.push(
-      prisma.settlementRecord.create({
+      // 7. Create Settlement Record
+      await tx.settlementRecord.create({
         data: {
           invoiceId: invoice.id,
           totalReceived: waterfall.totalReceived,
@@ -198,22 +202,8 @@ export async function POST(
           recourseTriggered: waterfall.recourseTriggered,
           settledAt: now,
         },
-      })
-    );
-
-    // G. Mark Invoice as SETTLED or DEFAULTED
-    transactionOperations.push(
-      prisma.invoice.update({
-        where: { id: invoice.id },
-        data: {
-          status: newStatus,
-          settledAt: now,
-        },
-      })
-    );
-
-    // Execute atomic batch
-    await prisma.$transaction(transactionOperations);
+      });
+    });
 
     // Fetch updated invoice with all relations for response
     const finalInvoice = await prisma.invoice.findUnique({

@@ -35,10 +35,20 @@ export async function GET(
     if (auth.role === "ANCHOR" && invoice.anchorId !== auth.entityId) {
       return NextResponse.json({ success: false, error: "Unauthorized access to this NOA." }, { status: 403 });
     }
+    if (auth.role === "INVESTOR") {
+      const hasBid = invoice.fundingBids.some(b => b.investorId === auth.entityId);
+      if (!hasBid && invoice.status !== "LISTED") {
+        return NextResponse.json({ success: false, error: "Unauthorized access to this private NOA contract." }, { status: 403 });
+      }
+    }
 
     const inv = invoice as any;
     const van = inv.virtualAccountNumber || `UDHAR-${inv.invoiceNumber}`;
     const fundingInvestor = inv.fundingBids?.[0]?.investor?.entityName || "Institutional Investor Consortium (NBFC)";
+
+    const isOwnerSeller = auth.role === "SELLER" && invoice.sellerId === auth.entityId;
+    const safeBankAccount = isOwnerSeller ? inv.seller?.bankAccountNo : `••••••••${inv.seller?.bankAccountNo?.slice(-4) || ""}`;
+    const safePan = isOwnerSeller ? inv.seller?.pan : `${inv.seller?.pan?.slice(0, 2)}••••••${inv.seller?.pan?.slice(-2) || ""}`;
 
     const contract = {
       title: "TRIPARTITE NOTICE OF ASSIGNMENT & ESCROW PAYMENT DIRECTIVE",
@@ -51,8 +61,8 @@ export async function GET(
         assignorMSME: {
           legalName: inv.seller?.legalName,
           gstin: inv.seller?.gstin,
-          pan: inv.seller?.pan,
-          designatedBankAccount: inv.seller?.bankAccountNo,
+          pan: safePan,
+          designatedBankAccount: safeBankAccount,
           ifsc: inv.seller?.bankIfsc,
           enachMandateId: inv.seller?.enachMandateId || "MND-NPCI-882910",
         },

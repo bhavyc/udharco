@@ -1,10 +1,19 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdminAuth } from "@/lib/auth";
 
-// GET /api/v1/entities/anchors - List all corporate buyers
+// GET /api/v1/entities/anchors - List all corporate buyers (Safe Public/Entity Dropdown View)
 export async function GET() {
   try {
     const anchors = await prisma.anchor.findMany({
+      select: {
+        id: true,
+        corporateName: true,
+        gstin: true,
+        creditRating: true,
+        status: true,
+        standardPaymentTerms: true,
+      },
       orderBy: { createdAt: "desc" },
     });
     return NextResponse.json({ success: true, count: anchors.length, data: anchors });
@@ -13,8 +22,11 @@ export async function GET() {
   }
 }
 
-// POST /api/v1/entities/anchors - Register Corporate Buyer (e.g. Tata Motors)
+// POST /api/v1/entities/anchors - Admin-only manual provisioning of Corporate Buyer
 export async function POST(request: Request) {
+  const auth = await requireAdminAuth();
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const body = await request.json();
     const { corporateName, gstin, creditRating = "AAA", maxExposureLimit = 50000000 } = body;
@@ -44,11 +56,12 @@ export async function POST(request: Request) {
         creditRating: creditRating.toUpperCase(),
         maxExposureLimit: Number(maxExposureLimit),
         currentExposure: 0,
+        status: "ACTIVE",
       },
     });
 
     return NextResponse.json(
-      { success: true, message: "Corporate Anchor registered successfully.", data: anchor },
+      { success: true, message: "Corporate Anchor registered successfully by Admin.", data: anchor },
       { status: 201 }
     );
   } catch (error: any) {

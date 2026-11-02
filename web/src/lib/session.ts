@@ -122,8 +122,8 @@ const COOKIE_OPTIONS = {
 const ADMIN_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "strict" as const,
-  path: "/admin",
+  sameSite: "lax" as const,
+  path: "/",
   maxAge: 8 * 60 * 60, // 8 hours
 };
 
