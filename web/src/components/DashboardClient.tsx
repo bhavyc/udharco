@@ -1253,7 +1253,7 @@ export default function DashboardClient({
                             type="text"
                             required
                             maxLength={15}
-                            placeholder="e.g. 07AABCS1234F1Z5"
+                            placeholder="Buyer GSTIN"
                             value={newBuyerForm.gstin}
                             onChange={(e) => setNewBuyerForm({ ...newBuyerForm, gstin: e.target.value.toUpperCase() })}
                             className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-mono uppercase text-slate-900 focus:border-emerald-500 outline-none"
@@ -1266,7 +1266,7 @@ export default function DashboardClient({
                           <input
                             type="text"
                             required
-                            placeholder="e.g. Sharma Steels Pvt Ltd"
+                            placeholder="Corporate Legal Name"
                             value={newBuyerForm.corporateName}
                             onChange={(e) => setNewBuyerForm({ ...newBuyerForm, corporateName: e.target.value })}
                             className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 focus:border-emerald-500 outline-none"
@@ -1281,7 +1281,7 @@ export default function DashboardClient({
                           <input
                             type="email"
                             required
-                            placeholder="accounts@company.com"
+                            placeholder="Accounts / Treasury Email"
                             value={newBuyerForm.contactEmail}
                             onChange={(e) => setNewBuyerForm({ ...newBuyerForm, contactEmail: e.target.value })}
                             className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-900 focus:border-emerald-500 outline-none"
@@ -1294,7 +1294,7 @@ export default function DashboardClient({
                             <label className="text-[10px] font-bold text-slate-600 block mb-0.5">Contact Person</label>
                             <input
                               type="text"
-                              placeholder="Anil Sharma"
+                              placeholder="Contact Person"
                               value={newBuyerForm.contactPerson}
                               onChange={(e) => setNewBuyerForm({ ...newBuyerForm, contactPerson: e.target.value })}
                               className="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs text-slate-900 focus:border-emerald-500 outline-none"
@@ -1305,7 +1305,7 @@ export default function DashboardClient({
                             <input
                               type="tel"
                               maxLength={10}
-                              placeholder="9876543210"
+                              placeholder="Phone (WhatsApp)"
                               value={newBuyerForm.contactPhone}
                               onChange={(e) => setNewBuyerForm({ ...newBuyerForm, contactPhone: e.target.value.replace(/\D/g, "") })}
                               className="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-mono text-slate-900 focus:border-emerald-500 outline-none"
@@ -1410,7 +1410,7 @@ export default function DashboardClient({
                       value={uploadForm.invoiceNumber}
                       onChange={(e) => setUploadForm({ ...uploadForm, invoiceNumber: e.target.value })}
                       className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 font-mono focus:border-emerald-500 outline-none"
-                      placeholder="INV/2026/0891"
+                      placeholder="Invoice Number"
                     />
                   </div>
                   <div>
@@ -1439,7 +1439,7 @@ export default function DashboardClient({
                           setUploadForm({ ...uploadForm, totalAmount: val ? Number(val) : 0 });
                         }
                       }}
-                      placeholder={`e.g. 1000000 (Max ₹${formatINR(effectiveMaxLimit)})`}
+                      placeholder={`Total Bill Value (₹) - Max ₹${formatINR(effectiveMaxLimit)}`}
                       className={`w-full bg-white border rounded-lg px-3 py-1.5 text-xs text-slate-900 font-mono outline-none transition ${
                         isUploadAmountExceeded
                           ? "border-red-500 focus:border-red-500 ring-2 ring-red-100 text-red-900"
@@ -1498,7 +1498,7 @@ export default function DashboardClient({
                       value={uploadForm.poNumber}
                       onChange={(e) => setUploadForm({ ...uploadForm, poNumber: e.target.value })}
                       className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 font-mono focus:border-emerald-500 outline-none"
-                      placeholder="PO-AUTO-9021"
+                      placeholder="Purchase Order (PO) Number"
                     />
                   </div>
                   <div>

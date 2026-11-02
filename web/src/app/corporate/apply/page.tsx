@@ -270,7 +270,7 @@ export default function CorporateApplyPage() {
                           required
                           maxLength={15}
                           value={gstin}
-                          placeholder="e.g. 27AAACT2727Q1ZW"
+                          placeholder="Corporate GSTIN"
                           onChange={(e) => {
                             setGstin(e.target.value.toUpperCase());
                             setIsGstVerified(false);
@@ -450,7 +450,7 @@ export default function CorporateApplyPage() {
                     <input
                       type="text"
                       required
-                      placeholder="e.g. Vikramaditya Singhania"
+                      placeholder="Authorized Officer Name"
                       value={contactPerson}
                       onChange={(e) => setContactPerson(e.target.value)}
                       className="w-full px-3.5 py-3 rounded-2xl bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-indigo-600 font-medium"
@@ -464,7 +464,7 @@ export default function CorporateApplyPage() {
                     <input
                       type="email"
                       required
-                      placeholder="treasury@tatamotors.com"
+                      placeholder="Corporate Work Email"
                       value={contactEmail}
                       onChange={(e) => setContactEmail(e.target.value)}
                       className={`w-full px-3.5 py-3 rounded-2xl bg-slate-50 border text-slate-900 font-mono outline-none transition ${
@@ -500,7 +500,7 @@ export default function CorporateApplyPage() {
                       type="tel"
                       required
                       maxLength={12}
-                      placeholder="e.g. 9820012345"
+                      placeholder="Official Phone / Mobile"
                       value={contactPhone}
                       onChange={(e) => setContactPhone(e.target.value)}
                       className="w-full px-3.5 py-3 rounded-2xl bg-slate-50 border border-slate-300 text-slate-900 font-mono outline-none focus:bg-white focus:border-indigo-600 font-medium"
