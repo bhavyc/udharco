@@ -70,9 +70,9 @@ export default async function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+    <div className="min-h-screen bg-transparent text-slate-900 font-sans">
       {/* Top Navigation Bar */}
-      <header className="border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-0 z-50 shadow-xs">
+      <header className="border-b border-white/60 bg-white/70 backdrop-blur-xl sticky top-0 z-50 shadow-xs shadow-slate-900/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-emerald-500 flex items-center justify-center shadow-md shadow-indigo-500/10 font-black text-white text-lg tracking-tight">

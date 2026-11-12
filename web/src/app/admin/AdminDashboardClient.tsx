@@ -584,18 +584,18 @@ export default function AdminDashboardClient({
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-transparent text-slate-900 flex flex-col font-sans">
       {/* Top Admin Bar */}
-      <header className="border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-0 z-50 shadow-xs">
+      <header className="border-b border-white/60 bg-white/70 backdrop-blur-xl sticky top-0 z-50 shadow-xs shadow-slate-900/5">
         <div className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between">
           <div className="flex items-center space-x-3.5">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-slate-900 via-indigo-900 to-indigo-700 flex items-center justify-center font-black text-white text-base tracking-tight shadow-sm">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-slate-900 via-indigo-950 to-indigo-800 flex items-center justify-center font-black text-white text-base tracking-tight shadow-md shadow-indigo-950/20 ring-1 ring-white/30">
               AD
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-base font-bold tracking-tight text-slate-900">UdharCo Platform Admin</h1>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50/80 text-indigo-700 border border-indigo-200/70 backdrop-blur-xs">
                   ROOT OPERATIONS
                 </span>
               </div>
@@ -606,7 +606,7 @@ export default function AdminDashboardClient({
           </div>
 
           <div className="flex items-center space-x-4">
-            <div className="hidden md:flex items-center gap-3 text-xs font-semibold text-slate-500">
+            <div className="hidden md:flex items-center gap-3 text-xs font-semibold px-3 py-1.5 rounded-xl bg-white/60 backdrop-blur-md border border-white/80 shadow-2xs">
               <span className="flex items-center gap-1.5 text-emerald-700">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 DB Live
@@ -617,13 +617,13 @@ export default function AdminDashboardClient({
               </span>
             </div>
 
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-mono text-slate-700">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/60 backdrop-blur-md border border-white/80 text-xs font-mono text-slate-700 shadow-2xs">
               <span>{adminEmail}</span>
             </div>
 
             <button
               onClick={handleLogout}
-              className="px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
+              className="px-3 py-1.5 rounded-xl bg-red-50/80 hover:bg-red-100/90 backdrop-blur-md text-red-700 border border-red-200/70 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Logout</span>
@@ -633,7 +633,7 @@ export default function AdminDashboardClient({
       </header>
 
       {/* Navigation Tabs Bar */}
-      <div className="bg-white border-b border-slate-200 relative z-10 px-6 overflow-x-auto shadow-2xs">
+      <div className="bg-white/65 backdrop-blur-xl border-b border-white/60 relative z-10 px-6 overflow-x-auto shadow-2xs">
         <div className="max-w-7xl mx-auto flex items-center space-x-1.5 py-2.5">
           {[
             { id: "OVERVIEW", label: "Dashboard Overview", icon: TrendingUp },
@@ -650,10 +650,10 @@ export default function AdminDashboardClient({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as TabType)}
-                className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition cursor-pointer ${
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all duration-200 cursor-pointer ${
                   isActive
-                    ? "bg-slate-900 text-white shadow-xs"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                    ? "bg-slate-900 text-white shadow-sm ring-1 ring-white/20"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-white/80 backdrop-blur-xs"
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -674,10 +674,10 @@ export default function AdminDashboardClient({
         {/* Toast Alert */}
         {toast && (
           <div
-            className={`p-4 rounded-xl border text-xs flex items-center justify-between shadow-lg ${
+            className={`p-4 rounded-xl border text-xs flex items-center justify-between shadow-xl backdrop-blur-xl ring-1 ring-white/50 ${
               toast.type === "success"
-                ? "bg-emerald-50 border-emerald-300 text-emerald-800"
-                : "bg-red-50 border-red-300 text-red-800"
+                ? "bg-emerald-50/85 border-emerald-300/80 text-emerald-900"
+                : "bg-red-50/85 border-red-300/80 text-red-900"
             }`}
           >
             <div className="flex items-center gap-2.5">
@@ -690,7 +690,7 @@ export default function AdminDashboardClient({
 
         {/* Invite Token Banner Modal */}
         {generatedInvite && (
-          <div className="p-5 rounded-2xl bg-indigo-50 border border-indigo-200 shadow-sm relative">
+          <div className="p-5 rounded-2xl bg-indigo-50/75 backdrop-blur-xl border border-indigo-200/80 shadow-md shadow-indigo-900/5 relative ring-1 ring-white/60">
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-[11px] font-bold text-indigo-700 uppercase tracking-wider block mb-1">
@@ -706,7 +706,7 @@ export default function AdminDashboardClient({
               <button onClick={() => setGeneratedInvite(null)} className="text-slate-400 hover:text-slate-700 text-sm">✕</button>
             </div>
 
-            <div className="mt-3 flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-300">
+            <div className="mt-3 flex items-center gap-2 bg-white/80 backdrop-blur-md p-2 rounded-xl border border-indigo-200/70 shadow-2xs">
               <input
                 type="text"
                 readOnly
@@ -718,7 +718,7 @@ export default function AdminDashboardClient({
                   navigator.clipboard.writeText(generatedInvite.inviteUrl);
                   showToast("success", "Activation link copied to clipboard!");
                 }}
-                className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
+                className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-xs"
               >
                 <Copy className="w-3.5 h-3.5" />
                 <span>Copy Link</span>
@@ -732,9 +732,9 @@ export default function AdminDashboardClient({
             ───────────────────────────────────────────────────────────────── */}
         {activeTab === "OVERVIEW" && (
           <div className="space-y-6">
-            {/* 1. KEY OPERATIONAL KPIS (4 Clean Cards) */}
+            {/* 1. KEY OPERATIONAL KPIS (4 Clean Glassmorphic Cards) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between">
+              <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group ring-1 ring-black/[0.03]">
                 <div>
                   <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">
                     Factored Capital Volume
@@ -743,15 +743,15 @@ export default function AdminDashboardClient({
                     ₹{formatINR(totalFactored)}
                   </div>
                 </div>
-                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                <div className="mt-3 pt-2.5 border-t border-slate-100/70 flex items-center justify-between text-[11px]">
                   <span className="text-slate-500">{invoices.length} Invoices on Record</span>
-                  <span className="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">
+                  <span className="text-emerald-700 font-bold bg-emerald-50/80 px-1.5 py-0.5 rounded border border-emerald-200/60 backdrop-blur-xs">
                     {totalSettledCount} Settled
                   </span>
                 </div>
               </div>
 
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between">
+              <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group ring-1 ring-black/[0.03]">
                 <div>
                   <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">
                     Escrow Liquidity Pool
@@ -760,15 +760,15 @@ export default function AdminDashboardClient({
                     ₹{formatINR(totalEscrowPool)}
                   </div>
                 </div>
-                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                <div className="mt-3 pt-2.5 border-t border-slate-100/70 flex items-center justify-between text-[11px]">
                   <span className="text-slate-500">Regulated Virtual Escrow</span>
-                  <span className="text-indigo-700 font-bold bg-indigo-50 px-1.5 py-0.5 rounded">
+                  <span className="text-indigo-700 font-bold bg-indigo-50/80 px-1.5 py-0.5 rounded border border-indigo-200/60 backdrop-blur-xs">
                     {investors.length} NBFCs Active
                   </span>
                 </div>
               </div>
 
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between">
+              <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group ring-1 ring-black/[0.03]">
                 <div>
                   <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">
                     Platform Revenue Swept
@@ -777,13 +777,13 @@ export default function AdminDashboardClient({
                     ₹{formatINR(platformRevenue)}
                   </div>
                 </div>
-                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                <div className="mt-3 pt-2.5 border-t border-slate-100/70 flex items-center justify-between text-[11px]">
                   <span className="text-slate-500">1.0% Commission</span>
                   <span className="text-emerald-700 font-semibold font-mono">T+0 Clearing</span>
                 </div>
               </div>
 
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between">
+              <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group ring-1 ring-black/[0.03]">
                 <div>
                   <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">
                     Risk & Recourse Status
@@ -792,9 +792,9 @@ export default function AdminDashboardClient({
                     {disputedInvoices.length > 0 ? `${disputedInvoices.length} Disputes` : "Zero Defaults"}
                   </div>
                 </div>
-                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                <div className="mt-3 pt-2.5 border-t border-slate-100/70 flex items-center justify-between text-[11px]">
                   <span className="text-slate-500">NPCI e-NACH Clawback</span>
-                  <span className="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">
+                  <span className="text-emerald-700 font-bold bg-emerald-50/80 px-1.5 py-0.5 rounded border border-emerald-200/60 backdrop-blur-xs">
                     FAIL-CLOSED
                   </span>
                 </div>
@@ -803,10 +803,10 @@ export default function AdminDashboardClient({
 
             {/* 2. URGENT ACTION QUEUE: Pending Corporates Awaiting Limit Sanction */}
             {anchors.filter((a) => a.status === "PENDING").length > 0 && (
-              <div className="p-5 rounded-2xl bg-amber-50/80 border border-amber-300 shadow-xs space-y-3">
+              <div className="p-5 rounded-2xl bg-amber-50/75 backdrop-blur-xl border border-amber-200/80 shadow-md shadow-amber-900/5 space-y-3 ring-1 ring-white/60">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="h-8 w-8 rounded-xl bg-amber-200 text-amber-900 flex items-center justify-center font-bold">
+                    <div className="h-8 w-8 rounded-xl bg-amber-200/80 text-amber-900 flex items-center justify-center font-bold shadow-2xs">
                       <Clock className="w-4 h-4" />
                     </div>
                     <div>
@@ -836,12 +836,12 @@ export default function AdminDashboardClient({
                     .map((pendingAnchor) => (
                       <div
                         key={pendingAnchor.id}
-                        className="p-3.5 bg-white rounded-xl border border-amber-200 flex items-center justify-between shadow-2xs"
+                        className="p-3.5 bg-white/80 hover:bg-white/95 backdrop-blur-md rounded-xl border border-amber-200/70 flex items-center justify-between shadow-2xs transition"
                       >
                         <div>
                           <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
                             <span>{pendingAnchor.corporateName}</span>
-                            <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-100 text-amber-900 font-mono font-semibold">
+                            <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-100/80 text-amber-900 font-mono font-semibold border border-amber-200/60">
                               {pendingAnchor.gstin}
                             </span>
                           </div>
@@ -871,7 +871,7 @@ export default function AdminDashboardClient({
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Left Column (2 Cols): Live Invoices & Marketplace Activity */}
               <div className="lg:col-span-2 space-y-4">
-                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+                <div className="p-5 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/80 shadow-sm space-y-4 ring-1 ring-black/[0.02]">
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
@@ -899,7 +899,7 @@ export default function AdminDashboardClient({
                     <div className="overflow-x-auto">
                       <table className="w-full text-left text-xs">
                         <thead>
-                          <tr className="border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                          <tr className="border-b border-slate-200/60 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                             <th className="pb-2.5">Invoice #</th>
                             <th className="pb-2.5">Seller (MSME)</th>
                             <th className="pb-2.5">Buyer (Corporate)</th>
@@ -907,9 +907,9 @@ export default function AdminDashboardClient({
                             <th className="pb-2.5 text-center">Status</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-slate-100/60">
                           {invoices.slice(0, 5).map((inv) => (
-                            <tr key={inv.id} className="hover:bg-slate-50/80 transition">
+                            <tr key={inv.id} className="hover:bg-white/60 transition">
                               <td className="py-2.5 font-mono font-bold text-slate-900 truncate max-w-[140px]" title={inv.invoiceNumber}>
                                 {inv.invoiceNumber}
                               </td>
@@ -924,16 +924,16 @@ export default function AdminDashboardClient({
                               </td>
                               <td className="py-2.5 text-center">
                                 <span
-                                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold inline-block ${
+                                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold inline-block border ${
                                     inv.status === "FUNDED"
-                                      ? "bg-emerald-100 text-emerald-800"
+                                      ? "bg-emerald-50/80 text-emerald-800 border-emerald-200/70"
                                       : inv.status === "LISTED"
-                                      ? "bg-sky-100 text-sky-800"
+                                      ? "bg-sky-50/80 text-sky-800 border-sky-200/70"
                                       : inv.status === "SETTLED"
-                                      ? "bg-slate-100 text-slate-700"
+                                      ? "bg-slate-100/80 text-slate-700 border-slate-200/70"
                                       : inv.status === "DISPUTED"
-                                      ? "bg-red-100 text-red-800"
-                                      : "bg-amber-100 text-amber-800"
+                                      ? "bg-red-50/80 text-red-800 border-red-200/70"
+                                      : "bg-amber-50/80 text-amber-800 border-amber-200/70"
                                   }`}
                                 >
                                   {inv.status}
@@ -951,14 +951,14 @@ export default function AdminDashboardClient({
               {/* Right Column (1 Col): Quick Admin Operations & Ecosystem Snapshot */}
               <div className="space-y-4">
                 {/* Quick Actions Card */}
-                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3">
+                <div className="p-5 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/80 shadow-sm space-y-3 ring-1 ring-black/[0.02]">
                   <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                     Quick Operations
                   </h3>
                   <div className="space-y-2">
                     <button
                       onClick={() => setIsAnchorModalOpen(true)}
-                      className="w-full p-2.5 rounded-xl bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 text-slate-800 hover:text-indigo-900 text-xs font-bold flex items-center justify-between transition cursor-pointer"
+                      className="w-full p-2.5 rounded-xl bg-white/60 hover:bg-indigo-50/80 border border-slate-200/70 hover:border-indigo-200/80 text-slate-800 hover:text-indigo-900 text-xs font-bold flex items-center justify-between transition backdrop-blur-xs cursor-pointer shadow-2xs"
                     >
                       <div className="flex items-center gap-2">
                         <Building2 className="w-4 h-4 text-indigo-600" />
@@ -969,7 +969,7 @@ export default function AdminDashboardClient({
 
                     <button
                       onClick={() => setIsInvestorModalOpen(true)}
-                      className="w-full p-2.5 rounded-xl bg-slate-50 hover:bg-purple-50 border border-slate-200 hover:border-purple-200 text-slate-800 hover:text-purple-900 text-xs font-bold flex items-center justify-between transition cursor-pointer"
+                      className="w-full p-2.5 rounded-xl bg-white/60 hover:bg-purple-50/80 border border-slate-200/70 hover:border-purple-200/80 text-slate-800 hover:text-purple-900 text-xs font-bold flex items-center justify-between transition backdrop-blur-xs cursor-pointer shadow-2xs"
                     >
                       <div className="flex items-center gap-2">
                         <Wallet className="w-4 h-4 text-purple-600" />
@@ -984,7 +984,7 @@ export default function AdminDashboardClient({
                         navigator.clipboard.writeText(url);
                         showToast("success", "Corporate Apply Link copied to clipboard!");
                       }}
-                      className="w-full p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-200 text-slate-800 hover:text-emerald-900 text-xs font-bold flex items-center justify-between transition cursor-pointer"
+                      className="w-full p-2.5 rounded-xl bg-white/60 hover:bg-emerald-50/80 border border-slate-200/70 hover:border-emerald-200/80 text-slate-800 hover:text-emerald-900 text-xs font-bold flex items-center justify-between transition backdrop-blur-xs cursor-pointer shadow-2xs"
                     >
                       <div className="flex items-center gap-2">
                         <ExternalLink className="w-4 h-4 text-emerald-600" />
@@ -996,35 +996,35 @@ export default function AdminDashboardClient({
                 </div>
 
                 {/* Ecosystem Breakdown Card */}
-                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3">
+                <div className="p-5 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/80 shadow-sm space-y-3 ring-1 ring-black/[0.02]">
                   <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                     Ecosystem Snapshot
                   </h3>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div
                       onClick={() => setActiveTab("ANCHORS")}
-                      className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 cursor-pointer transition"
+                      className="p-2.5 rounded-xl bg-white/60 hover:bg-white/95 backdrop-blur-xs border border-slate-200/70 hover:border-slate-300 cursor-pointer transition shadow-2xs"
                     >
                       <div className="text-base font-black text-slate-900">{anchors.length}</div>
                       <div className="text-[10px] text-slate-500 font-semibold mt-0.5">Anchors</div>
                     </div>
                     <div
                       onClick={() => setActiveTab("SELLERS")}
-                      className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 cursor-pointer transition"
+                      className="p-2.5 rounded-xl bg-white/60 hover:bg-white/95 backdrop-blur-xs border border-slate-200/70 hover:border-slate-300 cursor-pointer transition shadow-2xs"
                     >
                       <div className="text-base font-black text-slate-900">{sellers.length}</div>
                       <div className="text-[10px] text-slate-500 font-semibold mt-0.5">MSMEs</div>
                     </div>
                     <div
                       onClick={() => setActiveTab("INVESTORS")}
-                      className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 cursor-pointer transition"
+                      className="p-2.5 rounded-xl bg-white/60 hover:bg-white/95 backdrop-blur-xs border border-slate-200/70 hover:border-slate-300 cursor-pointer transition shadow-2xs"
                     >
                       <div className="text-base font-black text-slate-900">{investors.length}</div>
                       <div className="text-[10px] text-slate-500 font-semibold mt-0.5">NBFCs</div>
                     </div>
                   </div>
 
-                  <div className="pt-2 border-t border-slate-100 space-y-1.5 text-[11px] text-slate-600">
+                  <div className="mt-3 pt-2.5 border-t border-slate-100/70 space-y-1.5 text-[11px] text-slate-600">
                     <div className="flex items-center justify-between">
                       <span>Factoring Regulation Act, 2011</span>
                       <span className="font-bold text-emerald-700">✓ ENFORCED</span>
@@ -1059,7 +1059,7 @@ export default function AdminDashboardClient({
               </button>
 
               {showDiagnostics && (
-                <div className="mt-4 space-y-4 p-5 rounded-2xl bg-white border border-slate-200 shadow-xs animate-in fade-in duration-200">
+                <div className="mt-4 space-y-4 p-5 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/80 shadow-md shadow-slate-900/5 ring-1 ring-black/[0.02] animate-in fade-in duration-200">
                   {/* Live Surepass GSTIN Inspector Console */}
                   <div className="space-y-3">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -1219,9 +1219,9 @@ export default function AdminDashboardClient({
               </button>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-xs">
+            <div className="rounded-2xl border border-white/80 bg-white/70 backdrop-blur-xl overflow-hidden shadow-sm shadow-slate-900/5 ring-1 ring-black/[0.02]">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                <thead className="bg-slate-100/60 backdrop-blur-md text-slate-600 font-semibold border-b border-slate-200/60">
                   <tr>
                     <th className="p-4">Corporate Entity & Contact</th>
                     <th className="p-4">GSTIN</th>
@@ -1232,7 +1232,7 @@ export default function AdminDashboardClient({
                     <th className="p-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
+                <tbody className="divide-y divide-slate-100/60 text-slate-700">
                   {anchors
                     .filter((a) => {
                       if (anchorFilter === "PENDING") return a.status === "PENDING";
@@ -1240,7 +1240,7 @@ export default function AdminDashboardClient({
                       return true;
                     })
                     .map((a) => (
-                      <tr key={a.id} className={`hover:bg-slate-50 transition ${a.status === "PENDING" ? "bg-amber-50/50" : ""}`}>
+                      <tr key={a.id} className={`hover:bg-white/60 transition border-b border-slate-100/60 ${a.status === "PENDING" ? "bg-amber-50/40" : ""}`}>
                         <td className="p-4">
                           <div className="flex items-center gap-2">
                             <span className="font-bold text-slate-900">{a.corporateName}</span>
@@ -1386,9 +1386,9 @@ export default function AdminDashboardClient({
               </button>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-xs">
+            <div className="rounded-2xl border border-white/80 bg-white/70 backdrop-blur-xl overflow-hidden shadow-sm shadow-slate-900/5 ring-1 ring-black/[0.02]">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                <thead className="bg-slate-100/60 backdrop-blur-md text-slate-600 font-semibold border-b border-slate-200/60">
                   <tr>
                     <th className="p-4">Investor / Entity Name</th>
                     <th className="p-4">Type</th>
@@ -1398,9 +1398,9 @@ export default function AdminDashboardClient({
                     <th className="p-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
+                <tbody className="divide-y divide-slate-100/60 text-slate-700">
                   {investors.map((inv) => (
-                    <tr key={inv.id} className="hover:bg-slate-50 transition">
+                    <tr key={inv.id} className="hover:bg-white/60 transition border-b border-slate-100/60">
                       <td className="p-4 font-bold text-slate-900">{inv.entityName}</td>
                       <td className="p-4 font-mono font-medium text-slate-700">{inv.investorType}</td>
                       <td className="p-4 font-mono text-purple-700 font-bold">₹{inv.escrowBalance.toLocaleString()}</td>
@@ -1443,9 +1443,9 @@ export default function AdminDashboardClient({
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-xs">
+            <div className="rounded-2xl border border-white/80 bg-white/70 backdrop-blur-xl overflow-hidden shadow-sm shadow-slate-900/5 ring-1 ring-black/[0.02]">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                <thead className="bg-slate-100/60 backdrop-blur-md text-slate-600 font-semibold border-b border-slate-200/60">
                   <tr>
                     <th className="p-4">Legal Business Name</th>
                     <th className="p-4">GSTIN & PAN</th>
@@ -1456,9 +1456,9 @@ export default function AdminDashboardClient({
                     <th className="p-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
+                <tbody className="divide-y divide-slate-100/60 text-slate-700">
                   {sellers.map((s) => (
-                    <tr key={s.id} className="hover:bg-slate-50 transition">
+                    <tr key={s.id} className="hover:bg-white/60 transition border-b border-slate-100/60">
                       <td className="p-4 font-bold text-slate-900">{s.legalName}</td>
                       <td className="p-4 font-mono text-slate-600">
                         <div className="font-semibold text-slate-800">{s.gstin}</div>
@@ -1517,12 +1517,12 @@ export default function AdminDashboardClient({
                   placeholder="Search invoice or party..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 outline-none shadow-xs"
+                  className="px-3 py-1.5 rounded-xl bg-white/70 backdrop-blur-xs border border-white/80 text-xs text-slate-900 placeholder:text-slate-400 outline-none shadow-2xs focus:bg-white"
                 />
                 <select
                   value={invoiceFilter}
                   onChange={(e: any) => setInvoiceFilter(e.target.value)}
-                  className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-700 outline-none shadow-xs font-medium"
+                  className="px-3 py-1.5 rounded-xl bg-white/70 backdrop-blur-xs border border-white/80 text-xs text-slate-700 outline-none shadow-2xs font-medium focus:bg-white"
                 >
                   <option value="ALL">All Invoices</option>
                   <option value="DISPUTED">Disputed Invoices (Recourse)</option>
@@ -1533,9 +1533,9 @@ export default function AdminDashboardClient({
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-xs">
+            <div className="rounded-2xl border border-white/80 bg-white/70 backdrop-blur-xl overflow-hidden shadow-sm shadow-slate-900/5 ring-1 ring-black/[0.02]">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                <thead className="bg-slate-100/60 backdrop-blur-md text-slate-600 font-semibold border-b border-slate-200/60">
                   <tr>
                     <th className="p-4">Invoice No</th>
                     <th className="p-4">MSME Seller</th>
@@ -1546,9 +1546,9 @@ export default function AdminDashboardClient({
                     <th className="p-4 text-right">Recourse Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
+                <tbody className="divide-y divide-slate-100/60 text-slate-700">
                   {filteredInvoices.map((inv) => (
-                    <tr key={inv.id} className="hover:bg-slate-50 transition">
+                    <tr key={inv.id} className="hover:bg-white/60 transition border-b border-slate-100/60">
                       <td className="p-4 font-mono font-bold text-slate-900">{inv.invoiceNumber}</td>
                       <td className="p-4 font-medium text-slate-800">{inv.seller.legalName}</td>
                       <td className="p-4 text-indigo-700 font-semibold">{inv.anchor.corporateName}</td>
@@ -1599,9 +1599,9 @@ export default function AdminDashboardClient({
               <p className="text-xs text-slate-500">Immutable ledger of disbursements, buyer settlements, and recourse recoveries.</p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-xs">
+            <div className="rounded-2xl border border-white/80 bg-white/70 backdrop-blur-xl overflow-hidden shadow-sm shadow-slate-900/5 ring-1 ring-black/[0.02]">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                <thead className="bg-slate-100/60 backdrop-blur-md text-slate-600 font-semibold border-b border-slate-200/60">
                   <tr>
                     <th className="p-4">Date & Time</th>
                     <th className="p-4">Transaction Type</th>
@@ -1610,9 +1610,9 @@ export default function AdminDashboardClient({
                     <th className="p-4">Audit Notes</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
+                <tbody className="divide-y divide-slate-100/60 text-slate-700">
                   {transactions.map((t) => (
-                    <tr key={t.id} className="hover:bg-slate-50 transition">
+                    <tr key={t.id} className="hover:bg-white/60 transition border-b border-slate-100/60">
                       <td className="p-4 font-mono text-slate-600">{new Date(t.createdAt).toLocaleString()}</td>
                       <td className="p-4">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
@@ -1646,9 +1646,9 @@ export default function AdminDashboardClient({
               <p className="text-xs text-slate-500">Cryptographically verifiable immutable audit trail of all platform operations.</p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-xs">
+            <div className="rounded-2xl border border-white/80 bg-white/70 backdrop-blur-xl overflow-hidden shadow-sm shadow-slate-900/5 ring-1 ring-black/[0.02]">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                <thead className="bg-slate-100/60 backdrop-blur-md text-slate-600 font-semibold border-b border-slate-200/60">
                   <tr>
                     <th className="p-4">Timestamp</th>
                     <th className="p-4">Entity Type</th>
@@ -1657,9 +1657,9 @@ export default function AdminDashboardClient({
                     <th className="p-4">Log Details</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
+                <tbody className="divide-y divide-slate-100/60 text-slate-700">
                   {auditLogs.map((log) => (
-                    <tr key={log.id} className="hover:bg-slate-50 transition">
+                    <tr key={log.id} className="hover:bg-white/60 transition border-b border-slate-100/60">
                       <td className="p-4 font-mono text-slate-600">{new Date(log.timestamp).toLocaleString()}</td>
                       <td className="p-4 font-mono text-indigo-700 font-semibold">{log.entityType}</td>
                       <td className="p-4">
@@ -1686,8 +1686,8 @@ export default function AdminDashboardClient({
 
       {/* 1. Provision Anchor Modal */}
       {isAnchorModalOpen && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-4 my-auto">
+        <div className="fixed inset-0 z-[100] bg-slate-950/45 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="max-w-md w-full bg-white/90 backdrop-blur-2xl border border-white/80 rounded-3xl p-6 shadow-2xl shadow-slate-950/20 space-y-4 my-auto ring-1 ring-black/5">
             <h3 className="text-lg font-bold text-slate-900">Provision Corporate Anchor</h3>
             <form onSubmit={handleProvisionAnchor} className="space-y-3 text-xs">
                 <div>
@@ -1697,7 +1697,7 @@ export default function AdminDashboardClient({
                     required
                     value={anchorForm.corporateName}
                     onChange={(e) => setAnchorForm({ ...anchorForm, corporateName: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-indigo-500 font-medium"
+                    className="w-full p-2.5 rounded-xl bg-white/80 backdrop-blur-xs border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-indigo-500 font-medium shadow-2xs"
                   />
                 </div>
                 <div>
@@ -1707,7 +1707,7 @@ export default function AdminDashboardClient({
                     required
                     value={anchorForm.gstin}
                     onChange={(e) => setAnchorForm({ ...anchorForm, gstin: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 font-mono outline-none focus:bg-white focus:border-indigo-500 font-medium"
+                    className="w-full p-2.5 rounded-xl bg-white/80 backdrop-blur-xs border border-slate-300 text-slate-900 font-mono outline-none focus:bg-white focus:border-indigo-500 font-medium shadow-2xs"
                   />
                 </div>
                 <div>
@@ -1717,7 +1717,7 @@ export default function AdminDashboardClient({
                     required
                     value={anchorForm.email}
                     onChange={(e) => setAnchorForm({ ...anchorForm, email: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-indigo-500 font-medium"
+                    className="w-full p-2.5 rounded-xl bg-white/80 backdrop-blur-xs border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-indigo-500 font-medium shadow-2xs"
                   />
                 </div>
                 <div>
@@ -1727,14 +1727,14 @@ export default function AdminDashboardClient({
                     required
                     value={anchorForm.maxExposureLimit}
                     onChange={(e) => setAnchorForm({ ...anchorForm, maxExposureLimit: Number(e.target.value) })}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 font-mono outline-none focus:bg-white focus:border-indigo-500 font-medium"
+                    className="w-full p-2.5 rounded-xl bg-white/80 backdrop-blur-xs border border-slate-300 text-slate-900 font-mono outline-none focus:bg-white focus:border-indigo-500 font-medium shadow-2xs"
                   />
                 </div>
                 <div className="flex gap-2 pt-2">
                   <button
                     type="button"
                     onClick={() => setIsAnchorModalOpen(false)}
-                    className="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition cursor-pointer"
+                    className="flex-1 py-2.5 rounded-xl bg-white/80 hover:bg-slate-100 border border-slate-300 text-slate-700 font-semibold transition cursor-pointer shadow-2xs"
                   >
                     Cancel
                   </button>
@@ -1753,8 +1753,8 @@ export default function AdminDashboardClient({
 
         {/* 2. Provision Investor Modal */}
         {isInvestorModalOpen && (
-          <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-            <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-4 my-auto">
+          <div className="fixed inset-0 z-[100] bg-slate-950/45 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+            <div className="max-w-md w-full bg-white/90 backdrop-blur-2xl border border-white/80 rounded-3xl p-6 shadow-2xl shadow-slate-950/20 space-y-4 my-auto ring-1 ring-black/5">
               <h3 className="text-lg font-bold text-slate-900">Onboard Regulated Investor / NBFC</h3>
               <form onSubmit={handleProvisionInvestor} className="space-y-3 text-xs">
                 <div>
@@ -1764,7 +1764,7 @@ export default function AdminDashboardClient({
                     required
                     value={investorForm.entityName}
                     onChange={(e) => setInvestorForm({ ...investorForm, entityName: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-indigo-500 font-medium"
+                    className="w-full p-2.5 rounded-xl bg-white/80 backdrop-blur-xs border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-indigo-500 font-medium shadow-2xs"
                   />
                 </div>
                 <div>
@@ -1774,7 +1774,7 @@ export default function AdminDashboardClient({
                     required
                     value={investorForm.email}
                     onChange={(e) => setInvestorForm({ ...investorForm, email: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-indigo-500 font-medium"
+                    className="w-full p-2.5 rounded-xl bg-white/80 backdrop-blur-xs border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-indigo-500 font-medium shadow-2xs"
                   />
                 </div>
                 <div>
@@ -1782,7 +1782,7 @@ export default function AdminDashboardClient({
                   <select
                     value={investorForm.investorType}
                     onChange={(e) => setInvestorForm({ ...investorForm, investorType: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-indigo-500 font-medium"
+                    className="w-full p-2.5 rounded-xl bg-white/80 backdrop-blur-xs border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-indigo-500 font-medium shadow-2xs"
                   >
                     <option value="NBFC">RBI Regulated NBFC</option>
                     <option value="BANK">Scheduled Commercial Bank</option>
@@ -1796,14 +1796,14 @@ export default function AdminDashboardClient({
                     required
                     value={investorForm.initialEscrow}
                     onChange={(e) => setInvestorForm({ ...investorForm, initialEscrow: Number(e.target.value) })}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 font-mono outline-none focus:bg-white focus:border-indigo-500 font-medium"
+                    className="w-full p-2.5 rounded-xl bg-white/80 backdrop-blur-xs border border-slate-300 text-slate-900 font-mono outline-none focus:bg-white focus:border-indigo-500 font-medium shadow-2xs"
                   />
                 </div>
                 <div className="flex gap-2 pt-2">
                   <button
                     type="button"
                     onClick={() => setIsInvestorModalOpen(false)}
-                    className="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition cursor-pointer"
+                    className="flex-1 py-2.5 rounded-xl bg-white/80 hover:bg-slate-100 border border-slate-300 text-slate-700 font-semibold transition cursor-pointer shadow-2xs"
                   >
                     Cancel
                   </button>
@@ -1822,8 +1822,8 @@ export default function AdminDashboardClient({
 
         {/* 3. Manage Seller Limit Modal */}
         {editSellerModal && (
-          <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-            <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-4 my-auto">
+          <div className="fixed inset-0 z-[100] bg-slate-950/45 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+            <div className="max-w-md w-full bg-white/90 backdrop-blur-2xl border border-white/80 rounded-3xl p-6 shadow-2xl shadow-slate-950/20 space-y-4 my-auto ring-1 ring-black/5">
               <h3 className="text-lg font-bold text-slate-900">Manage Seller Facility: {editSellerModal.legalName}</h3>
               <form onSubmit={handleUpdateSeller} className="space-y-3 text-xs">
                 <div>
@@ -1833,7 +1833,7 @@ export default function AdminDashboardClient({
                     required
                     value={editSellerForm.creditLimit}
                     onChange={(e) => setEditSellerForm({ ...editSellerForm, creditLimit: Number(e.target.value) })}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 font-mono outline-none focus:bg-white focus:border-indigo-500 font-medium"
+                    className="w-full p-2.5 rounded-xl bg-white/80 backdrop-blur-xs border border-slate-300 text-slate-900 font-mono outline-none focus:bg-white focus:border-indigo-500 font-medium shadow-2xs"
                   />
                 </div>
                 <div>
@@ -1841,7 +1841,7 @@ export default function AdminDashboardClient({
                   <select
                     value={editSellerForm.creditLimitStatus}
                     onChange={(e) => setEditSellerForm({ ...editSellerForm, creditLimitStatus: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-indigo-500 font-medium"
+                    className="w-full p-2.5 rounded-xl bg-white/80 backdrop-blur-xs border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-indigo-500 font-medium shadow-2xs"
                   >
                     <option value="SANCTIONED">SANCTIONED (Active for Factoring)</option>
                     <option value="UNDER_REVIEW">UNDER_REVIEW (Hold Disbursals)</option>
@@ -1853,7 +1853,7 @@ export default function AdminDashboardClient({
                   <select
                     value={editSellerForm.kycStatus}
                     onChange={(e) => setEditSellerForm({ ...editSellerForm, kycStatus: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-indigo-500 font-medium"
+                    className="w-full p-2.5 rounded-xl bg-white/80 backdrop-blur-xs border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-indigo-500 font-medium shadow-2xs"
                   >
                     <option value="VERIFIED">VERIFIED</option>
                     <option value="PENDING">PENDING</option>
@@ -1864,7 +1864,7 @@ export default function AdminDashboardClient({
                   <button
                     type="button"
                     onClick={() => setEditSellerModal(null)}
-                    className="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition cursor-pointer"
+                    className="flex-1 py-2.5 rounded-xl bg-white/80 hover:bg-slate-100 border border-slate-300 text-slate-700 font-semibold transition cursor-pointer shadow-2xs"
                   >
                     Cancel
                   </button>
@@ -1883,8 +1883,8 @@ export default function AdminDashboardClient({
 
         {/* 4. Topup Investor Escrow Modal */}
         {topupInvestorModal && (
-          <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-            <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-4 my-auto">
+          <div className="fixed inset-0 z-[100] bg-slate-950/45 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+            <div className="max-w-md w-full bg-white/90 backdrop-blur-2xl border border-white/80 rounded-3xl p-6 shadow-2xl shadow-slate-950/20 space-y-4 my-auto ring-1 ring-black/5">
               <h3 className="text-lg font-bold text-slate-900">Topup Virtual Escrow: {topupInvestorModal.entityName}</h3>
               <p className="text-xs text-slate-600">
                 Current Balance: <span className="text-slate-900 font-mono font-bold">₹{topupInvestorModal.escrowBalance.toLocaleString()}</span>
@@ -1899,14 +1899,14 @@ export default function AdminDashboardClient({
                     step={100000}
                     value={topupAmount}
                     onChange={(e) => setTopupAmount(Number(e.target.value))}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 font-mono outline-none focus:bg-white focus:border-indigo-500 font-medium"
+                    className="w-full p-2.5 rounded-xl bg-white/80 backdrop-blur-xs border border-slate-300 text-slate-900 font-mono outline-none focus:bg-white focus:border-indigo-500 font-medium shadow-2xs"
                   />
                 </div>
                 <div className="flex gap-2 pt-2">
                   <button
                     type="button"
                     onClick={() => setTopupInvestorModal(null)}
-                    className="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition cursor-pointer"
+                    className="flex-1 py-2.5 rounded-xl bg-white/80 hover:bg-slate-100 border border-slate-300 text-slate-700 font-semibold transition cursor-pointer shadow-2xs"
                   >
                     Cancel
                   </button>
@@ -1925,14 +1925,14 @@ export default function AdminDashboardClient({
 
         {/* 5. e-NACH Recourse Execution Modal */}
         {recourseModalInvoice && (
-          <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-            <div className="max-w-md w-full bg-white border border-rose-200 rounded-3xl p-6 shadow-2xl space-y-4 my-auto">
+          <div className="fixed inset-0 z-[100] bg-slate-950/45 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+            <div className="max-w-md w-full bg-white/90 backdrop-blur-2xl border border-rose-200/80 rounded-3xl p-6 shadow-2xl shadow-rose-950/15 space-y-4 my-auto ring-1 ring-black/5">
               <div className="flex items-center gap-2.5 text-rose-600">
                 <AlertTriangle className="w-5 h-5" />
                 <h3 className="text-lg font-bold text-slate-900">Execute NPCI e-NACH Recourse</h3>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-1.5 text-slate-700">
+              <div className="p-3.5 rounded-2xl bg-slate-50/75 backdrop-blur-md border border-slate-200/70 text-xs space-y-1.5 text-slate-700 shadow-2xs">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Invoice Ref:</span>
                   <span className="font-mono text-slate-900 font-bold">{recourseModalInvoice.invoiceNumber}</span>
@@ -1961,7 +1961,7 @@ export default function AdminDashboardClient({
                 <button
                   type="button"
                   onClick={() => setRecourseModalInvoice(null)}
-                  className="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition cursor-pointer"
+                  className="flex-1 py-2.5 rounded-xl bg-white/80 hover:bg-slate-100 border border-slate-300 text-slate-700 font-semibold text-xs transition cursor-pointer shadow-2xs"
                 >
                   Cancel
                 </button>
@@ -1979,10 +1979,10 @@ export default function AdminDashboardClient({
 
         {/* 6. Review & Sanction Anchor Modal */}
         {reviewAnchorModal && (
-          <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-            <div className="max-w-xl w-full max-h-[88vh] flex flex-col bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200 text-slate-900">
+          <div className="fixed inset-0 z-[100] bg-slate-950/45 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+            <div className="max-w-xl w-full max-h-[88vh] flex flex-col bg-white/90 backdrop-blur-2xl border border-white/80 rounded-2xl shadow-2xl shadow-slate-950/20 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200 text-slate-900 ring-1 ring-black/5">
               {/* Sticky Top Header */}
-              <div className="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between shrink-0 bg-white">
+              <div className="px-5 py-3.5 border-b border-slate-200/60 flex items-center justify-between shrink-0 bg-white/70 backdrop-blur-lg">
                 <div className="flex items-center gap-2.5 text-emerald-700">
                   <CheckCircle2 className="w-5 h-5 shrink-0" />
                   <div>
@@ -2004,13 +2004,13 @@ export default function AdminDashboardClient({
                 {/* Scrollable Modal Body */}
                 <div className="p-4 sm:p-5 overflow-y-auto space-y-3.5 text-xs flex-1 min-h-0">
                   {/* 1. PRIMARY ACTION: Credit Rating & Sanction Limit Inputs */}
-                  <div className="p-3.5 rounded-xl bg-emerald-50/80 border border-emerald-200 space-y-3">
+                  <div className="p-3.5 rounded-xl bg-emerald-50/75 backdrop-blur-md border border-emerald-200/80 space-y-3 shadow-2xs">
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-emerald-950 text-xs flex items-center gap-1.5">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                         Sanction Decision & Limit Allocation
                       </span>
-                      <span className="text-[11px] font-mono font-bold text-emerald-800 bg-white px-2 py-0.5 rounded border border-emerald-200">
+                      <span className="text-[11px] font-mono font-bold text-emerald-800 bg-white/90 backdrop-blur-xs px-2 py-0.5 rounded border border-emerald-200">
                         Sanctioned: ₹{(reviewAnchorForm.maxExposureLimit / 10000000).toFixed(2)} Cr
                       </span>
                     </div>
@@ -2023,7 +2023,7 @@ export default function AdminDashboardClient({
                         <select
                           value={reviewAnchorForm.creditRating}
                           onChange={(e) => setReviewAnchorForm({ ...reviewAnchorForm, creditRating: e.target.value })}
-                          className="w-full p-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 font-mono text-xs outline-none focus:border-emerald-500 font-medium"
+                          className="w-full p-2.5 rounded-xl bg-white/80 backdrop-blur-xs border border-slate-300 text-slate-900 font-mono text-xs outline-none focus:bg-white focus:border-emerald-500 font-medium shadow-2xs"
                         >
                           <option value="AAA">CRISIL / ICRA AAA (Prime High Grade)</option>
                           <option value="AA+">CRISIL / ICRA AA+ (High Grade)</option>
@@ -2045,7 +2045,7 @@ export default function AdminDashboardClient({
                           step={1000000}
                           value={reviewAnchorForm.maxExposureLimit}
                           onChange={(e) => setReviewAnchorForm({ ...reviewAnchorForm, maxExposureLimit: Number(e.target.value) })}
-                          className="w-full p-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 font-mono text-xs outline-none focus:border-emerald-500 font-medium"
+                          className="w-full p-2.5 rounded-xl bg-white/80 backdrop-blur-xs border border-slate-300 text-slate-900 font-mono text-xs outline-none focus:bg-white focus:border-emerald-500 font-medium shadow-2xs"
                         />
                       </div>
                     </div>
@@ -2067,7 +2067,7 @@ export default function AdminDashboardClient({
                           className={`px-2 py-0.5 rounded-lg text-[10px] font-semibold border transition cursor-pointer ${
                             reviewAnchorForm.maxExposureLimit === chip.val
                               ? "bg-emerald-600 text-white border-emerald-600 shadow-2xs"
-                              : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
+                              : "bg-white/80 backdrop-blur-xs text-slate-700 border-slate-200 hover:bg-white"
                           }`}
                         >
                           {chip.label}
@@ -2077,15 +2077,15 @@ export default function AdminDashboardClient({
                   </div>
 
                   {/* 2. Applicant Profile Summary */}
-                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-2 text-slate-700">
-                    <div className="flex justify-between border-b border-slate-200 pb-1.5">
+                  <div className="p-3.5 rounded-xl bg-slate-50/75 backdrop-blur-md border border-slate-200/70 text-xs space-y-2 text-slate-700">
+                    <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
                       <span className="text-slate-500">Corporate Entity:</span>
                       <span className="text-slate-900 font-bold">{reviewAnchorModal.corporateName}</span>
                     </div>
                     <div className="flex items-center justify-between flex-wrap gap-2">
                       <span className="text-slate-500">GSTIN:</span>
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="font-mono text-indigo-700 font-bold bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 text-xs">
+                        <span className="font-mono text-indigo-700 font-bold bg-indigo-50/80 px-2 py-0.5 rounded border border-indigo-100 text-xs backdrop-blur-xs">
                           {reviewAnchorModal.gstin}
                         </span>
                         <button
@@ -2095,7 +2095,7 @@ export default function AdminDashboardClient({
                             setCopiedReviewGstin(true);
                             setTimeout(() => setCopiedReviewGstin(false), 2000);
                           }}
-                          className="px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 text-[10px] font-medium flex items-center gap-1 transition cursor-pointer"
+                          className="px-2 py-0.5 rounded-lg bg-white/80 hover:bg-slate-100 border border-slate-300 text-slate-700 text-[10px] font-medium flex items-center gap-1 transition cursor-pointer shadow-2xs"
                           title="Copy GSTIN for manual verification"
                         >
                           {copiedReviewGstin ? (
@@ -2114,7 +2114,7 @@ export default function AdminDashboardClient({
                           href="https://services.gst.gov.in/services/searchtp"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-2 py-0.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 text-[10px] font-bold flex items-center gap-1 transition cursor-pointer shadow-2xs"
+                          className="px-2 py-0.5 rounded-lg bg-emerald-50/80 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 text-[10px] font-bold flex items-center gap-1 transition cursor-pointer shadow-2xs backdrop-blur-xs"
                           title="Route A (Free): Search taxpayer on the official government GST portal (Zero API Cost)"
                         >
                           <span>🏛️ Govt GST Portal</span>
@@ -2124,7 +2124,7 @@ export default function AdminDashboardClient({
                           type="button"
                           onClick={() => handleVerifyAnchorGst(reviewAnchorModal.gstin)}
                           disabled={reviewGstLoading}
-                          className="px-2 py-0.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 text-[10px] font-bold flex items-center gap-1 transition cursor-pointer"
+                          className="px-2 py-0.5 rounded-lg bg-indigo-50/80 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 text-[10px] font-bold flex items-center gap-1 transition cursor-pointer backdrop-blur-xs shadow-2xs"
                         >
                           {reviewGstLoading ? (
                             <>
@@ -2143,8 +2143,8 @@ export default function AdminDashboardClient({
 
                     {/* Inline Live Surepass Verification Result */}
                     {reviewGstResult && (
-                      <div className={`p-2.5 rounded-xl border text-[11px] ${
-                        reviewGstResult.success ? "bg-emerald-50/80 border-emerald-200 text-emerald-900" : "bg-red-50 border-red-200 text-red-800"
+                      <div className={`p-2.5 rounded-xl border text-[11px] backdrop-blur-xs ${
+                        reviewGstResult.success ? "bg-emerald-50/80 border-emerald-200 text-emerald-900" : "bg-red-50/80 border-red-200 text-red-800"
                       }`}>
                         {reviewGstResult.success ? (
                           <div className="space-y-1">
@@ -2175,7 +2175,7 @@ export default function AdminDashboardClient({
                       </div>
                     )}
 
-                    <div className="flex justify-between">
+                    <div className="flex justify-between border-t border-slate-200/60 pt-1.5">
                       <span className="text-slate-500">Authorized Treasury Contact:</span>
                       <span className="text-slate-900 font-medium">
                         {reviewAnchorModal.contactPerson || "Officer"} ({reviewAnchorModal.contactEmail || "N/A"})
@@ -2190,13 +2190,13 @@ export default function AdminDashboardClient({
                   </div>
 
                   {/* 3. Working Capital Calculator & Assessment */}
-                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
+                  <div className="p-3.5 rounded-xl bg-indigo-50/75 backdrop-blur-md border border-indigo-200/70 space-y-2.5">
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                      <span className="font-bold text-indigo-950 text-xs flex items-center gap-1.5">
                         <Calculator className="w-3.5 h-3.5 text-indigo-600" />
                         Tenure-Dynamic Working Capital Calculator
                       </span>
-                      <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800">
+                      <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-white/80 border border-indigo-200/70 text-indigo-800 backdrop-blur-xs">
                         Procurement × (Tenure ÷ 365)
                       </span>
                     </div>
@@ -2209,7 +2209,7 @@ export default function AdminDashboardClient({
                         </span>
                       </div>
                     ) : (
-                      <div className="text-[11px] text-amber-700 bg-amber-50 p-2 rounded-lg border border-amber-200">
+                      <div className="text-[11px] text-amber-700 bg-amber-50/80 p-2 rounded-lg border border-amber-200 backdrop-blur-xs">
                         ⚠️ Annual Procurement was not declared during self-serve onboarding. Standard ₹50.00L probationary ceiling applies.
                       </div>
                     )}
@@ -2234,10 +2234,10 @@ export default function AdminDashboardClient({
                                   }));
                                 }
                               }}
-                              className={`py-0.5 px-2 rounded text-xs font-semibold font-mono border cursor-pointer ${
+                              className={`py-0.5 px-2 rounded text-xs font-semibold font-mono border cursor-pointer transition ${
                                 reviewTenureDays === days
-                                  ? "bg-indigo-600 text-white border-indigo-600"
-                                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
+                                  ? "bg-indigo-600 text-white border-indigo-600 shadow-2xs"
+                                  : "bg-white/80 text-slate-700 border-slate-200 hover:bg-white backdrop-blur-xs"
                               }`}
                             >
                               {days}d
@@ -2248,7 +2248,7 @@ export default function AdminDashboardClient({
                     </div>
 
                     {reviewAnchorModal.annualProcurement && (
-                      <div className="p-2 bg-white rounded-lg border border-slate-200 text-[11px] flex justify-between items-center">
+                      <div className="p-2 bg-white/80 rounded-lg border border-slate-200/70 text-[11px] flex justify-between items-center backdrop-blur-xs shadow-2xs">
                         <span className="text-slate-600">Formula Suggested Exposure ({reviewTenureDays}d):</span>
                         <span className="font-mono font-bold text-indigo-700">
                           ₹{Math.round(reviewAnchorModal.annualProcurement * (reviewTenureDays / 365)).toLocaleString()}
@@ -2262,11 +2262,11 @@ export default function AdminDashboardClient({
                 </div>
 
                 {/* Sticky Bottom Actions Footer */}
-                <div className="p-3.5 border-t border-slate-200 bg-slate-50 flex gap-2.5 shrink-0 rounded-b-2xl">
+                <div className="p-3.5 border-t border-slate-200/60 bg-slate-50/75 backdrop-blur-lg flex gap-2.5 shrink-0 rounded-b-2xl">
                   <button
                     type="button"
                     onClick={() => setReviewAnchorModal(null)}
-                    className="flex-1 py-2.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-semibold transition cursor-pointer text-xs"
+                    className="flex-1 py-2.5 rounded-xl bg-white/80 hover:bg-slate-100 border border-slate-300 text-slate-700 font-semibold transition cursor-pointer text-xs shadow-2xs"
                   >
                     Cancel
                   </button>

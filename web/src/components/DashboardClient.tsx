@@ -560,8 +560,8 @@ export default function DashboardClient({
       )}
 
       {/* 3-Step Visual Lifecycle Guide ("Kaam Kaise Karta Hai") */}
-      <section className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+      <section className="bg-white/70 backdrop-blur-xl border border-white/80 rounded-2xl p-5 shadow-sm ring-1 ring-black/[0.02]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100/70">
           <div>
             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-indigo-600" />
@@ -571,7 +571,7 @@ export default function DashboardClient({
               MSMEs unlock up to 84% upfront capital once the corporate buyer confirms the invoice.
             </p>
           </div>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 self-start sm:self-auto">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50/80 text-emerald-700 border border-emerald-200/70 backdrop-blur-xs self-start sm:self-auto">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
             Up to 84% Advance Disbursal
           </span>
@@ -629,7 +629,7 @@ export default function DashboardClient({
 
             return (
               <>
-                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 transition">
+                <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 ring-1 ring-black/[0.02]">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Approved Facility Line</span>
                     <ShieldCheck className="w-4 h-4 text-sky-600" />
@@ -640,7 +640,7 @@ export default function DashboardClient({
                   <div className="text-xs text-slate-500 mt-1">Sanctioned Treasury Cap</div>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 transition">
+                <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 ring-1 ring-black/[0.02]">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Facility Utilized</span>
                     <Layers className="w-4 h-4 text-amber-600" />
@@ -651,7 +651,7 @@ export default function DashboardClient({
                   <div className="text-xs text-amber-700 font-semibold mt-1">{utilPct}% Pool Utilization</div>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 transition">
+                <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 ring-1 ring-black/[0.02]">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Available Headroom</span>
                     <Wallet className="w-4 h-4 text-emerald-600" />
@@ -662,7 +662,7 @@ export default function DashboardClient({
                   <div className="text-xs text-emerald-600 font-medium mt-1">Open for Supplier Invoices</div>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 transition">
+                <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 ring-1 ring-black/[0.02]">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Awaiting Confirmation</span>
                     <FileText className="w-4 h-4 text-indigo-600" />
@@ -678,7 +678,7 @@ export default function DashboardClient({
         </section>
       ) : (
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 transition">
+          <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 ring-1 ring-black/[0.02]">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Active MSME Sellers</span>
               <Building2 className="w-4 h-4 text-emerald-600" />
@@ -687,7 +687,7 @@ export default function DashboardClient({
             <div className="text-xs text-slate-500 mt-1">Verified Suppliers Onboarded</div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 transition">
+          <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 ring-1 ring-black/[0.02]">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Anchor Buyer Exposure</span>
               <Layers className="w-4 h-4 text-sky-600" />
@@ -698,7 +698,7 @@ export default function DashboardClient({
             <div className="text-xs text-slate-500 mt-1">Cap: ₹{(anchors[0]?.maxExposureLimit / 10000000).toFixed(1)} Cr</div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 transition">
+          <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 ring-1 ring-black/[0.02]">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Investor Escrow Liquidity</span>
               <Wallet className="w-4 h-4 text-indigo-600" />
@@ -709,7 +709,7 @@ export default function DashboardClient({
             <div className="text-xs text-slate-500 mt-1">Available in Virtual Escrow</div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 transition">
+          <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 ring-1 ring-black/[0.02]">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Total Invoices Volume</span>
               <Coins className="w-4 h-4 text-purple-600" />
@@ -725,7 +725,7 @@ export default function DashboardClient({
       )}
 
       {/* Main Table Section */}
-      <section className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-6">
+      <section className="p-6 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/80 shadow-sm space-y-6 ring-1 ring-black/[0.02]">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
           <div>
             <h2 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
@@ -1152,10 +1152,10 @@ export default function DashboardClient({
       {/* MODAL 1: Upload Invoice Modal */}
       {/* MODAL 1: Upload New Invoice with Inline Vendor-Push Buyer */}
       {isUploadOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-sm">
-          <div className="bg-white border border-slate-200 rounded-2xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-slate-900 animate-in fade-in zoom-in-95">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/45 backdrop-blur-md">
+          <div className="bg-white/90 backdrop-blur-2xl border border-white/80 rounded-2xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-slate-900 animate-in fade-in zoom-in-95 ring-1 ring-black/5">
             {/* Pinned Header */}
-            <div className="p-4 sm:p-4.5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white">
+            <div className="p-4 sm:p-4.5 border-b border-slate-200/60 flex items-center justify-between shrink-0 bg-white/75 backdrop-blur-lg">
               <div className="flex items-center gap-2.5">
                 <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100">
                   <Sparkles className="w-4 h-4" />
