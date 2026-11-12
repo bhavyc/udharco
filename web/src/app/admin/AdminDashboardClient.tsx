@@ -670,7 +670,7 @@ export default function AdminDashboardClient({
       </div>
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8 relative z-10 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8 space-y-6">
         {/* Toast Alert */}
         {toast && (
           <div
@@ -1678,17 +1678,18 @@ export default function AdminDashboardClient({
             </div>
           </div>
         )}
+      </main>
 
-        {/* ─────────────────────────────────────────────────────────────────
-            MODALS
-            ───────────────────────────────────────────────────────────────── */}
+      {/* ─────────────────────────────────────────────────────────────────
+          MODALS (Rendered at root level with z-[100] to sit above sticky headers)
+          ───────────────────────────────────────────────────────────────── */}
 
-        {/* 1. Provision Anchor Modal */}
-        {isAnchorModalOpen && (
-          <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-4">
-              <h3 className="text-lg font-bold text-slate-900">Provision Corporate Anchor</h3>
-              <form onSubmit={handleProvisionAnchor} className="space-y-3 text-xs">
+      {/* 1. Provision Anchor Modal */}
+      {isAnchorModalOpen && (
+        <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-4 my-auto">
+            <h3 className="text-lg font-bold text-slate-900">Provision Corporate Anchor</h3>
+            <form onSubmit={handleProvisionAnchor} className="space-y-3 text-xs">
                 <div>
                   <label className="text-slate-700 font-semibold block mb-1">Corporate Name</label>
                   <input
@@ -1752,8 +1753,8 @@ export default function AdminDashboardClient({
 
         {/* 2. Provision Investor Modal */}
         {isInvestorModalOpen && (
-          <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-4">
+          <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+            <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-4 my-auto">
               <h3 className="text-lg font-bold text-slate-900">Onboard Regulated Investor / NBFC</h3>
               <form onSubmit={handleProvisionInvestor} className="space-y-3 text-xs">
                 <div>
@@ -1821,8 +1822,8 @@ export default function AdminDashboardClient({
 
         {/* 3. Manage Seller Limit Modal */}
         {editSellerModal && (
-          <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-4">
+          <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+            <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-4 my-auto">
               <h3 className="text-lg font-bold text-slate-900">Manage Seller Facility: {editSellerModal.legalName}</h3>
               <form onSubmit={handleUpdateSeller} className="space-y-3 text-xs">
                 <div>
@@ -1882,8 +1883,8 @@ export default function AdminDashboardClient({
 
         {/* 4. Topup Investor Escrow Modal */}
         {topupInvestorModal && (
-          <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-4">
+          <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+            <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-4 my-auto">
               <h3 className="text-lg font-bold text-slate-900">Topup Virtual Escrow: {topupInvestorModal.entityName}</h3>
               <p className="text-xs text-slate-600">
                 Current Balance: <span className="text-slate-900 font-mono font-bold">₹{topupInvestorModal.escrowBalance.toLocaleString()}</span>
@@ -1924,8 +1925,8 @@ export default function AdminDashboardClient({
 
         {/* 5. e-NACH Recourse Execution Modal */}
         {recourseModalInvoice && (
-          <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="max-w-md w-full bg-white border border-rose-200 rounded-3xl p-6 shadow-2xl space-y-4">
+          <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+            <div className="max-w-md w-full bg-white border border-rose-200 rounded-3xl p-6 shadow-2xl space-y-4 my-auto">
               <div className="flex items-center gap-2.5 text-rose-600">
                 <AlertTriangle className="w-5 h-5" />
                 <h3 className="text-lg font-bold text-slate-900">Execute NPCI e-NACH Recourse</h3>
@@ -1978,8 +1979,8 @@ export default function AdminDashboardClient({
 
         {/* 6. Review & Sanction Anchor Modal */}
         {reviewAnchorModal && (
-          <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-            <div className="max-w-xl w-full max-h-[90vh] flex flex-col bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 text-slate-900">
+          <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+            <div className="max-w-xl w-full max-h-[88vh] flex flex-col bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200 text-slate-900">
               {/* Sticky Top Header */}
               <div className="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between shrink-0 bg-white">
                 <div className="flex items-center gap-2.5 text-emerald-700">
@@ -2281,7 +2282,6 @@ export default function AdminDashboardClient({
             </div>
           </div>
         )}
-      </main>
     </div>
   );
 }
