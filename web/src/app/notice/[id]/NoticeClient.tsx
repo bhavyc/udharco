@@ -136,17 +136,21 @@ export default function NoticeClient({ invoice, seller, anchor }: NoticeProps) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-emerald-500 selection:text-white">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-emerald-500 selection:text-white relative">
+      {/* Background radial ambient lights for dark glass */}
+      <div className="fixed inset-0 pointer-events-none -z-10 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.15),rgba(255,255,255,0))]" />
+      <div className="fixed bottom-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-3xl pointer-events-none -z-10" />
+
       {/* Top Bar */}
-      <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-20">
+      <header className="border-b border-white/10 bg-slate-950/70 backdrop-blur-xl px-6 py-4 flex items-center justify-between sticky top-0 z-20 shadow-md">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-bold text-base shadow-xs">
+          <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-bold text-base shadow-xs backdrop-blur-xs">
             U
           </div>
           <div>
             <div className="text-sm font-bold tracking-tight text-white flex items-center gap-2">
               <span>UDHARCO</span>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-950/80 backdrop-blur-xs text-emerald-400 border border-emerald-800/80">
                 STATUTORY FACTORING PORTAL
               </span>
             </div>
@@ -164,10 +168,10 @@ export default function NoticeClient({ invoice, seller, anchor }: NoticeProps) {
       {/* Main Content */}
       <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
         {/* Statutory Directive Card */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -z-10" />
+        <div className="p-5 sm:p-6 rounded-3xl bg-slate-900/60 backdrop-blur-2xl border border-white/10 shadow-2xl relative overflow-hidden ring-1 ring-white/5">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -z-10" />
           <div className="flex items-start gap-3">
-            <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 shrink-0 mt-0.5">
+            <div className="p-2.5 rounded-xl bg-amber-500/15 backdrop-blur-xs border border-amber-500/30 text-amber-400 shrink-0 mt-0.5 shadow-2xs">
               <FileText className="w-5 h-5" />
             </div>
             <div className="space-y-1">
@@ -190,7 +194,7 @@ export default function NoticeClient({ invoice, seller, anchor }: NoticeProps) {
 
         {/* Confirmation State Banner */}
         {isConfirmed ? (
-          <div className="p-5 rounded-2xl bg-emerald-950/60 border border-emerald-500/30 text-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-5 rounded-2xl bg-emerald-950/40 backdrop-blur-xl border border-emerald-500/30 text-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg ring-1 ring-emerald-500/20">
             <div className="flex items-start gap-3">
               <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0 mt-0.5" />
               <div>
@@ -200,7 +204,7 @@ export default function NoticeClient({ invoice, seller, anchor }: NoticeProps) {
                   <strong className="text-white">{formatDate(invoice.dueDate)}</strong>.
                 </p>
                 {statusMessage && (
-                  <div className="text-[11px] font-mono text-emerald-400 mt-2 bg-emerald-900/40 px-2.5 py-1 rounded border border-emerald-700/50 w-max">
+                  <div className="text-[11px] font-mono text-emerald-400 mt-2 bg-emerald-900/40 px-2.5 py-1 rounded-lg border border-emerald-700/50 w-max">
                     {statusMessage}
                   </div>
                 )}
@@ -208,14 +212,14 @@ export default function NoticeClient({ invoice, seller, anchor }: NoticeProps) {
             </div>
             <Link
               href="/login"
-              className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg transition shrink-0"
+              className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-500/20 transition shrink-0"
             >
               <span>Corporate Portal Login</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         ) : isDisputed ? (
-          <div className="p-5 rounded-2xl bg-rose-950/60 border border-rose-500/30 text-rose-200 flex items-start gap-3">
+          <div className="p-5 rounded-2xl bg-rose-950/40 backdrop-blur-xl border border-rose-500/30 text-rose-200 flex items-start gap-3 shadow-lg ring-1 ring-rose-500/20">
             <AlertTriangle className="w-6 h-6 text-rose-400 shrink-0 mt-0.5" />
             <div>
               <h3 className="font-bold text-white text-base">Invoice Disputed / Delivery Rejected</h3>
@@ -228,8 +232,8 @@ export default function NoticeClient({ invoice, seller, anchor }: NoticeProps) {
         ) : null}
 
         {/* Invoice Summary Box */}
-        <div className="rounded-2xl bg-slate-900 border border-slate-800 divide-y divide-slate-800 shadow-xl overflow-hidden">
-          <div className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/50">
+        <div className="rounded-3xl bg-slate-900/60 backdrop-blur-2xl border border-white/10 divide-y divide-white/10 shadow-2xl overflow-hidden ring-1 ring-white/5">
+          <div className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/40 backdrop-blur-xs">
             <div>
               <div className="text-xs text-slate-400 uppercase tracking-wider font-mono">Total Invoice Value</div>
               <div className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight font-mono mt-1">
@@ -237,14 +241,14 @@ export default function NoticeClient({ invoice, seller, anchor }: NoticeProps) {
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-slate-800 text-slate-300 border border-slate-700">
+              <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-slate-800/80 backdrop-blur-xs text-slate-300 border border-slate-700/80 shadow-2xs">
                 Invoice #{invoice.invoiceNumber}
               </span>
-              <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-indigo-950 text-indigo-300 border border-indigo-800">
+              <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-indigo-950/80 backdrop-blur-xs text-indigo-300 border border-indigo-800/80 shadow-2xs">
                 Tenure: {invoice.tenureDays} Days
               </span>
               {anchor.status === "PENDING" && (
-                <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-950 text-amber-300 border border-amber-800 flex items-center gap-1">
+                <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-950/80 backdrop-blur-xs text-amber-300 border border-amber-800/80 flex items-center gap-1 shadow-2xs">
                   <Clock className="w-3 h-3" />
                   <span>Corporate Underwriting In Progress (Cap ₹50L)</span>
                 </span>
@@ -255,7 +259,7 @@ export default function NoticeClient({ invoice, seller, anchor }: NoticeProps) {
           {/* Key Parties Grid */}
           <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Seller */}
-            <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-2">
+            <div className="p-4 rounded-2xl bg-slate-950/60 backdrop-blur-xs border border-white/5 space-y-2 shadow-2xs">
               <div className="text-[10px] font-mono font-bold tracking-wider uppercase text-emerald-400 flex items-center gap-1.5">
                 <Building2 className="w-3.5 h-3.5" />
                 <span>Assignor (MSME Seller)</span>
@@ -270,7 +274,7 @@ export default function NoticeClient({ invoice, seller, anchor }: NoticeProps) {
             </div>
 
             {/* Corporate Buyer */}
-            <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-2">
+            <div className="p-4 rounded-2xl bg-slate-950/60 backdrop-blur-xs border border-white/5 space-y-2 shadow-2xs">
               <div className="text-[10px] font-mono font-bold tracking-wider uppercase text-sky-400 flex items-center gap-1.5">
                 <Building2 className="w-3.5 h-3.5" />
                 <span>Debtor (Corporate Buyer)</span>
@@ -306,7 +310,7 @@ export default function NoticeClient({ invoice, seller, anchor }: NoticeProps) {
           </div>
 
           {/* IRN & Escrow Directive */}
-          <div className="p-5 bg-slate-950/40 space-y-3 text-xs">
+          <div className="p-5 bg-slate-950/40 backdrop-blur-xs space-y-3 text-xs">
             <div className="flex items-center justify-between">
               <span className="text-slate-400 font-medium">NIC Govt e-Invoice IRN Hash:</span>
               <span className="font-mono text-slate-300 text-[11px] truncate max-w-[280px]">
@@ -315,7 +319,7 @@ export default function NoticeClient({ invoice, seller, anchor }: NoticeProps) {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-slate-400 font-medium">Designated Virtual Escrow Account (VAN):</span>
-              <span className="font-mono text-emerald-400 font-bold bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800">
+              <span className="font-mono text-emerald-400 font-bold bg-emerald-950/60 backdrop-blur-xs px-2.5 py-0.5 rounded-lg border border-emerald-800">
                 {invoice.virtualAccountNumber}
               </span>
             </div>
@@ -324,7 +328,7 @@ export default function NoticeClient({ invoice, seller, anchor }: NoticeProps) {
 
         {/* Action Controls for Corporate AP */}
         {!isConfirmed && !isDisputed && (
-          <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 shadow-xl">
+          <div className="p-6 rounded-3xl bg-slate-900/60 backdrop-blur-2xl border border-white/10 space-y-4 shadow-2xl ring-1 ring-white/5">
             <div className="space-y-1">
               <h3 className="font-bold text-white text-base">Corporate Buyer Action Required</h3>
               <p className="text-xs text-slate-400 leading-relaxed">
@@ -346,7 +350,7 @@ export default function NoticeClient({ invoice, seller, anchor }: NoticeProps) {
               <button
                 onClick={() => setShowDisputeModal(true)}
                 disabled={loading}
-                className="w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-800 hover:bg-rose-950/60 hover:text-rose-300 hover:border-rose-800/80 border border-slate-700 text-slate-300 font-semibold text-xs transition cursor-pointer"
+                className="w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-800/80 hover:bg-rose-950/60 hover:text-rose-300 hover:border-rose-800/80 border border-slate-700/80 text-slate-300 font-semibold text-xs transition cursor-pointer"
               >
                 Raise Dispute / Material Discrepancy
               </button>
@@ -355,7 +359,7 @@ export default function NoticeClient({ invoice, seller, anchor }: NoticeProps) {
         )}
 
         {/* Statutory Legal Disclaimer */}
-        <div className="p-4 rounded-xl bg-slate-900/40 border border-slate-800/60 text-[11px] text-slate-500 space-y-1.5 leading-relaxed font-mono">
+        <div className="p-4 rounded-2xl bg-slate-900/30 backdrop-blur-xl border border-white/5 text-[11px] text-slate-400 space-y-1.5 leading-relaxed font-mono shadow-xs">
           <div className="font-bold text-slate-400 flex items-center gap-1.5">
             <Lock className="w-3.5 h-3.5 text-emerald-500" />
             <span>LEGAL RECOURSE & FACTORING REGULATION ACT, 2011 NOTICE</span>
@@ -370,8 +374,8 @@ export default function NoticeClient({ invoice, seller, anchor }: NoticeProps) {
 
       {/* Dispute Modal */}
       {showDisputeModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-2xl">
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-slate-900/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 space-y-4 shadow-2xl ring-1 ring-white/10">
             <div className="flex items-center gap-2 text-rose-400">
               <AlertTriangle className="w-5 h-5" />
               <h3 className="font-bold text-white text-base">Raise Commercial Dispute</h3>
@@ -385,19 +389,19 @@ export default function NoticeClient({ invoice, seller, anchor }: NoticeProps) {
               value={disputeInput}
               onChange={(e) => setDisputeInput(e.target.value)}
               placeholder="e.g. Goods damaged in transit / Rate discrepancy against Purchase Order #..."
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-slate-100 placeholder:text-slate-600 focus:border-rose-500 outline-none"
+              className="w-full bg-slate-950/80 backdrop-blur-xs border border-white/10 rounded-2xl p-3 text-xs text-slate-100 placeholder:text-slate-600 focus:border-rose-500 outline-none shadow-inner"
             />
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 onClick={() => setShowDisputeModal(false)}
-                className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300"
+                className="px-4 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-xs text-slate-300 transition"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDispute}
                 disabled={loading}
-                className="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 font-bold text-xs text-white"
+                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 font-bold text-xs text-white transition shadow-sm"
               >
                 Submit Dispute
               </button>

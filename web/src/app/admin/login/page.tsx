@@ -64,9 +64,9 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between selection:bg-indigo-500 selection:text-white font-sans">
+    <div className="min-h-screen bg-transparent text-slate-900 flex flex-col justify-between selection:bg-indigo-500 selection:text-white font-sans">
       {/* Header */}
-      <header className="border-b border-slate-200 bg-white/90 backdrop-blur-md sticky top-0 z-10 shadow-xs">
+      <header className="border-b border-white/60 bg-white/70 backdrop-blur-xl sticky top-0 z-10 shadow-xs shadow-slate-900/5">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-slate-900 to-indigo-700 flex items-center justify-center font-black text-white text-lg tracking-tight shadow-md">
@@ -77,7 +77,7 @@ export default function AdminLoginPage() {
                 <h1 className="text-xl font-bold tracking-tight text-slate-900">
                   UdharCo Admin
                 </h1>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-indigo-50/80 backdrop-blur-xs text-indigo-700 border border-indigo-200/80 shadow-2xs">
                   Operations Console
                 </span>
               </div>
@@ -89,7 +89,7 @@ export default function AdminLoginPage() {
 
           <Link
             href="/login"
-            className="text-xs font-semibold text-slate-600 hover:text-indigo-600 border border-slate-200 hover:border-indigo-300 bg-white px-3 py-1.5 rounded-lg shadow-2xs transition"
+            className="text-xs font-semibold text-slate-600 hover:text-indigo-600 border border-slate-200/80 hover:border-indigo-300 bg-white/80 backdrop-blur-xs px-3 py-1.5 rounded-xl shadow-2xs transition"
           >
             ← Back to User Login
           </Link>
@@ -98,9 +98,9 @@ export default function AdminLoginPage() {
 
       {/* Login Card */}
       <main className="flex-1 max-w-md w-full mx-auto px-6 py-10 flex flex-col justify-center">
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-xl p-8">
+        <div className="rounded-3xl border border-white/80 bg-white/80 backdrop-blur-2xl shadow-2xl shadow-slate-900/5 p-8 ring-1 ring-black/[0.03]">
           <div className="text-center mb-6">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 mb-3">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50/80 backdrop-blur-xs text-amber-800 border border-amber-200/80 mb-3 shadow-2xs">
               <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
               Restricted Operations Desk
             </span>
@@ -113,14 +113,14 @@ export default function AdminLoginPage() {
           </div>
 
           {errorMsg && (
-            <div className="mb-5 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-start gap-2.5">
+            <div className="mb-5 p-3 rounded-xl bg-red-50/80 backdrop-blur-xs border border-red-200 text-red-700 text-xs flex items-start gap-2.5 shadow-2xs">
               <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-red-600" />
               <span>{errorMsg}</span>
             </div>
           )}
 
           {successMsg && (
-            <div className="mb-5 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-start gap-2.5">
+            <div className="mb-5 p-3 rounded-xl bg-emerald-50/80 backdrop-blur-xs border border-emerald-200 text-emerald-800 text-xs flex items-start gap-2.5 shadow-2xs">
               <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0 text-emerald-600" />
               <span>{successMsg}</span>
             </div>
@@ -141,7 +141,7 @@ export default function AdminLoginPage() {
                   autoComplete="off"
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@udharco.com"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 text-slate-900 text-sm outline-none font-medium placeholder:text-slate-400 bg-white"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 text-slate-900 text-sm outline-none font-medium placeholder:text-slate-400 bg-white/80 backdrop-blur-xs focus:bg-white shadow-2xs transition"
                   required
                 />
               </div>
@@ -161,7 +161,7 @@ export default function AdminLoginPage() {
                   autoComplete="new-password"
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 text-slate-900 text-sm outline-none font-medium placeholder:text-slate-400 bg-white"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 text-slate-900 text-sm outline-none font-medium placeholder:text-slate-400 bg-white/80 backdrop-blur-xs focus:bg-white shadow-2xs transition"
                   required
                 />
               </div>
@@ -182,7 +182,7 @@ export default function AdminLoginPage() {
                     value={totpCode}
                     onChange={(e) => setTotpCode(e.target.value)}
                     placeholder="000000"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 font-mono tracking-widest text-slate-900 text-sm outline-none font-bold"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 font-mono tracking-widest text-slate-900 text-sm outline-none font-bold bg-white/80 backdrop-blur-xs focus:bg-white shadow-2xs"
                     required
                   />
                 </div>
@@ -192,7 +192,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm flex items-center justify-center gap-2 transition shadow-sm cursor-pointer disabled:opacity-50"
+              className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm flex items-center justify-center gap-2 transition shadow-md hover:shadow-lg cursor-pointer disabled:opacity-50"
             >
               {loading ? "Verifying..." : "Sign In to Operations Desk"}
               <ArrowRight className="w-4 h-4" />
@@ -201,7 +201,7 @@ export default function AdminLoginPage() {
         </div>
       </main>
 
-      <footer className="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-500">
+      <footer className="border-t border-white/60 bg-white/60 backdrop-blur-xl py-4 text-center text-xs text-slate-500 shadow-xs">
         UdharCo Platform Admin • Confidential Operational Workspace
       </footer>
     </div>

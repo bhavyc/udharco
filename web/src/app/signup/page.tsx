@@ -414,9 +414,9 @@ function SellerSignupContent() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between selection:bg-indigo-500 selection:text-white font-sans">
+    <div className="min-h-screen bg-transparent text-slate-900 flex flex-col justify-between selection:bg-indigo-500 selection:text-white font-sans">
       {/* Modern Top Header */}
-      <header className="border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-0 z-50 shadow-xs">
+      <header className="border-b border-white/60 bg-white/70 backdrop-blur-xl sticky top-0 z-50 shadow-xs shadow-slate-900/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-emerald-500 flex items-center justify-center font-black text-white text-lg tracking-tight shadow-md shadow-indigo-500/10">
@@ -425,7 +425,7 @@ function SellerSignupContent() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-bold tracking-tight text-slate-900">UdharCo</h1>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50/80 backdrop-blur-xs text-emerald-700 border border-emerald-200/80 shadow-2xs">
                   MSME Onboarding
                 </span>
               </div>
@@ -442,7 +442,7 @@ function SellerSignupContent() {
             </div>
             <Link
               href="/login"
-              className="text-xs font-semibold text-slate-700 hover:text-indigo-600 px-3.5 py-2 rounded-xl border border-slate-200 hover:border-indigo-300 bg-white shadow-2xs transition"
+              className="text-xs font-semibold text-slate-700 hover:text-indigo-600 px-3.5 py-2 rounded-xl border border-slate-200/80 hover:border-indigo-300 bg-white/80 backdrop-blur-xs shadow-2xs transition"
             >
               Sign In Instead →
             </Link>
@@ -451,7 +451,7 @@ function SellerSignupContent() {
       </header>
 
       {/* Progress Bar Ribbon */}
-      <div className="bg-white border-b border-slate-200 py-3 px-4 sm:px-6 shadow-2xs">
+      <div className="bg-white/65 backdrop-blur-xl border-b border-white/60 py-3 px-4 sm:px-6 shadow-2xs">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-xs">
             <span className="font-bold text-slate-900">Step {step} of 6:</span>
@@ -485,8 +485,8 @@ function SellerSignupContent() {
           {/* LEFT COLUMN: Educational Guide & Live Verification Checklist */}
           <div className="lg:col-span-5 space-y-6">
             {/* Context Card */}
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 sm:p-7">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 mb-3">
+            <div className="rounded-3xl border border-white/80 bg-white/75 backdrop-blur-2xl shadow-xl shadow-slate-900/5 p-6 sm:p-7 ring-1 ring-black/[0.03]">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50/80 backdrop-blur-xs text-emerald-700 border border-emerald-200/80 mb-3 shadow-2xs">
                 <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
                 Step {step} of 6
               </div>
@@ -498,7 +498,7 @@ function SellerSignupContent() {
               </p>
 
               {/* Friendly "Why is this needed?" Accordion */}
-              <div className="mt-5 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs leading-relaxed space-y-1.5">
+              <div className="mt-5 p-4 rounded-2xl bg-slate-50/80 backdrop-blur-xs border border-slate-200/70 text-xs leading-relaxed space-y-1.5 shadow-2xs">
                 <div className="flex items-center gap-2 text-emerald-800 font-semibold">
                   <Info className="w-4 h-4 shrink-0 text-emerald-600" />
                   <span>Why is this step required?</span>
@@ -510,7 +510,7 @@ function SellerSignupContent() {
             </div>
 
             {/* Live Progress Checklist Card */}
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 space-y-3">
+            <div className="rounded-3xl border border-white/80 bg-white/75 backdrop-blur-2xl shadow-xl shadow-slate-900/5 p-6 space-y-3 ring-1 ring-black/[0.03]">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-2">
                 Live Verification Tracker
               </span>
@@ -726,7 +726,7 @@ function SellerSignupContent() {
             </div>
 
             {/* Regulatory Badges */}
-            <div className="flex items-center justify-between p-3.5 rounded-xl bg-white border border-slate-200 text-xs font-medium text-slate-600 shadow-2xs">
+            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/80 text-xs font-medium text-slate-600 shadow-xs ring-1 ring-black/[0.02]">
               <span className="flex items-center gap-1.5">
                 <Lock className="w-3.5 h-3.5 text-emerald-600" />
                 256-Bit Bank Security
@@ -744,7 +744,7 @@ function SellerSignupContent() {
 
           {/* RIGHT COLUMN: Interactive Form Card */}
           <div className="lg:col-span-7">
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-lg p-6 sm:p-8 lg:p-10 relative">
+            <div className="rounded-3xl border border-white/80 bg-white/80 backdrop-blur-2xl shadow-2xl shadow-slate-900/5 p-6 sm:p-8 lg:p-10 relative ring-1 ring-black/[0.03]">
               {/* Error banner */}
               {errorMsg && (
                 <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-start gap-3">
@@ -1270,7 +1270,7 @@ function SellerSignupContent() {
       </main>
 
       {/* Modern Trust Footer */}
-      <footer className="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-500">
+      <footer className="border-t border-white/60 bg-white/60 backdrop-blur-xl py-4 text-center text-xs text-slate-500 shadow-xs">
         <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p>© 2026 UdharCo Factoring Platform • Regulated under Factoring Regulation Act, 2011</p>
           <div className="flex items-center space-x-6 text-[11px] font-semibold text-slate-600">
@@ -1297,7 +1297,7 @@ export default function SellerSignupPage() {
   return (
     <React.Suspense
       fallback={
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center text-slate-500 text-sm">
+        <div className="min-h-screen bg-transparent flex items-center justify-center text-slate-500 text-sm">
           Loading onboarding flow...
         </div>
       }
