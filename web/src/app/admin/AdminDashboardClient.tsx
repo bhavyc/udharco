@@ -1978,10 +1978,10 @@ export default function AdminDashboardClient({
 
         {/* 6. Review & Sanction Anchor Modal */}
         {reviewAnchorModal && (
-          <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs overflow-y-auto p-4 sm:p-6 flex justify-center items-center">
-            <div className="max-w-xl w-full h-[85vh] max-h-[85vh] flex flex-col bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
+          <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div className="max-w-xl w-full max-h-[90vh] flex flex-col bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 text-slate-900">
               {/* Sticky Top Header */}
-              <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between shrink-0 bg-white">
+              <div className="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between shrink-0 bg-white">
                 <div className="flex items-center gap-2.5 text-emerald-700">
                   <CheckCircle2 className="w-5 h-5 shrink-0" />
                   <div>
@@ -2001,293 +2001,267 @@ export default function AdminDashboardClient({
 
               <form onSubmit={handleApproveAnchor} className="flex flex-col flex-1 min-h-0 overflow-hidden">
                 {/* Scrollable Modal Body */}
-                <div className="p-6 overflow-y-auto space-y-4 text-xs flex-1 min-h-0">
-                  {/* Applicant Profile Summary */}
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-2 text-slate-700">
-                <div className="flex justify-between border-b border-slate-200 pb-2">
-                  <span className="text-slate-500">Corporate Entity:</span>
-                  <span className="text-slate-900 font-bold">{reviewAnchorModal.corporateName}</span>
-                </div>
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <span className="text-slate-500">GSTIN:</span>
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="font-mono text-indigo-700 font-bold bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 text-xs">
-                      {reviewAnchorModal.gstin}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        navigator.clipboard.writeText(reviewAnchorModal.gstin);
-                        setCopiedReviewGstin(true);
-                        setTimeout(() => setCopiedReviewGstin(false), 2000);
-                      }}
-                      className="px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 text-[10px] font-medium flex items-center gap-1 transition cursor-pointer"
-                      title="Copy GSTIN for manual verification"
-                    >
-                      {copiedReviewGstin ? (
-                        <>
-                          <Check className="w-3 h-3 text-emerald-600" />
-                          <span className="text-emerald-700 font-semibold">Copied!</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3 h-3" />
-                          <span>Copy</span>
-                        </>
-                      )}
-                    </button>
-                    <a
-                      href="https://services.gst.gov.in/services/searchtp"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-2 py-0.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 text-[10px] font-bold flex items-center gap-1 transition cursor-pointer shadow-2xs"
-                      title="Route A (Free): Search taxpayer on the official government GST portal (Zero API Cost)"
-                    >
-                      <span>🏛️ Govt GST Portal</span>
-                      <ExternalLink className="w-2.5 h-2.5" />
-                    </a>
-                    <button
-                      type="button"
-                      onClick={() => handleVerifyAnchorGst(reviewAnchorModal.gstin)}
-                      disabled={reviewGstLoading}
-                      className="px-2 py-0.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 text-[10px] font-bold flex items-center gap-1 transition cursor-pointer"
-                    >
-                      {reviewGstLoading ? (
-                        <>
-                          <RefreshCw className="w-3 h-3 animate-spin" />
-                          <span>Checking...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Search className="w-3 h-3" />
-                          <span>Surepass API</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-                <div className="text-[10px] text-slate-400">
-                  💡 <strong>Route A (Zero Cost):</strong> Click &ldquo;Govt GST Portal&rdquo; & paste GSTIN to inspect active taxpayer registration, filing regularity, and turnover slab without third-party fees.
-                </div>
-
-                {/* Inline Live Surepass Verification Result */}
-                {reviewGstResult && (
-                  <div className={`p-2.5 rounded-xl border text-[11px] ${
-                    reviewGstResult.success ? "bg-emerald-50/80 border-emerald-200 text-emerald-900" : "bg-red-50 border-red-200 text-red-800"
-                  }`}>
-                    {reviewGstResult.success ? (
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between font-bold">
-                          <span className="flex items-center gap-1">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                            <span>{reviewGstResult.legalName || "Verified Entity"}</span>
-                          </span>
-                          <span className="text-[9px] px-1.5 py-0.5 rounded font-mono font-bold bg-emerald-100 text-emerald-800">
-                            {reviewGstResult.cached ? "🛡️ SHIELD CACHED" : "⚡ LIVE SUREPASS"}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-3 text-[10px] text-slate-600 font-mono">
-                          <span>PAN: <strong className="text-slate-800">{reviewGstResult.pan || reviewAnchorModal.gstin.slice(2, 12)}</strong></span>
-                          <span>Status: <strong className="text-emerald-700">{reviewGstResult.status || "ACTIVE"}</strong></span>
-                          <span>State: <strong className="text-slate-800">{reviewGstResult.state || reviewAnchorModal.gstin.slice(0, 2)}</strong></span>
-                          {reviewGstResult.latencyMs !== undefined && (
-                            <span className="text-slate-400">({reviewGstResult.latencyMs}ms)</span>
-                          )}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1.5 text-red-700">
-                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                        <span>{reviewGstResult.error || "GSTIN lookup failed."}</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Authorized Treasury Contact:</span>
-                  <span className="text-slate-900 font-medium">
-                    {reviewAnchorModal.contactPerson || "Officer"} ({reviewAnchorModal.contactEmail || "N/A"})
-                  </span>
-                </div>
-                {reviewAnchorModal.contactPhone && (
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Official Mobile:</span>
-                    <span className="font-mono text-slate-800">{reviewAnchorModal.contactPhone}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Route A Underwriting Sanity Engine */}
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
-                      <Calculator className="w-3.5 h-3.5 text-indigo-600" />
-                      Tenure-Dynamic Working Capital Calculator
-                    </span>
-                    <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800">
-                      Procurement × (Tenure ÷ 365)
-                    </span>
-                  </div>
-
-                  {reviewAnchorModal.annualProcurement ? (
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-slate-600 font-medium">Declared Annual MSME Procurement:</span>
-                      <span className="font-mono text-purple-700 font-bold">
-                        ₹{reviewAnchorModal.annualProcurement.toLocaleString()} (₹{(reviewAnchorModal.annualProcurement / 10000000).toFixed(2)} Cr)
+                <div className="p-4 sm:p-5 overflow-y-auto space-y-3.5 text-xs flex-1 min-h-0">
+                  {/* 1. PRIMARY ACTION: Credit Rating & Sanction Limit Inputs */}
+                  <div className="p-3.5 rounded-xl bg-emerald-50/80 border border-emerald-200 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-emerald-950 text-xs flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        Sanction Decision & Limit Allocation
+                      </span>
+                      <span className="text-[11px] font-mono font-bold text-emerald-800 bg-white px-2 py-0.5 rounded border border-emerald-200">
+                        Sanctioned: ₹{(reviewAnchorForm.maxExposureLimit / 10000000).toFixed(2)} Cr
                       </span>
                     </div>
-                  ) : (
-                    <div className="text-[11px] text-amber-700 bg-amber-50 p-2 rounded-lg border border-amber-200">
-                      ⚠️ Annual Procurement was not declared during self-serve onboarding. Standard ₹50.00L probationary ceiling applies.
-                    </div>
-                  )}
 
-                  {/* Interactive Dynamic Tenure Selector */}
-                  <div>
-                    <div className="flex items-center justify-between text-[11px] text-slate-600 mb-1.5 flex-wrap gap-1">
-                      <div className="flex items-center gap-1.5">
-                        <span>Working Capital Cycle (Invoice Tenure):</span>
-                        <span className="font-bold text-slate-900 font-mono">{reviewTenureDays} Days</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-slate-700 block mb-1 font-semibold text-[11px]">
+                          Verified Credit Rating *
+                        </label>
+                        <select
+                          value={reviewAnchorForm.creditRating}
+                          onChange={(e) => setReviewAnchorForm({ ...reviewAnchorForm, creditRating: e.target.value })}
+                          className="w-full p-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 font-mono text-xs outline-none focus:border-emerald-500 font-medium"
+                        >
+                          <option value="AAA">CRISIL / ICRA AAA (Prime High Grade)</option>
+                          <option value="AA+">CRISIL / ICRA AA+ (High Grade)</option>
+                          <option value="AA">CRISIL / ICRA AA (Quality)</option>
+                          <option value="A">CRISIL / ICRA A (Upper Medium)</option>
+                          <option value="BBB">CRISIL / ICRA BBB (Investment Grade)</option>
+                          <option value="UNRATED">UNRATED (Subject to ₹50L Cap)</option>
+                        </select>
                       </div>
-                      {reviewAnchorModal.standardPaymentTerms ? (
-                        <span className="text-[10px] px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-mono font-semibold border border-indigo-200">
-                          Company Declared: {reviewAnchorModal.standardPaymentTerms}d (unverified starting estimate, editable)
-                        </span>
-                      ) : (
-                        <span className="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-500 font-mono">
-                          Default: 30d (MSME Standard)
-                        </span>
-                      )}
+
+                      <div>
+                        <label className="text-slate-700 block mb-1 font-semibold text-[11px]">
+                          Approved Exposure Limit (₹) *
+                        </label>
+                        <input
+                          type="number"
+                          required
+                          min={1000000}
+                          step={1000000}
+                          value={reviewAnchorForm.maxExposureLimit}
+                          onChange={(e) => setReviewAnchorForm({ ...reviewAnchorForm, maxExposureLimit: Number(e.target.value) })}
+                          className="w-full p-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 font-mono text-xs outline-none focus:border-emerald-500 font-medium"
+                        />
+                      </div>
                     </div>
-                    <div className="grid grid-cols-4 gap-1.5">
-                      {[30, 45, 60, 90].map((days) => (
+
+                    {/* Quick Limit Presets */}
+                    <div className="flex items-center gap-1.5 pt-0.5 flex-wrap">
+                      <span className="text-[10px] text-slate-500 font-medium">Quick Presets:</span>
+                      {[
+                        { label: "₹50L (Cap)", val: 5000000 },
+                        { label: "₹1 Cr", val: 10000000 },
+                        { label: "₹2.5 Cr", val: 25000000 },
+                        { label: "₹5 Cr", val: 50000000 },
+                        { label: "₹10 Cr", val: 100000000 },
+                      ].map((chip) => (
                         <button
-                          key={days}
+                          key={chip.val}
                           type="button"
-                          onClick={() => {
-                            setReviewTenureDays(days);
-                            if (reviewAnchorModal.annualProcurement) {
-                              const dynamicSuggested = Math.round(
-                                reviewAnchorModal.annualProcurement * (days / 365)
-                              );
-                              setReviewAnchorForm((prev) => ({
-                                ...prev,
-                                maxExposureLimit: dynamicSuggested,
-                              }));
-                            }
-                          }}
-                          className={`py-1 px-2 rounded-lg text-xs font-semibold font-mono transition text-center border cursor-pointer ${
-                            reviewTenureDays === days
-                              ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
+                          onClick={() => setReviewAnchorForm((prev) => ({ ...prev, maxExposureLimit: chip.val }))}
+                          className={`px-2 py-0.5 rounded-lg text-[10px] font-semibold border transition cursor-pointer ${
+                            reviewAnchorForm.maxExposureLimit === chip.val
+                              ? "bg-emerald-600 text-white border-emerald-600 shadow-2xs"
                               : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
                           }`}
                         >
-                          {days}d
+                          {chip.label}
                         </button>
                       ))}
                     </div>
-                    <span className="text-[10px] text-slate-400 mt-1 block">
-                      📌 <strong>Notice:</strong> This tenure is used solely as an onboarding starting estimate to calculate the corporate credit limit. When suppliers actually upload invoices, interest and settlement tenure are <strong>always calculated from that specific invoice&apos;s real bill due-date</strong>.
-                    </span>
                   </div>
 
-                  {/* Dynamic Math Display */}
-                  {reviewAnchorModal.annualProcurement && (
-                    <div className="p-2.5 bg-white rounded-lg border border-slate-200 text-xs space-y-1">
-                      <div className="flex justify-between items-center text-slate-600">
-                        <span>Suggested Exposure Limit ({reviewTenureDays}d):</span>
-                        <span className="font-mono font-bold text-indigo-700 text-sm">
+                  {/* 2. Applicant Profile Summary */}
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-2 text-slate-700">
+                    <div className="flex justify-between border-b border-slate-200 pb-1.5">
+                      <span className="text-slate-500">Corporate Entity:</span>
+                      <span className="text-slate-900 font-bold">{reviewAnchorModal.corporateName}</span>
+                    </div>
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <span className="text-slate-500">GSTIN:</span>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-mono text-indigo-700 font-bold bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 text-xs">
+                          {reviewAnchorModal.gstin}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(reviewAnchorModal.gstin);
+                            setCopiedReviewGstin(true);
+                            setTimeout(() => setCopiedReviewGstin(false), 2000);
+                          }}
+                          className="px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 text-[10px] font-medium flex items-center gap-1 transition cursor-pointer"
+                          title="Copy GSTIN for manual verification"
+                        >
+                          {copiedReviewGstin ? (
+                            <>
+                              <Check className="w-3 h-3 text-emerald-600" />
+                              <span className="text-emerald-700 font-semibold">Copied!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3 h-3" />
+                              <span>Copy</span>
+                            </>
+                          )}
+                        </button>
+                        <a
+                          href="https://services.gst.gov.in/services/searchtp"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-2 py-0.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 text-[10px] font-bold flex items-center gap-1 transition cursor-pointer shadow-2xs"
+                          title="Route A (Free): Search taxpayer on the official government GST portal (Zero API Cost)"
+                        >
+                          <span>🏛️ Govt GST Portal</span>
+                          <ExternalLink className="w-2.5 h-2.5" />
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => handleVerifyAnchorGst(reviewAnchorModal.gstin)}
+                          disabled={reviewGstLoading}
+                          className="px-2 py-0.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 text-[10px] font-bold flex items-center gap-1 transition cursor-pointer"
+                        >
+                          {reviewGstLoading ? (
+                            <>
+                              <RefreshCw className="w-3 h-3 animate-spin" />
+                              <span>Checking...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Search className="w-3 h-3" />
+                              <span>Surepass API</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Inline Live Surepass Verification Result */}
+                    {reviewGstResult && (
+                      <div className={`p-2.5 rounded-xl border text-[11px] ${
+                        reviewGstResult.success ? "bg-emerald-50/80 border-emerald-200 text-emerald-900" : "bg-red-50 border-red-200 text-red-800"
+                      }`}>
+                        {reviewGstResult.success ? (
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between font-bold">
+                              <span className="flex items-center gap-1">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                <span>{reviewGstResult.legalName || "Verified Entity"}</span>
+                              </span>
+                              <span className="text-[9px] px-1.5 py-0.5 rounded font-mono font-bold bg-emerald-100 text-emerald-800">
+                                {reviewGstResult.cached ? "🛡️ SHIELD CACHED" : "⚡ LIVE SUREPASS"}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3 text-[10px] text-slate-600 font-mono">
+                              <span>PAN: <strong className="text-slate-800">{reviewGstResult.pan || reviewAnchorModal.gstin.slice(2, 12)}</strong></span>
+                              <span>Status: <strong className="text-emerald-700">{reviewGstResult.status || "ACTIVE"}</strong></span>
+                              <span>State: <strong className="text-slate-800">{reviewGstResult.state || reviewAnchorModal.gstin.slice(0, 2)}</strong></span>
+                              {reviewGstResult.latencyMs !== undefined && (
+                                <span className="text-slate-400">({reviewGstResult.latencyMs}ms)</span>
+                              )}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1.5 text-red-700">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                            <span>{reviewGstResult.error || "GSTIN lookup failed."}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Authorized Treasury Contact:</span>
+                      <span className="text-slate-900 font-medium">
+                        {reviewAnchorModal.contactPerson || "Officer"} ({reviewAnchorModal.contactEmail || "N/A"})
+                      </span>
+                    </div>
+                    {reviewAnchorModal.contactPhone && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Official Mobile:</span>
+                        <span className="font-mono text-slate-800">{reviewAnchorModal.contactPhone}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 3. Working Capital Calculator & Assessment */}
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                        <Calculator className="w-3.5 h-3.5 text-indigo-600" />
+                        Tenure-Dynamic Working Capital Calculator
+                      </span>
+                      <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800">
+                        Procurement × (Tenure ÷ 365)
+                      </span>
+                    </div>
+
+                    {reviewAnchorModal.annualProcurement ? (
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-slate-600 font-medium">Declared Annual Procurement:</span>
+                        <span className="font-mono text-purple-700 font-bold">
+                          ₹{reviewAnchorModal.annualProcurement.toLocaleString()} (₹{(reviewAnchorModal.annualProcurement / 10000000).toFixed(2)} Cr)
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="text-[11px] text-amber-700 bg-amber-50 p-2 rounded-lg border border-amber-200">
+                        ⚠️ Annual Procurement was not declared during self-serve onboarding. Standard ₹50.00L probationary ceiling applies.
+                      </div>
+                    )}
+
+                    <div>
+                      <div className="flex items-center justify-between text-[11px] text-slate-600 mb-1 flex-wrap gap-1">
+                        <span>Working Capital Cycle (Invoice Tenure): <strong className="text-slate-900 font-mono">{reviewTenureDays} Days</strong></span>
+                        <div className="flex gap-1">
+                          {[30, 45, 60, 90].map((days) => (
+                            <button
+                              key={days}
+                              type="button"
+                              onClick={() => {
+                                setReviewTenureDays(days);
+                                if (reviewAnchorModal.annualProcurement) {
+                                  const dynamicSuggested = Math.round(
+                                    reviewAnchorModal.annualProcurement * (days / 365)
+                                  );
+                                  setReviewAnchorForm((prev) => ({
+                                    ...prev,
+                                    maxExposureLimit: dynamicSuggested,
+                                  }));
+                                }
+                              }}
+                              className={`py-0.5 px-2 rounded text-xs font-semibold font-mono border cursor-pointer ${
+                                reviewTenureDays === days
+                                  ? "bg-indigo-600 text-white border-indigo-600"
+                                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
+                              }`}
+                            >
+                              {days}d
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {reviewAnchorModal.annualProcurement && (
+                      <div className="p-2 bg-white rounded-lg border border-slate-200 text-[11px] flex justify-between items-center">
+                        <span className="text-slate-600">Formula Suggested Exposure ({reviewTenureDays}d):</span>
+                        <span className="font-mono font-bold text-indigo-700">
                           ₹{Math.round(reviewAnchorModal.annualProcurement * (reviewTenureDays / 365)).toLocaleString()}
                           <span className="text-[10px] text-slate-500 font-normal ml-1">
                             (~₹{((reviewAnchorModal.annualProcurement * (reviewTenureDays / 365)) / 10000000).toFixed(2)} Cr)
                           </span>
                         </span>
                       </div>
-                      <div className="text-[10px] text-slate-500 font-mono">
-                        ₹{(reviewAnchorModal.annualProcurement / 10000000).toFixed(2)} Cr × ({reviewTenureDays} ÷ 365) = {((reviewTenureDays / 365) * 100).toFixed(2)}% working capital cycle requirement
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Non-Statutory Heuristic Estimate Card */}
-                  <div className="p-2.5 rounded-lg bg-amber-50/90 border border-amber-200 text-[10px] text-amber-900 space-y-1">
-                    <div className="font-bold flex items-center gap-1 text-amber-950">
-                      <Info className="w-3.5 h-3.5 text-amber-700 shrink-0" />
-                      Non-Statutory Heuristic Estimate (Unverified Rule-of-Thumb)
-                    </div>
-                    <p className="leading-relaxed text-amber-800">
-                      In manufacturing/ancillary supply chains, raw material procurement is typically ~40%–60% of top-line revenue (COGS rule-of-thumb). <strong>This is NOT an RBI or statutory benchmark.</strong> Admin must cross-check unlisted corporate filings against audited P&L (&ldquo;Cost of Materials Consumed&rdquo;) before sanctioning large lines.
-                    </p>
-                  </div>
-
-                  {/* Standardized Probationary Cap Card */}
-                  <div className="p-2 bg-slate-100 rounded-lg flex items-center justify-between text-[11px] text-slate-700">
-                    <div>
-                      <span className="font-semibold text-slate-800">Standard Probationary Cap:</span>
-                      <span className="text-slate-500 ml-1">(New/Unrated Entities)</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono font-bold text-slate-900">₹50.00 Lakhs</span>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setReviewAnchorForm((prev) => ({
-                            ...prev,
-                            maxExposureLimit: 5000000,
-                          }))
-                        }
-                        className="px-2 py-0.5 rounded bg-white hover:bg-slate-200 border border-slate-300 text-[10px] font-bold text-slate-700 transition cursor-pointer"
-                        title="Cap limit to conservative ₹50 Lakhs probationary ceiling"
-                      >
-                        Apply ₹50L Cap
-                      </button>
-                    </div>
+                    )}
                   </div>
                 </div>
 
-                <div className="space-y-4 pt-1">
-                  <div>
-                    <label className="text-slate-700 block mb-1 font-semibold">Verified Credit Rating</label>
-                  <select
-                    value={reviewAnchorForm.creditRating}
-                    onChange={(e) => setReviewAnchorForm({ ...reviewAnchorForm, creditRating: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 font-mono outline-none focus:bg-white focus:border-emerald-500 font-medium"
-                  >
-                    <option value="AAA">CRISIL / ICRA AAA (Prime High Grade)</option>
-                    <option value="AA+">CRISIL / ICRA AA+ (High Grade)</option>
-                    <option value="AA">CRISIL / ICRA AA (Quality)</option>
-                    <option value="A">CRISIL / ICRA A (Upper Medium)</option>
-                    <option value="BBB">CRISIL / ICRA BBB (Investment Grade)</option>
-                    <option value="UNRATED">UNRATED (Subject to ₹50L Probationary Cap)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-slate-700 block mb-1 font-semibold">
-                    Approved Max Bilateral Exposure Limit (₹)
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min={1000000}
-                    step={1000000}
-                    value={reviewAnchorForm.maxExposureLimit}
-                    onChange={(e) => setReviewAnchorForm({ ...reviewAnchorForm, maxExposureLimit: Number(e.target.value) })}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 font-mono outline-none focus:bg-white focus:border-emerald-500 font-medium"
-                  />
-                  <span className="text-[10px] text-slate-500 mt-1 block">
-                    Sanctioned Line: ₹{(reviewAnchorForm.maxExposureLimit / 10000000).toFixed(2)} Crores
-                  </span>
-                </div>
-
-                  <p className="text-[11px] text-slate-500 leading-relaxed">
-                    Approving this application transitions status to <strong>ACTIVE</strong> and generates a secure activation token dispatchable to the corporate treasury officer.
-                  </p>
-                </div>
-              </div>
-
-              {/* Sticky Bottom Actions Footer */}
-                <div className="p-4 border-t border-slate-200 bg-slate-50 flex gap-2.5 shrink-0 rounded-b-3xl">
+                {/* Sticky Bottom Actions Footer */}
+                <div className="p-3.5 border-t border-slate-200 bg-slate-50 flex gap-2.5 shrink-0 rounded-b-2xl">
                   <button
                     type="button"
                     onClick={() => setReviewAnchorModal(null)}

@@ -36,7 +36,7 @@ export async function GET(request: Request) {
         },
       },
     });
-
+   
     if (!user || !user.inviteExpiry || user.inviteExpiry < new Date()) {
       return NextResponse.json(
         { success: false, error: "This invite link is invalid or has expired." },
