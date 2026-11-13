@@ -819,8 +819,8 @@ export default function DashboardClient({
                 onClick={() => setFilter(f)}
                 className={`px-3 py-1.5 rounded-xl font-semibold transition cursor-pointer text-xs ${
                   filter === f
-                    ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-500/25 border border-indigo-400/30"
-                    : "bg-white/60 hover:bg-white/90 text-slate-600 hover:text-slate-900 border border-white/80 backdrop-blur-xs shadow-2xs"
+                    ? "bg-slate-900 text-white shadow-xs"
+                    : "bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 shadow-2xs"
                 }`}
               >
                 {labelMap[f] || f} ({count})
@@ -830,9 +830,9 @@ export default function DashboardClient({
         </div>
 
         {/* Invoices Table */}
-        <div className="overflow-x-auto rounded-2xl border border-white/80 bg-white/45 backdrop-blur-xl shadow-xs ring-1 ring-black/[0.02]">
+        <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-xs">
           <table className="w-full text-left text-sm text-slate-700">
-            <thead className="bg-white/75 backdrop-blur-md text-[11px] uppercase font-bold text-slate-700 border-b border-white/80 tracking-wider">
+            <thead className="bg-slate-50 text-[11px] uppercase font-bold text-slate-700 border-b border-slate-200 tracking-wider">
               <tr>
                 <th className="py-3 px-4">Invoice #</th>
                 <th className="py-3 px-4">Seller MSME</th>
@@ -844,7 +844,7 @@ export default function DashboardClient({
                 <th className="py-3 px-4 text-center">Action Required</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/70 bg-transparent font-sans text-xs">
+            <tbody className="divide-y divide-slate-100 bg-white font-sans text-xs">
               {filteredInvoices.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="py-12 text-center text-slate-500 font-medium">
@@ -853,7 +853,7 @@ export default function DashboardClient({
                 </tr>
               ) : (
                 filteredInvoices.map((inv) => (
-                  <tr key={inv.id} className="hover:bg-white/60 transition duration-150">
+                  <tr key={inv.id} className="hover:bg-slate-50/80 transition duration-150">
                     <td className="py-3.5 px-4 font-bold text-slate-900 font-mono">
                       <div className="flex items-center gap-1.5">
                         <span>{inv.invoiceNumber}</span>

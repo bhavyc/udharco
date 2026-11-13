@@ -137,10 +137,10 @@ export default function NoticeClient({ invoice, seller, anchor }: NoticeProps) {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-emerald-500 selection:text-white relative">
-      {/* Background vibrant aurora ambient lights for dark glass */}
-      <div className="aurora-blob-1 fixed -top-40 left-1/4 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-emerald-500/25 via-teal-500/15 to-transparent blur-[140px] pointer-events-none -z-10" />
-      <div className="aurora-blob-2 fixed -bottom-32 right-10 w-[650px] h-[650px] rounded-full bg-gradient-to-tl from-indigo-600/25 via-purple-500/15 to-transparent blur-[140px] pointer-events-none -z-10" />
-      <div className="aurora-blob-3 fixed top-1/2 -left-20 w-[450px] h-[450px] rounded-full bg-gradient-to-tr from-cyan-500/15 to-transparent blur-[120px] pointer-events-none -z-10" />
+      {/* Background ambient lighting */}
+      <div className="fixed -top-40 left-1/4 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-transparent blur-[140px] pointer-events-none -z-10" />
+      <div className="fixed -bottom-32 right-10 w-[650px] h-[650px] rounded-full bg-gradient-to-tl from-slate-800/30 via-slate-900/20 to-transparent blur-[140px] pointer-events-none -z-10" />
+      <div className="fixed top-1/2 -left-20 w-[450px] h-[450px] rounded-full bg-gradient-to-tr from-cyan-500/10 to-transparent blur-[120px] pointer-events-none -z-10" />
 
       {/* Top Bar */}
       <header className="border-b border-white/10 bg-slate-950/70 backdrop-blur-xl px-6 py-4 flex items-center justify-between sticky top-0 z-20 shadow-md">

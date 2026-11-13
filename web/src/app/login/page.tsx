@@ -635,10 +635,10 @@ function LoginContent() {
             <div>
               {inviteToken && inviteDetails?.investor ? (
                 <div className="space-y-4">
-                  <div className="p-4 rounded-xl bg-gradient-to-br from-purple-50 to-indigo-50/40 border border-purple-200">
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-600 text-white flex items-center gap-1">
-                        <ShieldCheck className="w-3 h-3" />
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-900 text-white flex items-center gap-1">
+                        <ShieldCheck className="w-3 h-3 text-emerald-400" />
                         Verified Institutional Funder Invite
                       </span>
                     </div>

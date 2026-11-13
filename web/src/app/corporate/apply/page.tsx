@@ -222,7 +222,7 @@ export default function CorporateApplyPage() {
                   setGstin("");
                   setIsGstVerified(false);
                 }}
-                className="px-6 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-bold transition shadow-md shadow-indigo-600/25 cursor-pointer"
+                className="px-6 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition shadow-xs cursor-pointer"
               >
                 Submit Another Entity
               </button>
