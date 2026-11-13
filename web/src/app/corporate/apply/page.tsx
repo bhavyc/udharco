@@ -134,13 +134,13 @@ export default function CorporateApplyPage() {
   return (
     <div className="min-h-screen bg-transparent text-slate-900 flex flex-col justify-between font-sans">
       {/* Header */}
-      <header className="border-b border-white/60 bg-white/70 backdrop-blur-xl sticky top-0 z-40 px-6 py-4 flex items-center justify-between shadow-xs shadow-slate-900/5">
+      <header className="glass-3d-header sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-emerald-600 flex items-center justify-center text-white font-black shadow-xs">
+          <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-emerald-600 flex items-center justify-center text-white font-black shadow-xs ring-1 ring-white/40">
             U
           </div>
           <span className="font-extrabold text-lg tracking-tight text-slate-900">
-            UdharCo<span className="text-indigo-600 font-medium text-xs ml-1.5 px-2 py-0.5 bg-indigo-50/80 backdrop-blur-xs rounded-md border border-indigo-200/80">Corporate Gateway</span>
+            UdharCo<span className="text-indigo-600 font-bold text-xs ml-1.5 px-2.5 py-0.5 bg-indigo-500/15 backdrop-blur-md rounded-full border border-indigo-500/25">Corporate Gateway</span>
           </span>
         </Link>
 
@@ -148,7 +148,7 @@ export default function CorporateApplyPage() {
           <span className="text-slate-500 hidden sm:inline">Already an approved Anchor?</span>
           <Link
             href="/login"
-            className="px-3.5 py-2 rounded-xl bg-white/80 hover:bg-white border border-slate-200/80 text-slate-800 font-semibold shadow-2xs transition backdrop-blur-xs"
+            className="px-3.5 py-2 rounded-xl bg-white/70 hover:bg-white border border-white/80 text-slate-800 font-bold shadow-xs transition backdrop-blur-md"
           >
             Corporate Login
           </Link>
@@ -159,29 +159,29 @@ export default function CorporateApplyPage() {
       <main className="flex-1 max-w-4xl w-full mx-auto p-6 md:p-10 space-y-8">
         {submittedData ? (
           /* Success Screen */
-          <div className="p-8 md:p-12 rounded-3xl bg-white/80 backdrop-blur-2xl border border-emerald-200/80 text-center space-y-6 shadow-xl ring-1 ring-emerald-500/10 animate-in fade-in zoom-in-95 duration-300">
-            <div className="h-16 w-16 mx-auto rounded-3xl bg-emerald-50/80 backdrop-blur-xs border border-emerald-200 text-emerald-700 flex items-center justify-center shadow-xs">
+          <div className="glass-3d-card p-8 md:p-12 rounded-3xl text-center space-y-6 shadow-2xl ring-1 ring-white/80 animate-in fade-in zoom-in-95 duration-300">
+            <div className="h-16 w-16 mx-auto rounded-3xl bg-emerald-500/20 backdrop-blur-md border border-emerald-500/30 text-emerald-700 flex items-center justify-center shadow-xs">
               <CheckCircle2 className="w-8 h-8" />
             </div>
 
             <div className="space-y-2">
-              <span className="text-xs font-mono uppercase tracking-wider text-emerald-800 font-bold px-3 py-1 rounded-full bg-emerald-50/80 backdrop-blur-xs border border-emerald-200 inline-block shadow-2xs">
+              <span className="text-xs font-mono uppercase tracking-wider text-emerald-800 font-bold px-3 py-1 rounded-full bg-emerald-500/15 backdrop-blur-md border border-emerald-500/30 inline-block shadow-2xs">
                 Application Received • Under Risk Review
               </span>
-              <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900">
+              <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
                 Factoring Onboarding Request Submitted
               </h2>
               <p className="text-sm text-slate-600 max-w-lg mx-auto">
                 Thank you, <strong className="text-slate-900">{submittedData.corporateName}</strong>. Your corporate factoring facility application is registered under ID:
               </p>
-              <div className="font-mono text-xs bg-slate-100/80 backdrop-blur-xs p-2.5 rounded-xl border border-slate-200 text-indigo-700 font-bold inline-block shadow-2xs">
+              <div className="font-mono text-xs bg-white/80 backdrop-blur-md p-2.5 rounded-xl border border-white/90 text-indigo-700 font-bold inline-block shadow-2xs">
                 {submittedData.applicationId}
               </div>
             </div>
 
             {/* Protocol Flow Details */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left max-w-2xl mx-auto pt-4">
-              <div className="p-4 rounded-2xl bg-white/60 backdrop-blur-xs border border-slate-200/70 space-y-1.5 shadow-2xs">
+              <div className="p-4 rounded-2xl bg-white/60 backdrop-blur-xs border border-white/80 space-y-1.5 shadow-2xs">
                 <div className="flex items-center gap-2 text-indigo-700 text-xs font-bold">
                   <ShieldCheck className="w-4 h-4" /> Step 1: Verification
                 </div>
@@ -190,7 +190,7 @@ export default function CorporateApplyPage() {
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-white/60 backdrop-blur-xs border border-slate-200/70 space-y-1.5 shadow-2xs">
+              <div className="p-4 rounded-2xl bg-white/60 backdrop-blur-xs border border-white/80 space-y-1.5 shadow-2xs">
                 <div className="flex items-center gap-2 text-purple-700 text-xs font-bold">
                   <Clock className="w-4 h-4" /> Step 2: Risk Sanction
                 </div>
@@ -199,7 +199,7 @@ export default function CorporateApplyPage() {
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-white/60 backdrop-blur-xs border border-slate-200/70 space-y-1.5 shadow-2xs">
+              <div className="p-4 rounded-2xl bg-white/60 backdrop-blur-xs border border-white/80 space-y-1.5 shadow-2xs">
                 <div className="flex items-center gap-2 text-emerald-700 text-xs font-bold">
                   <FileCheck className="w-4 h-4" /> Step 3: Activation Link
                 </div>
@@ -212,7 +212,7 @@ export default function CorporateApplyPage() {
             <div className="pt-4 flex flex-col sm:flex-row justify-center gap-3">
               <Link
                 href="/"
-                className="px-6 py-3 rounded-2xl bg-white/80 hover:bg-white border border-slate-200/80 text-slate-800 text-xs font-semibold shadow-xs transition"
+                className="px-6 py-3 rounded-2xl bg-white/80 hover:bg-white border border-white/80 text-slate-800 text-xs font-bold shadow-xs transition"
               >
                 Return to UdharCo Home
               </Link>
@@ -222,7 +222,7 @@ export default function CorporateApplyPage() {
                   setGstin("");
                   setIsGstVerified(false);
                 }}
-                className="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition shadow-sm cursor-pointer"
+                className="px-6 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-bold transition shadow-md shadow-indigo-600/25 cursor-pointer"
               >
                 Submit Another Entity
               </button>
@@ -233,8 +233,8 @@ export default function CorporateApplyPage() {
           <div className="space-y-8">
             {/* Page Title & Intro */}
             <div className="space-y-3">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-medium">
-                <Sparkles className="w-3.5 h-3.5" />
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-700 text-xs font-bold backdrop-blur-md shadow-2xs">
+                <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
                 <span>Zero-Friction Enterprise Supply Chain Finance</span>
               </div>
               <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
@@ -247,7 +247,7 @@ export default function CorporateApplyPage() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* STEP 1: GSTIN Auto-Fill Card */}
-              <div className="p-6 md:p-8 rounded-3xl bg-white/75 backdrop-blur-2xl border border-white/80 space-y-6 shadow-xl shadow-slate-900/5 ring-1 ring-black/[0.03]">
+              <div className="glass-3d-card p-6 md:p-8 rounded-3xl space-y-6 shadow-xl ring-1 ring-white/80">
                 <div className="flex items-center gap-3 border-b border-slate-200/80 pb-4">
                   <div className="h-8 w-8 rounded-xl bg-indigo-50/80 text-indigo-700 flex items-center justify-center font-bold text-xs border border-indigo-200/80 shadow-2xs">
                     01
@@ -332,7 +332,7 @@ export default function CorporateApplyPage() {
               </div>
 
               {/* STEP 2: Procurement & Exposure Requirements */}
-              <div className="p-6 md:p-8 rounded-3xl bg-white/75 backdrop-blur-2xl border border-white/80 space-y-6 shadow-xl shadow-slate-900/5 ring-1 ring-black/[0.03]">
+              <div className="glass-3d-card p-6 md:p-8 rounded-3xl space-y-6 shadow-xl ring-1 ring-white/80">
                 <div className="flex items-center gap-3 border-b border-slate-200/80 pb-4">
                   <div className="h-8 w-8 rounded-xl bg-purple-50/80 text-purple-700 flex items-center justify-center font-bold text-xs border border-purple-200/80 shadow-2xs">
                     02
@@ -431,7 +431,7 @@ export default function CorporateApplyPage() {
               </div>
 
               {/* STEP 3: Authorized Treasury Contact */}
-              <div className="p-6 md:p-8 rounded-3xl bg-white/75 backdrop-blur-2xl border border-white/80 space-y-6 shadow-xl shadow-slate-900/5 ring-1 ring-black/[0.03]">
+              <div className="glass-3d-card p-6 md:p-8 rounded-3xl space-y-6 shadow-xl ring-1 ring-white/80">
                 <div className="flex items-center gap-3 border-b border-slate-200/80 pb-4">
                   <div className="h-8 w-8 rounded-xl bg-emerald-50/80 text-emerald-700 flex items-center justify-center font-bold text-xs border border-emerald-200/80 shadow-2xs">
                     03

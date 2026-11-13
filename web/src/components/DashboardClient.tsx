@@ -560,10 +560,10 @@ export default function DashboardClient({
       )}
 
       {/* 3-Step Visual Lifecycle Guide ("Kaam Kaise Karta Hai") */}
-      <section className="bg-white/70 backdrop-blur-xl border border-white/80 rounded-2xl p-5 shadow-sm ring-1 ring-black/[0.02]">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100/70">
+      <section className="glass-3d-card rounded-3xl p-6 sm:p-7 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/60">
           <div>
-            <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-indigo-600" />
               How UdharCo Works (Simple 3-Step Process)
             </h2>
@@ -571,15 +571,15 @@ export default function DashboardClient({
               MSMEs unlock up to 84% upfront capital once the corporate buyer confirms the invoice.
             </p>
           </div>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50/80 text-emerald-700 border border-emerald-200/70 backdrop-blur-xs self-start sm:self-auto">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-800 border border-emerald-500/30 backdrop-blur-md shadow-2xs self-start sm:self-auto">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
             Up to 84% Advance Disbursal
           </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
-            <div className="h-8 w-8 rounded-lg bg-emerald-600 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-xs">
+          <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-white/60 hover:bg-white/80 backdrop-blur-md border border-white/80 shadow-xs transition duration-300">
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/25">
               1
             </div>
             <div>
@@ -590,8 +590,8 @@ export default function DashboardClient({
             </div>
           </div>
 
-          <div className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
-            <div className="h-8 w-8 rounded-lg bg-sky-600 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-xs">
+          <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-white/60 hover:bg-white/80 backdrop-blur-md border border-white/80 shadow-xs transition duration-300">
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-sky-600 to-indigo-500 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-md shadow-sky-500/25">
               2
             </div>
             <div>
@@ -602,8 +602,8 @@ export default function DashboardClient({
             </div>
           </div>
 
-          <div className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
-            <div className="h-8 w-8 rounded-lg bg-indigo-600 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-xs">
+          <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-white/60 hover:bg-white/80 backdrop-blur-md border border-white/80 shadow-xs transition duration-300">
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-md shadow-indigo-500/25">
               3
             </div>
             <div>
@@ -629,10 +629,12 @@ export default function DashboardClient({
 
             return (
               <>
-                <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 ring-1 ring-black/[0.02]">
+                <div className="glass-3d-card p-5 rounded-3xl">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Approved Facility Line</span>
-                    <ShieldCheck className="w-4 h-4 text-sky-600" />
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Approved Facility Line</span>
+                    <div className="p-2 rounded-xl bg-sky-500/15 text-sky-600 border border-sky-500/20 shadow-2xs">
+                      <ShieldCheck className="w-4 h-4" />
+                    </div>
                   </div>
                   <div className="text-2xl font-black text-slate-900 mt-2 font-mono">
                     {cap >= 10000000 ? `₹${(cap / 10000000).toFixed(2)} Cr` : `₹${(cap / 100000).toFixed(1)} Lakh`}
@@ -640,10 +642,12 @@ export default function DashboardClient({
                   <div className="text-xs text-slate-500 mt-1">Sanctioned Treasury Cap</div>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 ring-1 ring-black/[0.02]">
+                <div className="glass-3d-card p-5 rounded-3xl">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Facility Utilized</span>
-                    <Layers className="w-4 h-4 text-amber-600" />
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Facility Utilized</span>
+                    <div className="p-2 rounded-xl bg-amber-500/15 text-amber-600 border border-amber-500/20 shadow-2xs">
+                      <Layers className="w-4 h-4" />
+                    </div>
                   </div>
                   <div className="text-2xl font-black text-slate-900 mt-2 font-mono">
                     {used >= 10000000 ? `₹${(used / 10000000).toFixed(2)} Cr` : `₹${(used / 100000).toFixed(1)} Lakh`}
@@ -651,10 +655,12 @@ export default function DashboardClient({
                   <div className="text-xs text-amber-700 font-semibold mt-1">{utilPct}% Pool Utilization</div>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 ring-1 ring-black/[0.02]">
+                <div className="glass-3d-card p-5 rounded-3xl">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Available Headroom</span>
-                    <Wallet className="w-4 h-4 text-emerald-600" />
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Available Headroom</span>
+                    <div className="p-2 rounded-xl bg-emerald-500/15 text-emerald-600 border border-emerald-500/20 shadow-2xs">
+                      <Wallet className="w-4 h-4" />
+                    </div>
                   </div>
                   <div className="text-2xl font-black text-emerald-700 mt-2 font-mono">
                     {headroom >= 10000000 ? `₹${(headroom / 10000000).toFixed(2)} Cr` : `₹${(headroom / 100000).toFixed(1)} Lakh`}
@@ -662,10 +668,12 @@ export default function DashboardClient({
                   <div className="text-xs text-emerald-600 font-medium mt-1">Open for Supplier Invoices</div>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 ring-1 ring-black/[0.02]">
+                <div className="glass-3d-card p-5 rounded-3xl">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Awaiting Confirmation</span>
-                    <FileText className="w-4 h-4 text-indigo-600" />
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Awaiting Confirmation</span>
+                    <div className="p-2 rounded-xl bg-indigo-500/15 text-indigo-600 border border-indigo-500/20 shadow-2xs">
+                      <FileText className="w-4 h-4" />
+                    </div>
                   </div>
                   <div className="text-2xl font-black text-indigo-700 mt-2 font-mono">
                     {pendingCount}
@@ -678,19 +686,23 @@ export default function DashboardClient({
         </section>
       ) : (
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 ring-1 ring-black/[0.02]">
+          <div className="glass-3d-card p-5 rounded-3xl">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Active MSME Sellers</span>
-              <Building2 className="w-4 h-4 text-emerald-600" />
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Active MSME Sellers</span>
+              <div className="p-2 rounded-xl bg-emerald-500/15 text-emerald-600 border border-emerald-500/20 shadow-2xs">
+                <Building2 className="w-4 h-4" />
+              </div>
             </div>
             <div className="text-2xl font-black text-slate-900 mt-2">{sellers.length}</div>
             <div className="text-xs text-slate-500 mt-1">Verified Suppliers Onboarded</div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 ring-1 ring-black/[0.02]">
+          <div className="glass-3d-card p-5 rounded-3xl">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Anchor Buyer Exposure</span>
-              <Layers className="w-4 h-4 text-sky-600" />
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Anchor Buyer Exposure</span>
+              <div className="p-2 rounded-xl bg-sky-500/15 text-sky-600 border border-sky-500/20 shadow-2xs">
+                <Layers className="w-4 h-4" />
+              </div>
             </div>
             <div className="text-2xl font-black text-slate-900 mt-2 font-mono">
               ₹{(activeExposure / 100000).toFixed(1)} Lakhs
@@ -698,10 +710,12 @@ export default function DashboardClient({
             <div className="text-xs text-slate-500 mt-1">Cap: ₹{(anchors[0]?.maxExposureLimit / 10000000).toFixed(1)} Cr</div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 ring-1 ring-black/[0.02]">
+          <div className="glass-3d-card p-5 rounded-3xl">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Investor Escrow Liquidity</span>
-              <Wallet className="w-4 h-4 text-indigo-600" />
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Investor Escrow Liquidity</span>
+              <div className="p-2 rounded-xl bg-indigo-500/15 text-indigo-600 border border-indigo-500/20 shadow-2xs">
+                <Wallet className="w-4 h-4" />
+              </div>
             </div>
             <div className="text-2xl font-black text-indigo-700 mt-2 font-mono">
               ₹{(totalEscrow / 10000000).toFixed(2)} Cr
@@ -709,10 +723,12 @@ export default function DashboardClient({
             <div className="text-xs text-slate-500 mt-1">Available in Virtual Escrow</div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 ring-1 ring-black/[0.02]">
+          <div className="glass-3d-card p-5 rounded-3xl">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Total Invoices Volume</span>
-              <Coins className="w-4 h-4 text-purple-600" />
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Total Invoices Volume</span>
+              <div className="p-2 rounded-xl bg-purple-500/15 text-purple-600 border border-purple-500/20 shadow-2xs">
+                <Coins className="w-4 h-4" />
+              </div>
             </div>
             <div className="text-2xl font-black text-slate-900 mt-2 font-mono">
               ₹{(totalVolume / 100000).toFixed(1)} Lakhs
@@ -725,11 +741,14 @@ export default function DashboardClient({
       )}
 
       {/* Main Table Section */}
-      <section className="p-6 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/80 shadow-sm space-y-6 ring-1 ring-black/[0.02]">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+      <section className="glass-3d-card p-6 md:p-8 rounded-3xl space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/60 pb-4">
           <div>
-            <h2 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+            <h2 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              </span>
               Live Invoice Discounting Ledger
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -757,7 +776,7 @@ export default function DashboardClient({
                 }
               }}
               disabled={loadingAction === "reminders"}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200 transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/60 hover:bg-white/90 text-slate-700 text-xs font-semibold border border-white/80 backdrop-blur-xs shadow-2xs transition cursor-pointer"
               title="Auto-triggers follow-up reminders or timeout handling"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loadingAction === "reminders" ? "animate-spin" : ""}`} />
@@ -766,7 +785,7 @@ export default function DashboardClient({
             {(!currentUser || currentUser.role === "SELLER") && (
               <button
                 onClick={() => setIsUploadOpen(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs tracking-wide shadow-sm hover:shadow transition cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs tracking-wide shadow-md shadow-emerald-600/20 hover:shadow-lg transition cursor-pointer"
               >
                 <PlusCircle className="w-4 h-4" />
                 Upload New Invoice
@@ -774,7 +793,7 @@ export default function DashboardClient({
             )}
             <button
               onClick={refreshInvoices}
-              className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200 transition cursor-pointer"
+              className="p-2 rounded-xl bg-white/60 hover:bg-white/90 text-slate-600 hover:text-slate-900 border border-white/80 backdrop-blur-xs shadow-2xs transition cursor-pointer"
               title="Refresh ledger"
             >
               <RefreshCw className="w-4 h-4" />
@@ -798,10 +817,10 @@ export default function DashboardClient({
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer text-xs ${
+                className={`px-3 py-1.5 rounded-xl font-semibold transition cursor-pointer text-xs ${
                   filter === f
-                    ? "bg-indigo-600 text-white shadow-xs"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
+                    ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-500/25 border border-indigo-400/30"
+                    : "bg-white/60 hover:bg-white/90 text-slate-600 hover:text-slate-900 border border-white/80 backdrop-blur-xs shadow-2xs"
                 }`}
               >
                 {labelMap[f] || f} ({count})
@@ -811,9 +830,9 @@ export default function DashboardClient({
         </div>
 
         {/* Invoices Table */}
-        <div className="overflow-x-auto rounded-xl border border-slate-200">
+        <div className="overflow-x-auto rounded-2xl border border-white/80 bg-white/45 backdrop-blur-xl shadow-xs ring-1 ring-black/[0.02]">
           <table className="w-full text-left text-sm text-slate-700">
-            <thead className="bg-slate-50 text-[11px] uppercase font-bold text-slate-600 border-b border-slate-200 tracking-wider">
+            <thead className="bg-white/75 backdrop-blur-md text-[11px] uppercase font-bold text-slate-700 border-b border-white/80 tracking-wider">
               <tr>
                 <th className="py-3 px-4">Invoice #</th>
                 <th className="py-3 px-4">Seller MSME</th>
@@ -825,7 +844,7 @@ export default function DashboardClient({
                 <th className="py-3 px-4 text-center">Action Required</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 bg-white font-sans text-xs">
+            <tbody className="divide-y divide-white/70 bg-transparent font-sans text-xs">
               {filteredInvoices.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="py-12 text-center text-slate-500 font-medium">
@@ -834,7 +853,7 @@ export default function DashboardClient({
                 </tr>
               ) : (
                 filteredInvoices.map((inv) => (
-                  <tr key={inv.id} className="hover:bg-slate-50/70 transition">
+                  <tr key={inv.id} className="hover:bg-white/60 transition duration-150">
                     <td className="py-3.5 px-4 font-bold text-slate-900 font-mono">
                       <div className="flex items-center gap-1.5">
                         <span>{inv.invoiceNumber}</span>
@@ -1152,16 +1171,16 @@ export default function DashboardClient({
       {/* MODAL 1: Upload Invoice Modal */}
       {/* MODAL 1: Upload New Invoice with Inline Vendor-Push Buyer */}
       {isUploadOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/45 backdrop-blur-md">
-          <div className="bg-white/90 backdrop-blur-2xl border border-white/80 rounded-2xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-slate-900 animate-in fade-in zoom-in-95 ring-1 ring-black/5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/40 backdrop-blur-md">
+          <div className="glass-3d-modal rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-slate-900 animate-in fade-in zoom-in-95 ring-1 ring-white/80">
             {/* Pinned Header */}
-            <div className="p-4 sm:p-4.5 border-b border-slate-200/60 flex items-center justify-between shrink-0 bg-white/75 backdrop-blur-lg">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100">
+            <div className="p-4 sm:p-5 border-b border-white/60 flex items-center justify-between shrink-0 bg-white/75 backdrop-blur-xl">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-gradient-to-tr from-emerald-500/20 to-teal-500/15 text-emerald-700 border border-emerald-500/30 shadow-2xs">
                   <Sparkles className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900">Upload Invoice for Instant Discounting</h3>
+                  <h3 className="text-sm sm:text-base font-bold text-slate-900">Upload Invoice for Instant Discounting</h3>
                   <p className="text-[11px] text-slate-500">
                     Get 84% instant advance against GST e-invoices with automatic buyer notice
                   </p>
@@ -1170,7 +1189,7 @@ export default function DashboardClient({
               <button
                 type="button"
                 onClick={() => setIsUploadOpen(false)}
-                className="text-slate-400 hover:text-slate-700 text-base font-bold p-1 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+                className="text-slate-400 hover:text-slate-700 text-sm font-bold p-1.5 rounded-xl hover:bg-white/80 border border-transparent hover:border-white/80 transition cursor-pointer"
               >
                 ✕
               </button>
@@ -1178,11 +1197,11 @@ export default function DashboardClient({
 
             {/* Scrollable Form Body */}
             <form onSubmit={handleUploadSubmit} className="flex flex-col flex-1 overflow-hidden">
-              <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3.5 custom-scrollbar text-slate-900">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar text-slate-900">
                 {/* 1. SELLER IDENTITY (Compact) */}
-                <div className="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[11px]">
+                <div className="flex items-center justify-between bg-white/60 backdrop-blur-md p-3 rounded-2xl border border-white/80 shadow-xs">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
                       {(sellers.find((s) => s.id === uploadForm.sellerId)?.legalName || sellers[0]?.legalName || "M")[0].toUpperCase()}
                     </div>
                     <div>
@@ -1191,21 +1210,21 @@ export default function DashboardClient({
                       </div>
                       <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
                         <span>{sellers.find((s) => s.id === uploadForm.sellerId)?.legalName || sellers[0]?.legalName || "MSME Seller Pvt Ltd"}</span>
-                        <span className="text-[9px] font-mono text-emerald-700 bg-emerald-100/60 px-1 py-0.2 rounded font-semibold">
+                        <span className="text-[9px] font-mono text-emerald-800 bg-emerald-500/15 border border-emerald-500/20 px-1.5 py-0.5 rounded font-bold">
                           {sellers.find((s) => s.id === uploadForm.sellerId)?.gstin || sellers[0]?.gstin}
                         </span>
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5 text-[9px] font-bold">
-                    <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">KYC VERIFIED</span>
-                    <span className="px-1.5 py-0.5 rounded bg-sky-100 text-sky-800">e-NACH ACTIVE</span>
-                    <span className="px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 font-mono">CAP: ₹{formatINR(sellerLimit)}</span>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-800 border border-emerald-500/30">KYC VERIFIED</span>
+                    <span className="px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-800 border border-sky-500/30">e-NACH ACTIVE</span>
+                    <span className="px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-800 border border-indigo-500/30 font-mono">CAP: ₹{formatINR(sellerLimit)}</span>
                   </div>
                 </div>
 
                 {/* 2. CORPORATE BUYER SECTION (Segmented Pre-Approved vs New) */}
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                <div className="p-4 rounded-2xl bg-white/60 backdrop-blur-md border border-white/80 space-y-2.5 shadow-xs">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                       <Building2 className="w-3.5 h-3.5 text-emerald-600" />
@@ -1213,11 +1232,11 @@ export default function DashboardClient({
                     </label>
 
                     {/* Segmented Switcher */}
-                    <div className="flex items-center bg-slate-200/80 p-0.5 rounded-lg text-[10px] font-bold">
+                    <div className="flex items-center bg-slate-200/60 p-0.5 rounded-xl text-[10px] font-bold backdrop-blur-xs border border-white/60">
                       <button
                         type="button"
                         onClick={() => setBuyerMode("EXISTING")}
-                        className={`px-2.5 py-1 rounded-md transition cursor-pointer ${
+                        className={`px-2.5 py-1 rounded-lg transition cursor-pointer ${
                           buyerMode === "EXISTING"
                             ? "bg-white text-slate-900 shadow-xs"
                             : "text-slate-600 hover:text-slate-900"
@@ -1228,7 +1247,7 @@ export default function DashboardClient({
                       <button
                         type="button"
                         onClick={() => setBuyerMode("NEW")}
-                        className={`px-2.5 py-1 rounded-md transition cursor-pointer flex items-center gap-1 ${
+                        className={`px-2.5 py-1 rounded-lg transition cursor-pointer flex items-center gap-1 ${
                           buyerMode === "NEW"
                             ? "bg-emerald-600 text-white shadow-xs"
                             : "text-emerald-800 hover:text-emerald-950"
@@ -1244,7 +1263,7 @@ export default function DashboardClient({
                     <select
                       value={uploadForm.anchorId}
                       onChange={(e) => setUploadForm({ ...uploadForm, anchorId: e.target.value })}
-                      className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 focus:border-emerald-500 outline-none"
+                      className="w-full bg-white/80 border border-slate-300/80 rounded-xl px-3 py-2 text-xs text-slate-900 focus:bg-white focus:border-emerald-500 outline-none shadow-2xs font-medium"
                     >
                       {anchors.map((a) => (
                         <option key={a.id} value={a.id}>
@@ -1254,11 +1273,11 @@ export default function DashboardClient({
                     </select>
                   ) : (
                     /* Clean, unified 2x2 grid for New Buyer */
-                    <div className="space-y-2 pt-0.5">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div className="space-y-2.5 pt-0.5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                         {/* GSTIN */}
                         <div>
-                          <div className="flex items-center justify-between mb-0.5">
+                          <div className="flex items-center justify-between mb-1">
                             <label className="text-[10px] font-bold text-slate-600">Buyer GSTIN *</label>
                             <button
                               type="button"
@@ -1277,26 +1296,26 @@ export default function DashboardClient({
                             placeholder="Buyer GSTIN"
                             value={newBuyerForm.gstin}
                             onChange={(e) => setNewBuyerForm({ ...newBuyerForm, gstin: e.target.value.toUpperCase() })}
-                            className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-mono uppercase text-slate-900 focus:border-emerald-500 outline-none"
+                            className="w-full bg-white/80 border border-slate-300/80 rounded-xl px-2.5 py-1.5 text-xs font-mono uppercase text-slate-900 focus:bg-white focus:border-emerald-500 outline-none shadow-2xs"
                           />
                         </div>
 
                         {/* Legal Name */}
                         <div>
-                          <label className="text-[10px] font-bold text-slate-600 block mb-0.5">Corporate Legal Name *</label>
+                          <label className="text-[10px] font-bold text-slate-600 block mb-1">Corporate Legal Name *</label>
                           <input
                             type="text"
                             required
                             placeholder="Corporate Legal Name"
                             value={newBuyerForm.corporateName}
                             onChange={(e) => setNewBuyerForm({ ...newBuyerForm, corporateName: e.target.value })}
-                            className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 focus:border-emerald-500 outline-none"
+                            className="w-full bg-white/80 border border-slate-300/80 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 focus:bg-white focus:border-emerald-500 outline-none shadow-2xs"
                           />
                         </div>
 
                         {/* Treasury Email */}
                         <div>
-                          <label className="text-[10px] font-bold text-slate-600 block mb-0.5">
+                          <label className="text-[10px] font-bold text-slate-600 block mb-1">
                             Accounts / Treasury Email * <span className="font-normal text-slate-400">(Notice Destination)</span>
                           </label>
                           <input
@@ -1305,37 +1324,37 @@ export default function DashboardClient({
                             placeholder="Accounts / Treasury Email"
                             value={newBuyerForm.contactEmail}
                             onChange={(e) => setNewBuyerForm({ ...newBuyerForm, contactEmail: e.target.value })}
-                            className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-900 focus:border-emerald-500 outline-none"
+                            className="w-full bg-white/80 border border-slate-300/80 rounded-xl px-2.5 py-1.5 text-xs font-mono text-slate-900 focus:bg-white focus:border-emerald-500 outline-none shadow-2xs"
                           />
                         </div>
 
                         {/* Officer & Phone */}
-                        <div className="grid grid-cols-2 gap-1.5">
+                        <div className="grid grid-cols-2 gap-2">
                           <div>
-                            <label className="text-[10px] font-bold text-slate-600 block mb-0.5">Contact Person</label>
+                            <label className="text-[10px] font-bold text-slate-600 block mb-1">Contact Person</label>
                             <input
                               type="text"
                               placeholder="Contact Person"
                               value={newBuyerForm.contactPerson}
                               onChange={(e) => setNewBuyerForm({ ...newBuyerForm, contactPerson: e.target.value })}
-                              className="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs text-slate-900 focus:border-emerald-500 outline-none"
+                              className="w-full bg-white/80 border border-slate-300/80 rounded-xl px-2 py-1.5 text-xs text-slate-900 focus:bg-white focus:border-emerald-500 outline-none shadow-2xs"
                             />
                           </div>
                           <div>
-                            <label className="text-[10px] font-bold text-slate-600 block mb-0.5">Phone (WhatsApp)</label>
+                            <label className="text-[10px] font-bold text-slate-600 block mb-1">Phone (WhatsApp)</label>
                             <input
                               type="tel"
                               maxLength={10}
                               placeholder="Phone (WhatsApp)"
                               value={newBuyerForm.contactPhone}
                               onChange={(e) => setNewBuyerForm({ ...newBuyerForm, contactPhone: e.target.value.replace(/\D/g, "") })}
-                              className="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-mono text-slate-900 focus:border-emerald-500 outline-none"
+                              className="w-full bg-white/80 border border-slate-300/80 rounded-xl px-2 py-1.5 text-xs font-mono text-slate-900 focus:bg-white focus:border-emerald-500 outline-none shadow-2xs"
                             />
                           </div>
                         </div>
                       </div>
 
-                      <div className="text-[10px] text-slate-500 flex items-center gap-1.5 pt-0.5 bg-emerald-50/50 p-1.5 rounded-lg border border-emerald-200/50">
+                      <div className="text-[10px] text-slate-500 flex items-center gap-1.5 pt-0.5 bg-emerald-50/60 p-2 rounded-xl border border-emerald-200/60">
                         <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                         <span>Notice of Assignment will be issued on upload. Initial limit capped at ₹50L pending Admin underwriting.</span>
                       </div>
@@ -1566,29 +1585,32 @@ export default function DashboardClient({
                 </div>
 
                 {/* 7. CASH ADVANCE BREAKDOWN (Compact Strip) */}
-                <div className="p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-200 text-xs">
-                  <div className="flex items-center justify-between text-[11px] font-bold text-slate-800 mb-1.5">
-                    <span>Cash Advance Breakdown:</span>
-                    <span className="text-emerald-800 font-mono">11.0% p.a. Benchmark</span>
+                <div className="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-transparent border border-emerald-500/30 backdrop-blur-md text-xs shadow-xs">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-slate-800 mb-2">
+                    <span className="flex items-center gap-1.5 text-slate-900">
+                      <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                      Cash Advance Breakdown:
+                    </span>
+                    <span className="text-emerald-800 font-mono bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/20">11.0% p.a. Benchmark</span>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 font-mono text-center">
-                    <div className="bg-white/90 p-1.5 rounded-lg border border-emerald-200/60">
-                      <div className="text-[9px] text-slate-500 font-sans uppercase font-medium">84% Upfront Cash</div>
-                      <div className="font-bold text-emerald-800 text-xs mt-0.5">₹{formatINR(Math.round(uploadForm.totalAmount * 0.84))}</div>
+                  <div className="grid grid-cols-3 gap-2.5 font-mono text-center">
+                    <div className="bg-white/80 backdrop-blur-xs p-2 rounded-xl border border-white/90 shadow-2xs">
+                      <div className="text-[9px] text-slate-500 font-sans uppercase font-bold">84% Upfront Cash</div>
+                      <div className="font-bold text-emerald-800 text-xs sm:text-sm mt-0.5">₹{formatINR(Math.round(uploadForm.totalAmount * 0.84))}</div>
                     </div>
-                    <div className="bg-white/90 p-1.5 rounded-lg border border-emerald-200/60">
-                      <div className="text-[9px] text-slate-500 font-sans uppercase font-medium">15% Escrow Reserve</div>
-                      <div className="font-bold text-amber-800 text-xs mt-0.5">₹{formatINR(Math.round(uploadForm.totalAmount * 0.15))}</div>
+                    <div className="bg-white/80 backdrop-blur-xs p-2 rounded-xl border border-white/90 shadow-2xs">
+                      <div className="text-[9px] text-slate-500 font-sans uppercase font-bold">15% Escrow Reserve</div>
+                      <div className="font-bold text-amber-800 text-xs sm:text-sm mt-0.5">₹{formatINR(Math.round(uploadForm.totalAmount * 0.15))}</div>
                     </div>
-                    <div className="bg-white/90 p-1.5 rounded-lg border border-emerald-200/60">
-                      <div className="text-[9px] text-slate-500 font-sans uppercase font-medium">1% Platform Fee</div>
-                      <div className="font-bold text-slate-700 text-xs mt-0.5">₹{formatINR(Math.round(uploadForm.totalAmount * 0.01))}</div>
+                    <div className="bg-white/80 backdrop-blur-xs p-2 rounded-xl border border-white/90 shadow-2xs">
+                      <div className="text-[9px] text-slate-500 font-sans uppercase font-bold">1% Platform Fee</div>
+                      <div className="font-bold text-slate-700 text-xs sm:text-sm mt-0.5">₹{formatINR(Math.round(uploadForm.totalAmount * 0.01))}</div>
                     </div>
                   </div>
                 </div>
 
                 {/* 8. RECOURSE DISCLAIMER */}
-                <div className="flex items-start gap-2 p-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-500 text-[10px]">
+                <div className="flex items-start gap-2 p-2.5 rounded-xl bg-white/50 backdrop-blur-xs border border-white/80 text-slate-500 text-[10px]">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
                   <div>
                     <strong className="text-slate-700">With-Recourse Factoring: </strong>
@@ -1598,21 +1620,21 @@ export default function DashboardClient({
               </div>
 
               {/* Pinned Footer Actions */}
-              <div className="p-3.5 sm:p-4 border-t border-slate-100 flex items-center justify-between shrink-0 bg-slate-50">
+              <div className="p-4 border-t border-white/60 flex items-center justify-between shrink-0 bg-white/70 backdrop-blur-xl">
                 <button
                   type="button"
                   onClick={() => setIsUploadOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-white/80 border border-white/90 hover:bg-white text-slate-700 text-xs font-bold shadow-2xs transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loadingAction === "upload" || isUploadAmountExceeded || !uploadForm.totalAmount || uploadForm.totalAmount <= 0}
-                  className={`px-5 py-2.5 rounded-xl text-white text-xs font-bold shadow-xs transition flex items-center gap-2 ${
+                  className={`px-5 py-2.5 rounded-xl text-white text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
                     isUploadAmountExceeded || !uploadForm.totalAmount || uploadForm.totalAmount <= 0
-                      ? "bg-slate-300 text-slate-500 cursor-not-allowed"
-                      : "bg-emerald-600 hover:bg-emerald-700 hover:shadow cursor-pointer"
+                      ? "bg-slate-300 text-slate-500 cursor-not-allowed shadow-none"
+                      : "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-md shadow-emerald-600/25 hover:shadow-lg hover:shadow-emerald-600/35"
                   }`}
                 >
                   {loadingAction === "upload" ? (

@@ -586,16 +586,16 @@ export default function AdminDashboardClient({
   return (
     <div className="min-h-screen bg-transparent text-slate-900 flex flex-col font-sans">
       {/* Top Admin Bar */}
-      <header className="border-b border-white/60 bg-white/70 backdrop-blur-xl sticky top-0 z-50 shadow-xs shadow-slate-900/5">
+      <header className="glass-3d-header sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between">
           <div className="flex items-center space-x-3.5">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-slate-900 via-indigo-950 to-indigo-800 flex items-center justify-center font-black text-white text-base tracking-tight shadow-md shadow-indigo-950/20 ring-1 ring-white/30">
+            <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-slate-900 via-indigo-950 to-indigo-800 flex items-center justify-center font-black text-white text-base tracking-tight shadow-md shadow-indigo-950/20 ring-1 ring-white/40">
               AD
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-base font-bold tracking-tight text-slate-900">UdharCo Platform Admin</h1>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50/80 text-indigo-700 border border-indigo-200/70 backdrop-blur-xs">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/15 text-indigo-800 border border-indigo-500/25 backdrop-blur-md shadow-2xs">
                   ROOT OPERATIONS
                 </span>
               </div>
@@ -606,7 +606,7 @@ export default function AdminDashboardClient({
           </div>
 
           <div className="flex items-center space-x-4">
-            <div className="hidden md:flex items-center gap-3 text-xs font-semibold px-3 py-1.5 rounded-xl bg-white/60 backdrop-blur-md border border-white/80 shadow-2xs">
+            <div className="hidden md:flex items-center gap-3 text-xs font-semibold px-3 py-1.5 rounded-xl bg-white/70 backdrop-blur-md border border-white/80 shadow-2xs">
               <span className="flex items-center gap-1.5 text-emerald-700">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 DB Live
@@ -617,13 +617,13 @@ export default function AdminDashboardClient({
               </span>
             </div>
 
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/60 backdrop-blur-md border border-white/80 text-xs font-mono text-slate-700 shadow-2xs">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/70 backdrop-blur-md border border-white/80 text-xs font-mono text-slate-700 shadow-2xs">
               <span>{adminEmail}</span>
             </div>
 
             <button
               onClick={handleLogout}
-              className="px-3 py-1.5 rounded-xl bg-red-50/80 hover:bg-red-100/90 backdrop-blur-md text-red-700 border border-red-200/70 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs"
+              className="px-3.5 py-1.5 rounded-xl bg-red-500/15 hover:bg-red-500/25 backdrop-blur-md text-red-800 border border-red-500/30 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer shadow-2xs"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Logout</span>
@@ -633,7 +633,7 @@ export default function AdminDashboardClient({
       </header>
 
       {/* Navigation Tabs Bar */}
-      <div className="bg-white/65 backdrop-blur-xl border-b border-white/60 relative z-10 px-6 overflow-x-auto shadow-2xs">
+      <div className="bg-white/50 backdrop-blur-md border-b border-white/60 relative z-10 px-6 overflow-x-auto shadow-2xs">
         <div className="max-w-7xl mx-auto flex items-center space-x-1.5 py-2.5">
           {[
             { id: "OVERVIEW", label: "Dashboard Overview", icon: TrendingUp },
@@ -732,69 +732,69 @@ export default function AdminDashboardClient({
             ───────────────────────────────────────────────────────────────── */}
         {activeTab === "OVERVIEW" && (
           <div className="space-y-6">
-            {/* 1. KEY OPERATIONAL KPIS (4 Clean Glassmorphic Cards) */}
+            {/* 1. KEY OPERATIONAL KPIS (4 Clean 3D Glassmorphic Cards) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group ring-1 ring-black/[0.03]">
+              <div className="glass-3d-card p-6 rounded-3xl flex flex-col justify-between group">
                 <div>
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">
                     Factored Capital Volume
                   </span>
-                  <div suppressHydrationWarning className="text-2xl font-black text-slate-900 font-mono">
+                  <div suppressHydrationWarning className="text-2xl sm:text-3xl font-black text-slate-900 font-mono mt-1">
                     ₹{formatINR(totalFactored)}
                   </div>
                 </div>
-                <div className="mt-3 pt-2.5 border-t border-slate-100/70 flex items-center justify-between text-[11px]">
+                <div className="mt-4 pt-3 border-t border-white/60 flex items-center justify-between text-[11px]">
                   <span className="text-slate-500">{invoices.length} Invoices on Record</span>
-                  <span className="text-emerald-700 font-bold bg-emerald-50/80 px-1.5 py-0.5 rounded border border-emerald-200/60 backdrop-blur-xs">
+                  <span className="text-emerald-700 font-bold bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/25 backdrop-blur-xs">
                     {totalSettledCount} Settled
                   </span>
                 </div>
               </div>
 
-              <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group ring-1 ring-black/[0.03]">
+              <div className="glass-3d-card p-6 rounded-3xl flex flex-col justify-between group">
                 <div>
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">
                     Escrow Liquidity Pool
                   </span>
-                  <div suppressHydrationWarning className="text-2xl font-black text-indigo-700 font-mono">
+                  <div suppressHydrationWarning className="text-2xl sm:text-3xl font-black text-indigo-700 font-mono mt-1">
                     ₹{formatINR(totalEscrowPool)}
                   </div>
                 </div>
-                <div className="mt-3 pt-2.5 border-t border-slate-100/70 flex items-center justify-between text-[11px]">
+                <div className="mt-4 pt-3 border-t border-white/60 flex items-center justify-between text-[11px]">
                   <span className="text-slate-500">Regulated Virtual Escrow</span>
-                  <span className="text-indigo-700 font-bold bg-indigo-50/80 px-1.5 py-0.5 rounded border border-indigo-200/60 backdrop-blur-xs">
+                  <span className="text-indigo-700 font-bold bg-indigo-500/15 px-2 py-0.5 rounded-full border border-indigo-500/25 backdrop-blur-xs">
                     {investors.length} NBFCs Active
                   </span>
                 </div>
               </div>
 
-              <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group ring-1 ring-black/[0.03]">
+              <div className="glass-3d-card p-6 rounded-3xl flex flex-col justify-between group">
                 <div>
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">
                     Platform Revenue Swept
                   </span>
-                  <div suppressHydrationWarning className="text-2xl font-black text-emerald-700 font-mono">
+                  <div suppressHydrationWarning className="text-2xl sm:text-3xl font-black text-emerald-700 font-mono mt-1">
                     ₹{formatINR(platformRevenue)}
                   </div>
                 </div>
-                <div className="mt-3 pt-2.5 border-t border-slate-100/70 flex items-center justify-between text-[11px]">
+                <div className="mt-4 pt-3 border-t border-white/60 flex items-center justify-between text-[11px]">
                   <span className="text-slate-500">1.0% Commission</span>
                   <span className="text-emerald-700 font-semibold font-mono">T+0 Clearing</span>
                 </div>
               </div>
 
-              <div className="p-5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 hover:border-white shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group ring-1 ring-black/[0.03]">
+              <div className="glass-3d-card p-6 rounded-3xl flex flex-col justify-between group">
                 <div>
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">
                     Risk & Recourse Status
                   </span>
-                  <div className={`text-2xl font-black font-mono ${disputedInvoices.length > 0 ? "text-red-700" : "text-emerald-700"}`}>
+                  <div className={`text-2xl sm:text-3xl font-black font-mono mt-1 ${disputedInvoices.length > 0 ? "text-red-700" : "text-emerald-700"}`}>
                     {disputedInvoices.length > 0 ? `${disputedInvoices.length} Disputes` : "Zero Defaults"}
                   </div>
                 </div>
-                <div className="mt-3 pt-2.5 border-t border-slate-100/70 flex items-center justify-between text-[11px]">
+                <div className="mt-4 pt-3 border-t border-white/60 flex items-center justify-between text-[11px]">
                   <span className="text-slate-500">NPCI e-NACH Clawback</span>
-                  <span className="text-emerald-700 font-bold bg-emerald-50/80 px-1.5 py-0.5 rounded border border-emerald-200/60 backdrop-blur-xs">
+                  <span className="text-emerald-700 font-bold bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/25 backdrop-blur-xs">
                     FAIL-CLOSED
                   </span>
                 </div>
@@ -803,17 +803,17 @@ export default function AdminDashboardClient({
 
             {/* 2. URGENT ACTION QUEUE: Pending Corporates Awaiting Limit Sanction */}
             {anchors.filter((a) => a.status === "PENDING").length > 0 && (
-              <div className="p-5 rounded-2xl bg-amber-50/75 backdrop-blur-xl border border-amber-200/80 shadow-md shadow-amber-900/5 space-y-3 ring-1 ring-white/60">
+              <div className="glass-3d-card p-6 rounded-3xl border-amber-300/60 bg-amber-500/10 space-y-3.5 ring-1 ring-amber-400/20">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="h-8 w-8 rounded-xl bg-amber-200/80 text-amber-900 flex items-center justify-center font-bold shadow-2xs">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-xl bg-amber-500/20 text-amber-900 border border-amber-500/30 flex items-center justify-center font-bold shadow-xs">
                       <Clock className="w-4 h-4" />
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-amber-950">
                         Immediate Action Required: {anchors.filter((a) => a.status === "PENDING").length} Corporate Buyer(s) Awaiting Underwriting
                       </h4>
-                      <p className="text-xs text-amber-800">
+                      <p className="text-xs text-amber-900/80">
                         New enterprise buyers have been onboarded with ₹0 initial limit. Review GSTIN and sanction credit facility before investor bidding unlocks.
                       </p>
                     </div>
@@ -823,7 +823,7 @@ export default function AdminDashboardClient({
                       setAnchorFilter("PENDING");
                       setActiveTab("ANCHORS");
                     }}
-                    className="px-3 py-1.5 rounded-lg bg-amber-700 hover:bg-amber-800 text-white font-semibold text-xs shadow-xs transition cursor-pointer"
+                    className="px-3.5 py-1.5 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-semibold text-xs shadow-xs transition cursor-pointer"
                   >
                     View All Pending ({anchors.filter((a) => a.status === "PENDING").length})
                   </button>
@@ -836,12 +836,12 @@ export default function AdminDashboardClient({
                     .map((pendingAnchor) => (
                       <div
                         key={pendingAnchor.id}
-                        className="p-3.5 bg-white/80 hover:bg-white/95 backdrop-blur-md rounded-xl border border-amber-200/70 flex items-center justify-between shadow-2xs transition"
+                        className="p-4 bg-white/75 hover:bg-white/95 backdrop-blur-md rounded-2xl border border-white/80 flex items-center justify-between shadow-xs transition"
                       >
                         <div>
                           <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
                             <span>{pendingAnchor.corporateName}</span>
-                            <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-100/80 text-amber-900 font-mono font-semibold border border-amber-200/60">
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-900 font-mono font-bold border border-amber-500/20">
                               {pendingAnchor.gstin}
                             </span>
                           </div>
@@ -857,7 +857,7 @@ export default function AdminDashboardClient({
                               creditRating: "A",
                             });
                           }}
-                          className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition cursor-pointer shrink-0"
+                          className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-sm hover:shadow transition cursor-pointer shrink-0"
                         >
                           Review & Sanction Limit
                         </button>
@@ -871,7 +871,7 @@ export default function AdminDashboardClient({
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Left Column (2 Cols): Live Invoices & Marketplace Activity */}
               <div className="lg:col-span-2 space-y-4">
-                <div className="p-5 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/80 shadow-sm space-y-4 ring-1 ring-black/[0.02]">
+                <div className="glass-3d-card p-6 md:p-7 rounded-3xl space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">

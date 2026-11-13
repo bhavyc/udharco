@@ -28,12 +28,20 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body suppressHydrationWarning className="min-h-full flex flex-col relative bg-slate-50 selection:bg-emerald-500 selection:text-white">
-        {/* Ambient Glassmorphic Mesh Lighting (Subtle brand glow in Indigo, Emerald & Sky) */}
+      <body suppressHydrationWarning className="min-h-full flex flex-col relative bg-[#f4f7fb] selection:bg-emerald-500 selection:text-white">
+        {/* Dynamic Vibrant Aurora Mesh Canvas (Apple macOS / iOS 3D Liquid Glass Engine) */}
         <div aria-hidden="true" className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-          <div className="absolute -top-32 -left-20 w-[450px] h-[450px] rounded-full bg-gradient-to-br from-indigo-500/12 via-indigo-400/8 to-transparent blur-3xl" />
-          <div className="absolute top-24 -right-20 w-[480px] h-[480px] rounded-full bg-gradient-to-bl from-emerald-500/12 via-teal-400/8 to-transparent blur-3xl" />
-          <div className="absolute bottom-10 left-1/3 w-[550px] h-[380px] rounded-full bg-gradient-to-tr from-sky-500/10 via-indigo-400/8 to-transparent blur-3xl" />
+          {/* Top-Left Indigo-Violet Aurora Glow */}
+          <div className="aurora-blob-1 absolute -top-40 -left-20 w-[720px] h-[720px] rounded-full bg-gradient-to-br from-indigo-600/28 via-violet-500/22 to-pink-500/14 blur-[130px]" />
+          
+          {/* Top-Right Emerald-Teal Aurora Glow */}
+          <div className="aurora-blob-2 absolute -top-20 -right-24 w-[680px] h-[680px] rounded-full bg-gradient-to-bl from-emerald-400/30 via-teal-400/24 to-cyan-400/18 blur-[130px]" />
+          
+          {/* Bottom-Center Electric Sky-Sapphire Aurora Glow */}
+          <div className="aurora-blob-3 absolute bottom-0 left-1/4 w-[850px] h-[600px] rounded-full bg-gradient-to-tr from-cyan-400/25 via-blue-500/22 to-indigo-600/18 blur-[140px]" />
+          
+          {/* Warm Coral / Amber Core Flare */}
+          <div className="aurora-blob-1 absolute top-1/3 left-1/2 -translate-x-1/2 w-[520px] h-[520px] rounded-full bg-gradient-to-r from-amber-400/16 via-rose-400/14 to-violet-400/10 blur-[130px]" />
         </div>
         {children}
       </body>

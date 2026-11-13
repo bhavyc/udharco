@@ -66,10 +66,10 @@ export default function AdminLoginPage() {
   return (
     <div className="min-h-screen bg-transparent text-slate-900 flex flex-col justify-between selection:bg-indigo-500 selection:text-white font-sans">
       {/* Header */}
-      <header className="border-b border-white/60 bg-white/70 backdrop-blur-xl sticky top-0 z-10 shadow-xs shadow-slate-900/5">
+      <header className="glass-3d-header sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-slate-900 to-indigo-700 flex items-center justify-center font-black text-white text-lg tracking-tight shadow-md">
+          <div className="flex items-center space-x-3.5">
+            <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-slate-900 to-indigo-700 flex items-center justify-center font-black text-white text-lg tracking-tight shadow-md ring-1 ring-white/40">
               UD
             </div>
             <div>
@@ -77,7 +77,7 @@ export default function AdminLoginPage() {
                 <h1 className="text-xl font-bold tracking-tight text-slate-900">
                   UdharCo Admin
                 </h1>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-indigo-50/80 backdrop-blur-xs text-indigo-700 border border-indigo-200/80 shadow-2xs">
+                <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-500/15 text-indigo-800 border border-indigo-500/30 backdrop-blur-md shadow-2xs">
                   Operations Console
                 </span>
               </div>
@@ -89,7 +89,7 @@ export default function AdminLoginPage() {
 
           <Link
             href="/login"
-            className="text-xs font-semibold text-slate-600 hover:text-indigo-600 border border-slate-200/80 hover:border-indigo-300 bg-white/80 backdrop-blur-xs px-3 py-1.5 rounded-xl shadow-2xs transition"
+            className="text-xs font-semibold text-slate-700 hover:text-indigo-600 border border-white/80 hover:border-indigo-300 bg-white/70 hover:bg-white backdrop-blur-md px-3.5 py-2 rounded-xl shadow-xs transition"
           >
             ← Back to User Login
           </Link>
@@ -98,13 +98,13 @@ export default function AdminLoginPage() {
 
       {/* Login Card */}
       <main className="flex-1 max-w-md w-full mx-auto px-6 py-10 flex flex-col justify-center">
-        <div className="rounded-3xl border border-white/80 bg-white/80 backdrop-blur-2xl shadow-2xl shadow-slate-900/5 p-8 ring-1 ring-black/[0.03]">
+        <div className="glass-3d-card p-8 sm:p-9 rounded-3xl shadow-2xl ring-1 ring-white/80">
           <div className="text-center mb-6">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50/80 backdrop-blur-xs text-amber-800 border border-amber-200/80 mb-3 shadow-2xs">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/15 backdrop-blur-md text-amber-900 border border-amber-500/30 mb-3 shadow-2xs">
               <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
               Restricted Operations Desk
             </span>
-            <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">
               Admin Authentication
             </h2>
             <p className="text-xs text-slate-500 mt-1">

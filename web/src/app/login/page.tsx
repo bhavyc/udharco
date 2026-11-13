@@ -221,10 +221,10 @@ function LoginContent() {
   return (
     <div className="min-h-screen bg-transparent text-slate-900 flex flex-col justify-between selection:bg-indigo-500 selection:text-white font-sans">
       {/* Header */}
-      <header className="border-b border-white/60 bg-white/70 backdrop-blur-xl sticky top-0 z-10 shadow-xs shadow-slate-900/5">
+      <header className="glass-3d-header sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-emerald-500 flex items-center justify-center shadow-md font-black text-white text-lg tracking-tight">
+          <div className="flex items-center space-x-3.5">
+            <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-emerald-500 flex items-center justify-center shadow-md shadow-indigo-500/20 font-black text-white text-lg tracking-tight ring-1 ring-white/50">
               UD
             </div>
             <div>
@@ -232,8 +232,8 @@ function LoginContent() {
                 <h1 className="text-xl font-bold tracking-tight text-slate-900">
                   UdharCo
                 </h1>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50/80 backdrop-blur-xs text-emerald-700 border border-emerald-200/80 shadow-2xs">
-                  <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-800 border border-emerald-500/30 backdrop-blur-md shadow-2xs">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                   RBI Regulated Escrow
                 </span>
               </div>
@@ -246,7 +246,7 @@ function LoginContent() {
           <div className="flex items-center gap-2.5">
             <Link
               href="/signup"
-              className="text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50/80 hover:bg-emerald-100/90 backdrop-blur-xs border border-emerald-200/80 px-3 py-1.5 rounded-xl shadow-2xs transition flex items-center gap-1.5"
+              className="text-xs font-bold text-emerald-800 hover:text-emerald-900 bg-white/70 hover:bg-white backdrop-blur-md border border-white/80 px-3.5 py-2 rounded-xl shadow-xs transition flex items-center gap-1.5"
             >
               <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
               <span>Register New MSME</span>
@@ -254,7 +254,7 @@ function LoginContent() {
             </Link>
             <Link
               href="/admin/login"
-              className="text-xs font-medium text-slate-600 hover:text-indigo-600 border border-slate-200/80 hover:border-indigo-300 bg-white/80 backdrop-blur-xs px-3 py-1.5 rounded-xl shadow-2xs transition"
+              className="text-xs font-semibold text-slate-700 hover:text-indigo-600 border border-white/80 hover:border-indigo-300 bg-white/70 hover:bg-white backdrop-blur-md px-3.5 py-2 rounded-xl shadow-xs transition"
             >
               Admin Portal →
             </Link>
@@ -264,16 +264,16 @@ function LoginContent() {
 
       {/* Main Login Card */}
       <main className="flex-1 max-w-xl w-full mx-auto px-4 sm:px-6 py-10 flex flex-col justify-center">
-        <div className="rounded-3xl border border-white/80 bg-white/80 backdrop-blur-2xl shadow-2xl shadow-slate-900/5 p-6 sm:p-8 ring-1 ring-black/[0.03]">
-          <div className="text-center mb-6">
-            <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+        <div className="glass-3d-card p-7 sm:p-9 rounded-3xl shadow-2xl ring-1 ring-white/80 space-y-6">
+          <div className="text-center">
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">
               {inviteToken && inviteDetails?.anchor
                 ? "Activate Corporate Treasury Portal"
                 : inviteToken && inviteDetails?.investor
                 ? "Activate Institutional Funder Portal"
                 : "Sign In to Your Workspace"}
             </h2>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-slate-500 mt-1.5 max-w-sm mx-auto leading-relaxed">
               {inviteToken && (inviteDetails?.anchor || inviteDetails?.investor)
                 ? "Set your corporate master password to access sanctioned factoring facilities."
                 : "Select your role to access your personalized invoice and escrow portal."}
@@ -281,13 +281,13 @@ function LoginContent() {
           </div>
 
           {/* Role Tabs */}
-          <div className="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-100/70 backdrop-blur-xs border border-slate-200/60 rounded-2xl mb-6 shadow-inner">
+          <div className="grid grid-cols-3 gap-1.5 p-1.5 bg-white/50 backdrop-blur-md border border-white/80 rounded-2xl shadow-inner">
             <button
               type="button"
               onClick={() => handleTabSwitch("SELLER")}
-              className={`py-2 px-2 rounded-xl text-xs font-semibold flex flex-col items-center gap-1 transition ${
+              className={`py-2.5 px-2 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition ${
                 activeTab === "SELLER"
-                  ? "bg-white/95 text-emerald-700 shadow-sm border border-emerald-200/60"
+                  ? "bg-white text-emerald-700 shadow-sm border border-emerald-200/60"
                   : "text-slate-600 hover:text-slate-900 hover:bg-white/40"
               }`}
             >
@@ -297,9 +297,9 @@ function LoginContent() {
             <button
               type="button"
               onClick={() => handleTabSwitch("ANCHOR")}
-              className={`py-2 px-2 rounded-xl text-xs font-semibold flex flex-col items-center gap-1 transition ${
+              className={`py-2.5 px-2 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition ${
                 activeTab === "ANCHOR"
-                  ? "bg-white/95 text-sky-700 shadow-sm border border-sky-200/60"
+                  ? "bg-white text-sky-700 shadow-sm border border-sky-200/60"
                   : "text-slate-600 hover:text-slate-900 hover:bg-white/40"
               }`}
             >
@@ -309,9 +309,9 @@ function LoginContent() {
             <button
               type="button"
               onClick={() => handleTabSwitch("INVESTOR")}
-              className={`py-2 px-2 rounded-xl text-xs font-semibold flex flex-col items-center gap-1 transition ${
+              className={`py-2.5 px-2 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition ${
                 activeTab === "INVESTOR"
-                  ? "bg-white/95 text-purple-700 shadow-sm border border-purple-200/60"
+                  ? "bg-white text-purple-700 shadow-sm border border-purple-200/60"
                   : "text-slate-600 hover:text-slate-900 hover:bg-white/40"
               }`}
             >
@@ -322,14 +322,14 @@ function LoginContent() {
 
           {/* Alerts */}
           {errorMsg && (
-            <div className="mb-5 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-start gap-2.5">
+            <div className="p-3.5 rounded-2xl bg-red-500/15 backdrop-blur-md border border-red-500/30 text-red-900 text-xs flex items-start gap-2.5 shadow-2xs mb-5">
               <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-red-600" />
               <span>{errorMsg}</span>
             </div>
           )}
 
           {successMsg && (
-            <div className="mb-5 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-start gap-2.5">
+            <div className="p-3.5 rounded-2xl bg-emerald-500/15 backdrop-blur-md border border-emerald-500/30 text-emerald-900 text-xs flex items-start gap-2.5 shadow-2xs mb-5">
               <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0 text-emerald-600" />
               <span>{successMsg}</span>
             </div>
