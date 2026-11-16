@@ -277,13 +277,46 @@ export class SurepassService {
             bankName: d.bank_name,
             isPennyDropSuccess: true,
           };
+        } else {
+          // Live API returned failure or invalid account
+          const errMsg = data?.message || "Core banking IMPS penny-drop verification failed.";
+          if (process.env.NODE_ENV === "production") {
+            return {
+              success: false,
+              accountNumber: cleanAcc,
+              ifsc: cleanIfsc,
+              beneficiaryName: "",
+              isPennyDropSuccess: false,
+              error: errMsg,
+            };
+          }
         }
       } catch (err: any) {
-        console.warn("[Surepass] Live bank verification error, falling back to sandbox:", err.message);
+        console.warn("[Surepass] Live bank verification error:", err.message);
+        if (process.env.NODE_ENV === "production") {
+          return {
+            success: false,
+            accountNumber: cleanAcc,
+            ifsc: cleanIfsc,
+            beneficiaryName: "",
+            isPennyDropSuccess: false,
+            error: "Core banking penny-drop service temporarily unreachable. Please retry.",
+          };
+        }
       }
+    } else if (process.env.NODE_ENV === "production") {
+      // Security Gate: In production, missing credentials must fail-closed
+      return {
+        success: false,
+        accountNumber: cleanAcc,
+        ifsc: cleanIfsc,
+        beneficiaryName: "",
+        isPennyDropSuccess: false,
+        error: "Banking penny-drop verification service is not configured in production.",
+      };
     }
 
-    // Sandbox fallback: Check for simulated mismatch test accounts
+    // ── DEV / SANDBOX FALLBACK (STRICTLY NON-PRODUCTION) ──
     const isSimulatedMismatch =
       cleanAcc.includes("9999") ||
       cleanAcc.includes("8888") ||
