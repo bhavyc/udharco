@@ -257,7 +257,7 @@ function SellerSignupContent() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Penny drop bank verification failed.");
+        throw new Error(data.message || data.error || "Penny drop bank verification failed.");
       }
       setBankDetails(data);
       setBankVerified(true);
@@ -1000,8 +1000,14 @@ function SellerSignupContent() {
                     <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-2">
                       <div className="flex justify-between items-center text-slate-600">
                         <span>Beneficiary Name Match:</span>
-                        <span className="text-emerald-700 font-bold font-mono px-2 py-0.5 rounded bg-emerald-100 border border-emerald-200">
-                          {bankDetails ? `${bankDetails.matchPercentage}% MATCH` : "100% MATCH"}
+                        <span className={`font-bold font-mono px-2 py-0.5 rounded text-xs border ${
+                          bankDetails
+                            ? bankDetails.matchPercentage >= 70
+                              ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+                              : "bg-red-100 text-red-800 border-red-200"
+                            : "bg-slate-100 text-slate-600 border-slate-200"
+                        }`}>
+                          {bankDetails ? `${bankDetails.matchPercentage}% MATCH` : "Pending Lookup (Min 70%)"}
                         </span>
                       </div>
                       <div className="flex justify-between text-slate-600">

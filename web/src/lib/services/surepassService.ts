@@ -237,9 +237,18 @@ export class SurepassService {
   }
 
   /**
-   * Verify Bank Account via Penny Drop IMPS
+   * Verify Bank Account via Penny Drop IMPS / NPCI
+   * 
+   * In Live Mode: Calls Surepass /api/v1/bank-verification/ and returns real registered core banking full_name.
+   * In Sandbox Fallback: 
+   *   - If accountNumber contains "9999", "MISMATCH", "PERSONAL", or "FRAUD" -> Simulates a third-party personal account ("Rahul Sharma").
+   *   - Otherwise -> Simulates official current account matching declared business entity.
    */
-  static async verifyBankAccount(accountNumber: string, ifsc: string): Promise<BankVerifyResult> {
+  static async verifyBankAccount(
+    accountNumber: string,
+    ifsc: string,
+    declaredLegalName?: string
+  ): Promise<BankVerifyResult> {
     const cleanAcc = accountNumber.trim();
     const cleanIfsc = ifsc.toUpperCase().trim();
 
@@ -274,12 +283,30 @@ export class SurepassService {
       }
     }
 
-    // Sandbox fallback
+    // Sandbox fallback: Check for simulated mismatch test accounts
+    const isSimulatedMismatch =
+      cleanAcc.includes("9999") ||
+      cleanAcc.includes("8888") ||
+      cleanAcc.toUpperCase().includes("MISMATCH") ||
+      cleanAcc.toUpperCase().includes("FRAUD") ||
+      cleanAcc.toUpperCase().includes("PERSONAL");
+
+    if (isSimulatedMismatch) {
+      return {
+        success: true,
+        accountNumber: cleanAcc,
+        ifsc: cleanIfsc,
+        beneficiaryName: "Rahul Sharma (Personal Savings Account)",
+        bankName: "HDFC Bank Ltd",
+        isPennyDropSuccess: true,
+      };
+    }
+
     return {
       success: true,
       accountNumber: cleanAcc,
       ifsc: cleanIfsc,
-      beneficiaryName: "Raju Steel & Pipes Pvt Ltd",
+      beneficiaryName: declaredLegalName || "Raju Steel & Pipes Pvt Ltd",
       bankName: "HDFC Bank Ltd",
       isPennyDropSuccess: true,
     };
