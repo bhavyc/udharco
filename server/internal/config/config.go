@@ -10,6 +10,7 @@ import (
 type Config struct {
 	Port                   string
 	DBPath                 string
+	DatabaseURL            string
 	SessionSecret          string
 	AdminSessionSecret     string
 	SurepassBaseURL        string
@@ -25,6 +26,10 @@ func LoadConfig() *Config {
 
 	port := getEnv("PORT", "8080")
 	dbPath := getEnv("DB_PATH", "./dev.db")
+	databaseURL := getEnv("DATABASE_URL", "")
+	if databaseURL == "" {
+		databaseURL = getEnv("POSTGRES_URL", "")
+	}
 	sessionSecret := getEnv("SESSION_SECRET", "super-secret-udharco-session-key-32chars!!")
 	adminSessionSecret := getEnv("ADMIN_SESSION_SECRET", "super-secret-udharco-admin-key-32chars!!")
 	surepassBaseURL := getEnv("SUREPASS_BASE_URL", "https://sandbox.surepass.app")
@@ -41,6 +46,7 @@ func LoadConfig() *Config {
 	return &Config{
 		Port:                   port,
 		DBPath:                 dbPath,
+		DatabaseURL:            databaseURL,
 		SessionSecret:          sessionSecret,
 		AdminSessionSecret:     adminSessionSecret,
 		SurepassBaseURL:        surepassBaseURL,

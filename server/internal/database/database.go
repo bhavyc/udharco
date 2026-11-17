@@ -2,10 +2,12 @@ package database
 
 import (
 	"log"
+	"strings"
 
 	"github.com/bhavyc/udharco/server/internal/config"
 	"github.com/bhavyc/udharco/server/internal/models"
 	"github.com/glebarez/sqlite"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -18,11 +20,23 @@ func InitDB(cfg *config.Config) *gorm.DB {
 		logLevel = logger.Info
 	}
 
-	db, err := gorm.Open(sqlite.Open(cfg.DBPath), &gorm.Config{
+	var dialector gorm.Dialector
+	dbType := "SQLite"
+
+	// Auto-detect PostgreSQL vs SQLite based on connection string
+	if strings.HasPrefix(cfg.DatabaseURL, "postgres://") || strings.HasPrefix(cfg.DatabaseURL, "postgresql://") {
+		dialector = postgres.Open(cfg.DatabaseURL)
+		dbType = "PostgreSQL"
+	} else {
+		dialector = sqlite.Open(cfg.DBPath)
+		dbType = "SQLite"
+	}
+
+	db, err := gorm.Open(dialector, &gorm.Config{
 		Logger: logger.Default.LogMode(logLevel),
 	})
 	if err != nil {
-		log.Fatalf("FATAL: Failed to connect to SQLite database at '%s': %v", cfg.DBPath, err)
+		log.Fatalf("FATAL: Failed to connect to %s database: %v", dbType, err)
 	}
 
 	// AutoMigrate all 12 models to ensure database tables are created & synchronized
@@ -45,6 +59,6 @@ func InitDB(cfg *config.Config) *gorm.DB {
 	}
 
 	DB = db
-	log.Printf("✅ SQLite database connected & schema auto-migrated successfully (path: %s)", cfg.DBPath)
+	log.Printf("✅ %s database connected & schema auto-migrated successfully", dbType)
 	return DB
 }
