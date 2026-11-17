@@ -4,7 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "npm run dev --prefix web",
+    "dev:server": "cd server && go run cmd/server/main.go",
+    "dev:all": "npx concurrently -n \"GO-BACKEND,NEXT-WEB\" -c \"cyan,magenta\" \"cd server && go run cmd/server/main.go\" \"npm run dev --prefix web\"",
     "build": "npm run build --prefix web",
-    "start": "npm run start --prefix web"
+    "start": "npm run start --prefix web",
+    "seed:go": "cd server && go run cmd/seed/main.go",
+    "test:concurrency": "cd server && go run cmd/test_concurrency/main.go"
   }
 }

@@ -65,6 +65,17 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Golang
+bin/
+*/bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
 /src/generated/prisma
 web/src/generated/prisma
 
