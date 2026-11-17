@@ -966,9 +966,23 @@ function SellerSignupContent() {
                   </div>
 
                   <div className="space-y-5">
+                    {/* Mandatory Company Current Account Guidance Banner */}
+                    <div className="p-3.5 rounded-xl bg-amber-50/90 border border-amber-200 text-xs text-amber-900 flex items-start gap-2.5 shadow-2xs">
+                      <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="font-bold text-amber-950">Company Current Account Mandatory:</strong>
+                        <span className="text-amber-900 ml-1">
+                          Sirf apni registered company (<strong>{legalName || "Registered Business"}</strong>) ka official business current account hi enter karein. Promoter ya individual ka personal savings account name mismatch ke chalte reject ho jaayega.
+                        </span>
+                      </div>
+                    </div>
+
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                        Designated Current Account Number
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                        <span>Designated Business Current Account Number</span>
+                        <span className="text-[10px] text-amber-700 font-semibold bg-amber-100/80 px-2 py-0.5 rounded border border-amber-200">
+                          Current Account Only
+                        </span>
                       </label>
                       <input
                         type="text"
@@ -979,6 +993,10 @@ function SellerSignupContent() {
                         className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 text-slate-900 font-mono text-sm outline-none bg-white font-medium"
                         autoFocus
                       />
+                      <p className="text-[11px] text-slate-500 mt-1.5 flex items-center gap-1 font-medium">
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 inline shrink-0" />
+                        <span>Beneficiary name must match: <strong className="text-slate-800">{legalName || "your registered business"}</strong>. Personal savings accounts are not accepted.</span>
+                      </p>
                     </div>
 
                     <div>
