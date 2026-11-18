@@ -560,14 +560,18 @@ export default function DashboardClient({
       )}
 
       {/* 3-Step Visual Lifecycle Guide ("Kaam Kaise Karta Hai") */}
-      <section className="glass-3d-card rounded-3xl p-6 sm:p-7 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/60">
+      <section className="glass-3d-card rounded-3xl p-6 sm:p-7 space-y-5 relative overflow-hidden ring-1 ring-white/90">
+        <div className="absolute -top-12 -right-12 w-48 h-48 bg-gradient-to-bl from-emerald-400/20 via-teal-300/15 to-transparent rounded-full blur-2xl pointer-events-none" />
+        
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-white/60">
           <div>
-            <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-indigo-600" />
+            <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2.5 tracking-tight">
+              <span className="p-1.5 rounded-lg bg-gradient-to-tr from-indigo-600 to-violet-500 text-white shadow-xs">
+                <Sparkles className="w-3.5 h-3.5" />
+              </span>
               How UdharCo Works (Simple 3-Step Process)
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 mt-1 font-medium">
               MSMEs unlock up to 84% upfront capital once the corporate buyer confirms the invoice.
             </p>
           </div>
@@ -578,37 +582,37 @@ export default function DashboardClient({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-white/60 hover:bg-white/80 backdrop-blur-md border border-white/80 shadow-xs transition duration-300">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/25">
+          <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-md transition-all duration-300 group">
+            <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white font-black text-sm flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/30 group-hover:scale-105 transition-transform duration-300 ring-2 ring-emerald-400/20">
               1
             </div>
             <div>
               <div className="text-xs font-bold text-slate-900">Step 1: Upload Invoice</div>
-              <div className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+              <div className="text-[11px] text-slate-600 mt-0.5 leading-relaxed font-medium">
                 Vendor uploads invoice with E-Way Bill & IRN. System verifies against duplicate registry.
               </div>
             </div>
           </div>
 
-          <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-white/60 hover:bg-white/80 backdrop-blur-md border border-white/80 shadow-xs transition duration-300">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-sky-600 to-indigo-500 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-md shadow-sky-500/25">
+          <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-md transition-all duration-300 group">
+            <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 text-white font-black text-sm flex items-center justify-center shrink-0 shadow-lg shadow-sky-500/30 group-hover:scale-105 transition-transform duration-300 ring-2 ring-sky-400/20">
               2
             </div>
             <div>
               <div className="text-xs font-bold text-slate-900">Step 2: Buyer Approves</div>
-              <div className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+              <div className="text-[11px] text-slate-600 mt-0.5 leading-relaxed font-medium">
                 Corporate Anchor approves on portal, or SME buyer confirms with 30s WhatsApp OTP.
               </div>
             </div>
           </div>
 
-          <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-white/60 hover:bg-white/80 backdrop-blur-md border border-white/80 shadow-xs transition duration-300">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-md shadow-indigo-500/25">
+          <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-md transition-all duration-300 group">
+            <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 text-white font-black text-sm flex items-center justify-center shrink-0 shadow-lg shadow-purple-500/30 group-hover:scale-105 transition-transform duration-300 ring-2 ring-purple-400/20">
               3
             </div>
             <div>
               <div className="text-xs font-bold text-slate-900">Step 3: Instant Cash in Bank</div>
-              <div className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+              <div className="text-[11px] text-slate-600 mt-0.5 leading-relaxed font-medium">
                 Escrow deposits 84% cash immediately into seller's bank account. Remaining 15% released on buyer payment.
               </div>
             </div>
@@ -618,7 +622,7 @@ export default function DashboardClient({
 
       {/* Top Metrics Row */}
       {currentUser?.role === "ANCHOR" ? (
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
           {(() => {
             const currentAnchor = anchors.find((a) => a.id === currentUser.entityId) || anchors[0];
             const cap = currentAnchor?.maxExposureLimit || 0;
@@ -629,112 +633,132 @@ export default function DashboardClient({
 
             return (
               <>
-                <div className="glass-3d-card p-5 rounded-3xl">
+                <div className="glass-3d-card p-5 sm:p-6 rounded-3xl relative overflow-hidden group">
+                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-sky-500 to-cyan-400 opacity-80" />
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Approved Facility Line</span>
-                    <div className="p-2 rounded-xl bg-sky-500/15 text-sky-600 border border-sky-500/20 shadow-2xs">
+                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Approved Facility Line</span>
+                    <div className="p-2.5 rounded-2xl bg-sky-500/15 text-sky-700 border border-sky-400/30 shadow-xs shadow-sky-500/10">
                       <ShieldCheck className="w-4 h-4" />
                     </div>
                   </div>
-                  <div className="text-2xl font-black text-slate-900 mt-2 font-mono">
+                  <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-3 font-mono tracking-tight">
                     {cap >= 10000000 ? `₹${(cap / 10000000).toFixed(2)} Cr` : `₹${(cap / 100000).toFixed(1)} Lakh`}
                   </div>
-                  <div className="text-xs text-slate-500 mt-1">Sanctioned Treasury Cap</div>
+                  <div className="text-xs text-slate-500 mt-1 font-medium">Sanctioned Treasury Cap</div>
                 </div>
 
-                <div className="glass-3d-card p-5 rounded-3xl">
+                <div className="glass-3d-card p-5 sm:p-6 rounded-3xl relative overflow-hidden group">
+                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-amber-500 to-orange-400 opacity-80" />
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Facility Utilized</span>
-                    <div className="p-2 rounded-xl bg-amber-500/15 text-amber-600 border border-amber-500/20 shadow-2xs">
+                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Facility Utilized</span>
+                    <div className="p-2.5 rounded-2xl bg-amber-500/15 text-amber-700 border border-amber-400/30 shadow-xs shadow-amber-500/10">
                       <Layers className="w-4 h-4" />
                     </div>
                   </div>
-                  <div className="text-2xl font-black text-slate-900 mt-2 font-mono">
+                  <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-3 font-mono tracking-tight">
                     {used >= 10000000 ? `₹${(used / 10000000).toFixed(2)} Cr` : `₹${(used / 100000).toFixed(1)} Lakh`}
                   </div>
-                  <div className="text-xs text-amber-700 font-semibold mt-1">{utilPct}% Pool Utilization</div>
+                  <div className="text-xs text-amber-700 font-bold mt-1 flex items-center gap-1">
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                    {utilPct}% Pool Utilization
+                  </div>
                 </div>
 
-                <div className="glass-3d-card p-5 rounded-3xl">
+                <div className="glass-3d-card p-5 sm:p-6 rounded-3xl relative overflow-hidden group">
+                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-400 opacity-80" />
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Available Headroom</span>
-                    <div className="p-2 rounded-xl bg-emerald-500/15 text-emerald-600 border border-emerald-500/20 shadow-2xs">
+                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Available Headroom</span>
+                    <div className="p-2.5 rounded-2xl bg-emerald-500/15 text-emerald-700 border border-emerald-400/30 shadow-xs shadow-emerald-500/10">
                       <Wallet className="w-4 h-4" />
                     </div>
                   </div>
-                  <div className="text-2xl font-black text-emerald-700 mt-2 font-mono">
+                  <div className="text-2xl sm:text-3xl font-black text-emerald-700 mt-3 font-mono tracking-tight">
                     {headroom >= 10000000 ? `₹${(headroom / 10000000).toFixed(2)} Cr` : `₹${(headroom / 100000).toFixed(1)} Lakh`}
                   </div>
-                  <div className="text-xs text-emerald-600 font-medium mt-1">Open for Supplier Invoices</div>
+                  <div className="text-xs text-emerald-700 font-bold mt-1 flex items-center gap-1">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Open for Supplier Invoices
+                  </div>
                 </div>
 
-                <div className="glass-3d-card p-5 rounded-3xl">
+                <div className="glass-3d-card p-5 sm:p-6 rounded-3xl relative overflow-hidden group">
+                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-500 to-violet-400 opacity-80" />
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Awaiting Confirmation</span>
-                    <div className="p-2 rounded-xl bg-indigo-500/15 text-indigo-600 border border-indigo-500/20 shadow-2xs">
+                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Awaiting Confirmation</span>
+                    <div className="p-2.5 rounded-2xl bg-indigo-500/15 text-indigo-700 border border-indigo-400/30 shadow-xs shadow-indigo-500/10">
                       <FileText className="w-4 h-4" />
                     </div>
                   </div>
-                  <div className="text-2xl font-black text-indigo-700 mt-2 font-mono">
+                  <div className="text-2xl sm:text-3xl font-black text-indigo-700 mt-3 font-mono tracking-tight">
                     {pendingCount}
                   </div>
-                  <div className="text-xs text-slate-500 mt-1">Invoices Ready for Approval</div>
+                  <div className="text-xs text-slate-500 mt-1 font-medium">Invoices Ready for Approval</div>
                 </div>
               </>
             );
           })()}
         </section>
       ) : (
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="glass-3d-card p-5 rounded-3xl">
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          <div className="glass-3d-card p-5 sm:p-6 rounded-3xl relative overflow-hidden group">
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-400 opacity-80" />
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Active MSME Sellers</span>
-              <div className="p-2 rounded-xl bg-emerald-500/15 text-emerald-600 border border-emerald-500/20 shadow-2xs">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Active MSME Sellers</span>
+              <div className="p-2.5 rounded-2xl bg-emerald-500/15 text-emerald-700 border border-emerald-400/30 shadow-xs shadow-emerald-500/10">
                 <Building2 className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-2xl font-black text-slate-900 mt-2">{sellers.length}</div>
-            <div className="text-xs text-slate-500 mt-1">Verified Suppliers Onboarded</div>
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-3 font-mono tracking-tight">{sellers.length}</div>
+            <div className="text-xs text-slate-500 mt-1 font-medium flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+              Verified Suppliers Onboarded
+            </div>
           </div>
 
-          <div className="glass-3d-card p-5 rounded-3xl">
+          <div className="glass-3d-card p-5 sm:p-6 rounded-3xl relative overflow-hidden group">
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-sky-500 to-cyan-400 opacity-80" />
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Anchor Buyer Exposure</span>
-              <div className="p-2 rounded-xl bg-sky-500/15 text-sky-600 border border-sky-500/20 shadow-2xs">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Anchor Buyer Exposure</span>
+              <div className="p-2.5 rounded-2xl bg-sky-500/15 text-sky-700 border border-sky-400/30 shadow-xs shadow-sky-500/10">
                 <Layers className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-2xl font-black text-slate-900 mt-2 font-mono">
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-3 font-mono tracking-tight">
               ₹{(activeExposure / 100000).toFixed(1)} Lakhs
             </div>
-            <div className="text-xs text-slate-500 mt-1">Cap: ₹{(anchors[0]?.maxExposureLimit / 10000000).toFixed(1)} Cr</div>
+            <div className="text-xs text-slate-500 mt-1 font-medium">Cap: ₹{(anchors[0]?.maxExposureLimit / 10000000).toFixed(1)} Cr</div>
           </div>
 
-          <div className="glass-3d-card p-5 rounded-3xl">
+          <div className="glass-3d-card p-5 sm:p-6 rounded-3xl relative overflow-hidden group">
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-500 to-violet-400 opacity-80" />
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Investor Escrow Liquidity</span>
-              <div className="p-2 rounded-xl bg-indigo-500/15 text-indigo-600 border border-indigo-500/20 shadow-2xs">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Investor Escrow Liquidity</span>
+              <div className="p-2.5 rounded-2xl bg-indigo-500/15 text-indigo-700 border border-indigo-400/30 shadow-xs shadow-indigo-500/10">
                 <Wallet className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-2xl font-black text-indigo-700 mt-2 font-mono">
+            <div className="text-2xl sm:text-3xl font-black text-indigo-700 mt-3 font-mono tracking-tight">
               ₹{(totalEscrow / 10000000).toFixed(2)} Cr
             </div>
-            <div className="text-xs text-slate-500 mt-1">Available in Virtual Escrow</div>
+            <div className="text-xs text-indigo-700 font-bold mt-1 flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+              Available in Virtual Escrow
+            </div>
           </div>
 
-          <div className="glass-3d-card p-5 rounded-3xl">
+          <div className="glass-3d-card p-5 sm:p-6 rounded-3xl relative overflow-hidden group">
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-purple-500 to-pink-400 opacity-80" />
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Total Invoices Volume</span>
-              <div className="p-2 rounded-xl bg-purple-500/15 text-purple-600 border border-purple-500/20 shadow-2xs">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Invoices Volume</span>
+              <div className="p-2.5 rounded-2xl bg-purple-500/15 text-purple-700 border border-purple-400/30 shadow-xs shadow-purple-500/10">
                 <Coins className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-2xl font-black text-slate-900 mt-2 font-mono">
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-3 font-mono tracking-tight">
               ₹{(totalVolume / 100000).toFixed(1)} Lakhs
             </div>
-            <div className="text-xs text-emerald-600 mt-1 font-semibold flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5" /> 100% CERSAI Registered
+            <div className="text-xs text-emerald-700 mt-1 font-bold flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> 100% CERSAI Registered
             </div>
           </div>
         </section>
@@ -802,7 +826,7 @@ export default function DashboardClient({
         </div>
 
         {/* Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs custom-scrollbar">
           {["ALL", "UPLOADED", "VERIFIED", "LISTED", "FUNDED", "SETTLED"].map((f) => {
             const count = invoices.filter((i) => (f === "ALL" ? true : i.status === f)).length;
             const labelMap: Record<string, string> = {
@@ -817,22 +841,27 @@ export default function DashboardClient({
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-3 py-1.5 rounded-xl font-semibold transition cursor-pointer text-xs ${
+                className={`px-3.5 py-1.5 rounded-xl font-bold transition-all duration-200 cursor-pointer text-xs flex items-center gap-1.5 ${
                   filter === f
-                    ? "bg-slate-900 text-white shadow-xs"
-                    : "bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 shadow-2xs"
+                    ? "bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white shadow-md shadow-slate-900/20 ring-1 ring-white/20"
+                    : "bg-white/70 hover:bg-white/95 text-slate-600 hover:text-slate-900 border border-white/80 backdrop-blur-md shadow-2xs hover:shadow-xs"
                 }`}
               >
-                {labelMap[f] || f} ({count})
+                <span>{labelMap[f] || f}</span>
+                <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${
+                  filter === f ? "bg-white/20 text-white" : "bg-slate-200/70 text-slate-600 font-mono"
+                }`}>
+                  {count}
+                </span>
               </button>
             );
           })}
         </div>
 
         {/* Invoices Table */}
-        <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-xs">
+        <div className="overflow-x-auto rounded-2xl border border-white/80 bg-white/75 backdrop-blur-md shadow-xs ring-1 ring-black/5">
           <table className="w-full text-left text-sm text-slate-700">
-            <thead className="bg-slate-50 text-[11px] uppercase font-bold text-slate-700 border-b border-slate-200 tracking-wider">
+            <thead className="bg-white/90 backdrop-blur-md text-[11px] uppercase font-black text-slate-600 border-b border-slate-200/80 tracking-wider">
               <tr>
                 <th className="py-3 px-4">Invoice #</th>
                 <th className="py-3 px-4">Seller MSME</th>
@@ -1069,97 +1098,107 @@ export default function DashboardClient({
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {/* Player 1: MSME Seller */}
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3.5">
+              <div className="glass-3d-card p-5 sm:p-6 rounded-3xl space-y-4 relative overflow-hidden group ring-1 ring-white/90">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-amber-400 to-orange-500 opacity-80" />
                 <div className="flex items-center justify-between">
-                  <span className="px-2.5 py-1 rounded-md text-[11px] font-bold uppercase bg-amber-50 text-amber-800 border border-amber-200">
+                  <span className="px-3 py-1 rounded-full text-[11px] font-bold uppercase bg-amber-500/15 text-amber-800 border border-amber-400/30 backdrop-blur-md shadow-2xs">
                     1. MSME Vendor
                   </span>
-                  <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  <span className="text-xs font-bold text-emerald-800 bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-400/30 backdrop-blur-md">
                     {currentUser?.role === "SELLER" ? "Your Company" : "Verified Seller"}
                   </span>
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900">{activeSeller?.legalName || "Your Registered MSME"}</h3>
+                  <h3 className="text-base font-black text-slate-900 tracking-tight">{activeSeller?.legalName || "Your Registered MSME"}</h3>
                   <p className="text-xs text-slate-500 font-mono mt-0.5">GSTIN: {activeSeller?.gstin || "Pending"}</p>
                 </div>
-                <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2">
-                  <div className="flex justify-between">
-                    <span>Disbursement Rule:</span>
-                    <span className="font-bold text-emerald-700">84% upfront cash</span>
+                <div className="pt-3 border-t border-white/60 text-xs text-slate-600 space-y-2.5">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-slate-500">Disbursement Rule:</span>
+                    <span className="font-bold text-emerald-700 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">84% upfront cash</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Margin Release:</span>
-                    <span className="font-semibold text-amber-700">15% in Escrow</span>
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-slate-500">Margin Release:</span>
+                    <span className="font-bold text-amber-700">15% in Escrow</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Verified Account:</span>
-                    <span className="font-mono text-slate-700">{activeSeller?.bankAccountNo || "Verified"}</span>
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-slate-500">Verified Account:</span>
+                    <span className="font-mono text-slate-800 font-semibold">{activeSeller?.bankAccountNo || "Verified"}</span>
                   </div>
                 </div>
               </div>
 
               {/* Player 2: Corporate Anchor */}
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3.5">
+              <div className="glass-3d-card p-5 sm:p-6 rounded-3xl space-y-4 relative overflow-hidden group ring-1 ring-white/90">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-sky-400 to-indigo-500 opacity-80" />
                 <div className="flex items-center justify-between">
-                  <span className="px-2.5 py-1 rounded-md text-[11px] font-bold uppercase bg-sky-50 text-sky-800 border border-sky-200">
+                  <span className="px-3 py-1 rounded-full text-[11px] font-bold uppercase bg-sky-500/15 text-sky-800 border border-sky-400/30 backdrop-blur-md shadow-2xs">
                     2. Corporate Buyer
                   </span>
-                  <span className="text-xs font-semibold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">
+                  <span className="text-xs font-bold text-sky-800 bg-sky-500/15 px-2.5 py-0.5 rounded-full border border-sky-400/30 backdrop-blur-md">
                     Rating: {activeAnchor?.creditRating || "AAA"}
                   </span>
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900">{activeAnchor?.corporateName || "Approved Corporate Buyer"}</h3>
+                  <h3 className="text-base font-black text-slate-900 tracking-tight">{activeAnchor?.corporateName || "Approved Corporate Buyer"}</h3>
                   <p className="text-xs text-slate-500 font-mono mt-0.5">GSTIN: {activeAnchor?.gstin || "Verified"}</p>
                 </div>
-                <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2">
-                  <div className="flex justify-between">
-                    <span>Sanctioned Limit:</span>
-                    <span className="font-bold text-slate-900">
+                <div className="pt-3 border-t border-white/60 text-xs text-slate-600 space-y-2.5">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-slate-500">Sanctioned Limit:</span>
+                    <span className="font-black text-slate-900 font-mono">
                       ₹{activeAnchor ? (activeAnchor.maxExposureLimit / 10000000).toFixed(1) : "5.0"} Cr
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Active Exposure:</span>
-                    <span className="font-semibold text-sky-700">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-slate-500">Active Exposure:</span>
+                    <span className="font-bold text-sky-700 font-mono">
                       ₹{activeAnchor ? (activeAnchor.currentExposure / 100000).toFixed(1) : "0.0"} Lakhs
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Approval Mode:</span>
-                    <span className="text-slate-700">Official Portal / WhatsApp</span>
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-slate-500">Approval Mode:</span>
+                    <span className="text-slate-800 font-medium">Official Portal / WhatsApp</span>
                   </div>
                 </div>
               </div>
 
               {/* Player 3: NBFC Investor */}
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3.5">
+              <div className="glass-3d-card p-5 sm:p-6 rounded-3xl space-y-4 relative overflow-hidden group ring-1 ring-white/90">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-purple-400 to-indigo-600 opacity-80" />
                 <div className="flex items-center justify-between">
-                  <span className="px-2.5 py-1 rounded-md text-[11px] font-bold uppercase bg-purple-50 text-purple-800 border border-purple-200">
+                  <span className="px-3 py-1 rounded-full text-[11px] font-bold uppercase bg-purple-500/15 text-purple-800 border border-purple-400/30 backdrop-blur-md shadow-2xs">
                     3. NBFC / Bank
                   </span>
-                  <span className="text-xs font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
+                  <span className="text-xs font-bold text-purple-800 bg-purple-500/15 px-2.5 py-0.5 rounded-full border border-purple-400/30 backdrop-blur-md">
                     11% - 14% p.a.
                   </span>
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900">{activeInvestor?.entityName || "Institutional Escrow Funder"}</h3>
-                  <p className="text-xs text-slate-500 font-medium mt-0.5">ICICI Nodal Virtual Escrow</p>
+                  <h3 className="text-base font-black text-slate-900 tracking-tight">
+                    {activeInvestor?.entityName && !activeInvestor.entityName.includes("Bajaj")
+                      ? activeInvestor.entityName
+                      : "Regulated NBFC / Bank Partner"}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium mt-0.5 flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" />
+                    RBI-Compliant Nodal Escrow Account
+                  </p>
                 </div>
-                <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2">
-                  <div className="flex justify-between">
-                    <span>Escrow Balance:</span>
-                    <span className="font-bold text-indigo-700 font-mono">
+                <div className="pt-3 border-t border-white/60 text-xs text-slate-600 space-y-2.5">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-slate-500">Escrow Balance:</span>
+                    <span className="font-black text-indigo-700 font-mono text-sm">
                       ₹{activeInvestor ? (activeInvestor.escrowBalance / 10000000).toFixed(2) : "2.50"} Cr
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Seniority:</span>
-                    <span className="text-slate-800 font-bold">Priority #1 (Senior Debt)</span>
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-slate-500">Seniority:</span>
+                    <span className="text-slate-900 font-black">Priority #1 (Senior Debt)</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Payout Method:</span>
-                    <span className="text-slate-700">Direct Escrow Split</span>
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-slate-500">Payout Method:</span>
+                    <span className="text-slate-800 font-medium">Direct Escrow Split</span>
                   </div>
                 </div>
               </div>

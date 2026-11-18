@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
+  --background: #f6f8fc;
   --foreground: #0f172a;
 }
 
@@ -13,7 +13,7 @@
 }
 
 body {
-  background-color: #f8fafc;
+  background-color: #f6f8fc;
   color: #0f172a;
   font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   overflow-x: hidden;
@@ -21,72 +21,172 @@ body {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   INSTITUTIONAL FINTECH DESIGN SYSTEM (Stripe / Mercury Bank Style)
+   APPLE macOS / iOS 3D LIQUID GLASSMORPHISM ENGINE
    ───────────────────────────────────────────────────────────────────────────── */
 
-/* Primary Card Surface: Crisp Solid White, Sharp Slate-200 Border, Soft Multi-Layer Shadow */
-.fintech-card,
+/* Dynamic Floating Aurora Mesh Animations */
+@keyframes aurora-float-1 {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1) rotate(0deg);
+  }
+  33% {
+    transform: translate(45px, -35px) scale(1.12) rotate(4deg);
+  }
+  66% {
+    transform: translate(-25px, 25px) scale(0.95) rotate(-3deg);
+  }
+}
+
+@keyframes aurora-float-2 {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1) rotate(0deg);
+  }
+  33% {
+    transform: translate(-40px, 30px) scale(1.08) rotate(-4deg);
+  }
+  66% {
+    transform: translate(30px, -20px) scale(1.15) rotate(3deg);
+  }
+}
+
+@keyframes aurora-float-3 {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  50% {
+    transform: translate(35px, 35px) scale(1.1);
+  }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.aurora-blob-1 {
+  animation: aurora-float-1 22s ease-in-out infinite;
+  will-change: transform;
+}
+.aurora-blob-2 {
+  animation: aurora-float-2 26s ease-in-out infinite;
+  will-change: transform;
+}
+.aurora-blob-3 {
+  animation: aurora-float-3 20s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   3D LIQUID GLASS SURFACES
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Primary 3D Liquid Glass Card */
 .glass-3d-card,
+.fintech-card,
 .glass-panel {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 1.25rem;
-  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 6px 16px -4px rgba(15, 23, 42, 0.03);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 1.5rem;
+  box-shadow: 
+    0 20px 45px -15px rgba(15, 23, 42, 0.08),
+    0 0 0 1px rgba(255, 255, 255, 0.7) inset,
+    0 1px 2px 0 rgba(255, 255, 255, 0.95) inset;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.fintech-card:hover,
-.glass-3d-card:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 4px 8px -1px rgba(15, 23, 42, 0.05), 0 14px 28px -4px rgba(15, 23, 42, 0.06);
-  transform: translateY(-1px);
+.glass-3d-card:hover,
+.fintech-card:hover {
+  background: rgba(255, 255, 255, 0.86);
+  border-color: rgba(255, 255, 255, 0.98);
+  box-shadow: 
+    0 25px 55px -12px rgba(15, 23, 42, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.85) inset,
+    0 2px 4px 0 rgba(255, 255, 255, 1) inset;
+  transform: translateY(-2px);
 }
 
-/* Sticky Header: Clean Crisp White with Subtle Border */
+/* Liquid Frosted Sticky Header */
 .glass-3d-header {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.03);
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 
+    0 4px 20px -2px rgba(15, 23, 42, 0.04),
+    0 1px 0 0 rgba(255, 255, 255, 0.95) inset;
 }
 
-/* Modals: Clean Elevated White Surface with Strong Backdrop Shadow */
+/* Floating Modal Surface */
 .glass-3d-modal,
 .glass-modal {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 1.25rem;
-  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(36px) saturate(210%);
+  -webkit-backdrop-filter: blur(36px) saturate(210%);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: 1.5rem;
+  box-shadow: 
+    0 35px 75px -15px rgba(15, 23, 42, 0.22),
+    0 0 0 1px rgba(255, 255, 255, 0.85) inset,
+    0 2px 4px 0 rgba(255, 255, 255, 1) inset;
 }
 
+/* Frosted Translucent Pills & Badges */
 .glass-3d-pill {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 
+    0 2px 8px -1px rgba(15, 23, 42, 0.04),
+    inset 0 1px 1px rgba(255, 255, 255, 0.95);
 }
 
-/* Primary Brand Accent Shadows */
-.shadow-indigo-subtle {
-  box-shadow: 0 4px 16px -2px rgba(79, 70, 229, 0.12);
+/* Subtle Glass Inset Sub-Containers */
+.glass-inset {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 
+    0 1px 3px rgba(15, 23, 42, 0.03),
+    inset 0 1px 1px rgba(255, 255, 255, 0.85);
 }
 
-.shadow-emerald-subtle {
-  box-shadow: 0 4px 16px -2px rgba(16, 185, 129, 0.14);
+/* Primary Brand Accent Glows */
+.glow-emerald {
+  box-shadow: 0 8px 24px -4px rgba(16, 185, 129, 0.25);
 }
 
-/* Clean Table Scrollbar */
+.glow-indigo {
+  box-shadow: 0 8px 24px -4px rgba(79, 70, 229, 0.25);
+}
+
+.glow-sky {
+  box-shadow: 0 8px 24px -4px rgba(14, 165, 233, 0.25);
+}
+
+.glow-purple {
+  box-shadow: 0 8px 24px -4px rgba(168, 85, 247, 0.25);
+}
+
+/* Refined Clean Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: rgba(241, 245, 249, 0.4);
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
+  background: rgba(203, 213, 225, 0.8);
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: rgba(148, 163, 184, 0.9);
 }

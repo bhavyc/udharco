@@ -71,20 +71,20 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-transparent text-slate-900 font-sans">
-      {/* Top Navigation Bar */}
-      <header className="glass-3d-header sticky top-0 z-50">
+      {/* Top Navigation Bar: Apple Liquid Glass */}
+      <header className="glass-3d-header sticky top-0 z-50 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-emerald-500 flex items-center justify-center shadow-md shadow-indigo-500/10 font-black text-white text-lg tracking-tight">
+          <div className="flex items-center space-x-3.5">
+            <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-emerald-500 flex items-center justify-center shadow-lg shadow-indigo-500/25 font-black text-white text-lg tracking-tight ring-1 ring-white/60">
               UD
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold tracking-tight text-slate-900">
+                <h1 className="text-xl font-black tracking-tight text-slate-900">
                   UdharCo
                 </h1>
-                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-800 border border-emerald-500/30 backdrop-blur-md shadow-2xs">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                   RBI Regulated Escrow
                 </span>
               </div>
@@ -95,31 +95,31 @@ export default async function Home() {
           </div>
 
           {/* User Badge & Authentication Controls */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3.5">
             <div className="text-right hidden sm:block">
               <span className="text-xs font-bold text-slate-900 block truncate max-w-[200px]">{entityName}</span>
               <span
-                className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md mt-0.5 ${
+                className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-full mt-0.5 border backdrop-blur-md shadow-2xs ${
                   session.role === "SELLER"
-                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                    ? "bg-emerald-500/15 text-emerald-800 border-emerald-500/30"
                     : session.role === "ANCHOR"
-                    ? "bg-sky-50 text-sky-700 border border-sky-200"
-                    : "bg-purple-50 text-purple-700 border border-purple-200"
+                    ? "bg-sky-500/15 text-sky-800 border-sky-500/30"
+                    : "bg-purple-500/15 text-purple-800 border-purple-500/30"
                 }`}
               >
                 {session.role === "SELLER" ? (
                   <>
-                    <User className="w-3 h-3" />
+                    <User className="w-3 h-3 text-emerald-600" />
                     MSME Seller Portal
                   </>
                 ) : session.role === "ANCHOR" ? (
                   <>
-                    <Building2 className="w-3 h-3" />
+                    <Building2 className="w-3 h-3 text-sky-600" />
                     Corporate Buyer Portal
                   </>
                 ) : (
                   <>
-                    <Wallet className="w-3 h-3" />
+                    <Wallet className="w-3 h-3 text-purple-600" />
                     Institutional Investor
                   </>
                 )}
@@ -129,7 +129,7 @@ export default async function Home() {
             <div className="flex items-center gap-2">
               <Link
                 href="/login"
-                className="px-2.5 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-xs font-medium text-slate-700 transition"
+                className="px-3 py-1.5 rounded-xl border border-white/80 bg-white/70 hover:bg-white/95 text-xs font-bold text-slate-700 backdrop-blur-md shadow-xs hover:shadow transition-all duration-200"
                 title="Switch demo account"
               >
                 Switch Account
@@ -137,9 +137,9 @@ export default async function Home() {
               <form action="/api/v1/auth/logout" method="POST">
                 <button
                   type="submit"
-                  className="px-3 py-1.5 rounded-lg border border-red-200 hover:border-red-300 bg-red-50 hover:bg-red-100 text-xs font-medium text-red-700 transition flex items-center gap-1 cursor-pointer"
+                  className="px-3 py-1.5 rounded-xl border border-red-200/80 bg-red-500/10 hover:bg-red-500/20 text-xs font-bold text-red-700 backdrop-blur-md shadow-xs hover:shadow transition-all duration-200 flex items-center gap-1.5 cursor-pointer"
                 >
-                  <LogOut className="w-3.5 h-3.5" />
+                  <LogOut className="w-3.5 h-3.5 text-red-600" />
                   <span className="hidden sm:inline">Sign Out</span>
                 </button>
               </form>
