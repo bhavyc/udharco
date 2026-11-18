@@ -30,30 +30,20 @@ export default function RootLayout({
     >
       <body
         suppressHydrationWarning
-        className="min-h-full flex flex-col relative bg-[#f4f7fb] text-slate-900 selection:bg-emerald-600 selection:text-white font-sans overflow-x-hidden"
+        className="min-h-full flex flex-col relative bg-[#f8fafc] text-slate-900 selection:bg-emerald-600 selection:text-white font-sans overflow-x-hidden"
       >
-        {/* Dynamic Vibrant Aurora Mesh Canvas (Apple macOS 3D Liquid Glass Engine) */}
-        <div aria-hidden="true" className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-          {/* Top-Left Indigo-Violet Aurora Glow */}
-          <div className="aurora-blob-1 absolute -top-36 -left-24 w-[740px] h-[740px] rounded-full bg-gradient-to-br from-indigo-500/25 via-violet-400/20 to-pink-500/12 blur-[130px]" />
-          
-          {/* Top-Right Emerald-Teal Aurora Glow */}
-          <div className="aurora-blob-2 absolute -top-20 -right-24 w-[700px] h-[700px] rounded-full bg-gradient-to-bl from-emerald-400/26 via-teal-300/22 to-cyan-400/16 blur-[130px]" />
-          
-          {/* Bottom-Center Electric Sky-Sapphire Glow */}
-          <div className="aurora-blob-3 absolute -bottom-20 left-1/4 w-[860px] h-[640px] rounded-full bg-gradient-to-tr from-cyan-400/22 via-blue-500/18 to-indigo-600/15 blur-[140px]" />
-          
-          {/* Center Amber / Coral Light Refraction Core */}
-          <div className="aurora-blob-1 absolute top-1/3 left-1/2 -translate-x-1/2 w-[540px] h-[540px] rounded-full bg-gradient-to-r from-amber-400/14 via-rose-300/12 to-violet-400/10 blur-[130px]" />
-          
-          {/* Fine Subtle Mesh Dot Texture Overlay */}
+        {/* Crisp Executive Architectural Grid (Spotless Light Theme, Zero Smudge/Blobs) */}
+        <div aria-hidden="true" className="fixed inset-0 pointer-events-none -z-10 bg-[#f8fafc]">
+          {/* Subtle Precision Grid Background */}
           <div 
-            className="absolute inset-0 opacity-[0.03] mix-blend-overlay"
+            className="absolute inset-0 opacity-[0.35]"
             style={{
-              backgroundImage: "radial-gradient(#0f172a 1px, transparent 1px)",
-              backgroundSize: "24px 24px"
+              backgroundImage: "linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px)",
+              backgroundSize: "48px 48px"
             }}
           />
+          {/* Executive Top Horizon Gradient (Soft Platinum to Slate) */}
+          <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-slate-100/90 via-slate-50/50 to-transparent pointer-events-none" />
         </div>
 
         {children}

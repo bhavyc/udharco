@@ -71,19 +71,19 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-transparent text-slate-900 font-sans">
-      {/* Top Navigation Bar: Apple Liquid Glass */}
-      <header className="glass-3d-header sticky top-0 z-50 transition-all duration-300">
+      {/* Top Navigation Bar: Executive Stripe / Mercury Institutional Header */}
+      <header className="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200/90 shadow-2xs transition-all duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
           <div className="flex items-center space-x-3.5">
-            <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-emerald-500 flex items-center justify-center shadow-lg shadow-indigo-500/25 font-black text-white text-lg tracking-tight ring-1 ring-white/60">
+            <div className="h-10 w-10 rounded-xl bg-slate-900 flex items-center justify-center font-black text-white text-base tracking-tight shadow-sm ring-1 ring-slate-800">
               UD
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-black tracking-tight text-slate-900">
+                <h1 className="text-lg sm:text-xl font-black tracking-tight text-slate-900">
                   UdharCo
                 </h1>
-                <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-800 border border-emerald-500/30 backdrop-blur-md shadow-2xs">
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                   RBI Regulated Escrow
                 </span>
@@ -95,16 +95,16 @@ export default async function Home() {
           </div>
 
           {/* User Badge & Authentication Controls */}
-          <div className="flex items-center space-x-3.5">
+          <div className="flex items-center space-x-3">
             <div className="text-right hidden sm:block">
-              <span className="text-xs font-bold text-slate-900 block truncate max-w-[200px]">{entityName}</span>
+              <span className="text-xs font-bold text-slate-900 block truncate max-w-[220px]">{entityName}</span>
               <span
-                className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-full mt-0.5 border backdrop-blur-md shadow-2xs ${
+                className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-md mt-0.5 border ${
                   session.role === "SELLER"
-                    ? "bg-emerald-500/15 text-emerald-800 border-emerald-500/30"
+                    ? "bg-emerald-50 text-emerald-800 border-emerald-200"
                     : session.role === "ANCHOR"
-                    ? "bg-sky-500/15 text-sky-800 border-sky-500/30"
-                    : "bg-purple-500/15 text-purple-800 border-purple-500/30"
+                    ? "bg-sky-50 text-sky-800 border-sky-200"
+                    : "bg-purple-50 text-purple-800 border-purple-200"
                 }`}
               >
                 {session.role === "SELLER" ? (
@@ -129,7 +129,7 @@ export default async function Home() {
             <div className="flex items-center gap-2">
               <Link
                 href="/login"
-                className="px-3 py-1.5 rounded-xl border border-white/80 bg-white/70 hover:bg-white/95 text-xs font-bold text-slate-700 backdrop-blur-md shadow-xs hover:shadow transition-all duration-200"
+                className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 shadow-2xs hover:shadow-xs transition"
                 title="Switch demo account"
               >
                 Switch Account
@@ -137,7 +137,7 @@ export default async function Home() {
               <form action="/api/v1/auth/logout" method="POST">
                 <button
                   type="submit"
-                  className="px-3 py-1.5 rounded-xl border border-red-200/80 bg-red-500/10 hover:bg-red-500/20 text-xs font-bold text-red-700 backdrop-blur-md shadow-xs hover:shadow transition-all duration-200 flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 py-1.5 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-xs font-semibold text-red-700 shadow-2xs hover:shadow-xs transition flex items-center gap-1.5 cursor-pointer"
                 >
                   <LogOut className="w-3.5 h-3.5 text-red-600" />
                   <span className="hidden sm:inline">Sign Out</span>

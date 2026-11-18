@@ -559,63 +559,97 @@ export default function DashboardClient({
         </div>
       )}
 
-      {/* 3-Step Visual Lifecycle Guide ("Kaam Kaise Karta Hai") */}
-      <section className="glass-3d-card rounded-3xl p-6 sm:p-7 space-y-5 relative overflow-hidden ring-1 ring-white/90">
-        <div className="absolute -top-12 -right-12 w-48 h-48 bg-gradient-to-bl from-emerald-400/20 via-teal-300/15 to-transparent rounded-full blur-2xl pointer-events-none" />
-        
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-white/60">
-          <div>
-            <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2.5 tracking-tight">
-              <span className="p-1.5 rounded-lg bg-gradient-to-tr from-indigo-600 to-violet-500 text-white shadow-xs">
-                <Sparkles className="w-3.5 h-3.5" />
+      {/* Executive Treasury Header & Quick Action Hub */}
+      <section className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 pb-5 border-b border-slate-100">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2.5">
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-slate-900 text-white shadow-xs">
+                Treasury Portal
               </span>
-              How UdharCo Works (Simple 3-Step Process)
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                RBI Regulated Escrow Network
+              </span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              B2B Working Capital & Factoring Exchange
             </h2>
-            <p className="text-xs text-slate-500 mt-1 font-medium">
-              MSMEs unlock up to 84% upfront capital once the corporate buyer confirms the invoice.
+            <p className="text-xs text-slate-500 font-medium max-w-2xl">
+              Unlock up to 84% immediate cash advances against corporate-approved receivables. Automated settlement waterfall powered by virtual escrow.
             </p>
           </div>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-800 border border-emerald-500/30 backdrop-blur-md shadow-2xs self-start sm:self-auto">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-            Up to 84% Advance Disbursal
-          </span>
+
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            {(!currentUser || currentUser.role === "SELLER") && (
+              <button
+                type="button"
+                onClick={() => setIsUploadOpen(true)}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-md shadow-slate-900/15 hover:shadow-lg transition-all duration-200 cursor-pointer ring-1 ring-white/10"
+              >
+                <PlusCircle className="w-4 h-4 text-emerald-400" />
+                <span>+ Upload Invoice for Advance</span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={refreshInvoices}
+              className="p-2.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-white text-slate-700 shadow-2xs transition cursor-pointer"
+              title="Refresh ledger data"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-md transition-all duration-300 group">
-            <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white font-black text-sm flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/30 group-hover:scale-105 transition-transform duration-300 ring-2 ring-emerald-400/20">
-              1
+        {/* 3-Stage Clearing Pipeline */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+          <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-2 hover:bg-white hover:border-emerald-300 transition-all duration-200 group">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-mono">Stage 01</span>
+              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-md">Instant Validation</span>
             </div>
-            <div>
-              <div className="text-xs font-bold text-slate-900">Step 1: Upload Invoice</div>
-              <div className="text-[11px] text-slate-600 mt-0.5 leading-relaxed font-medium">
-                Vendor uploads invoice with E-Way Bill & IRN. System verifies against duplicate registry.
+            <div className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <div className="h-6 w-6 rounded-lg bg-emerald-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                1
               </div>
+              <span>Upload GST Tax Invoice</span>
             </div>
+            <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
+              MSME uploads invoice. System auto-verifies NIC IRN, duplicate checks, and allocates unique Virtual Escrow Account (VAN).
+            </p>
           </div>
 
-          <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-md transition-all duration-300 group">
-            <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 text-white font-black text-sm flex items-center justify-center shrink-0 shadow-lg shadow-sky-500/30 group-hover:scale-105 transition-transform duration-300 ring-2 ring-sky-400/20">
-              2
+          <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-2 hover:bg-white hover:border-sky-300 transition-all duration-200 group">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-mono">Stage 02</span>
+              <span className="text-[10px] font-bold text-sky-700 bg-sky-100/70 px-2 py-0.5 rounded-md">Notice of Assignment</span>
             </div>
-            <div>
-              <div className="text-xs font-bold text-slate-900">Step 2: Buyer Approves</div>
-              <div className="text-[11px] text-slate-600 mt-0.5 leading-relaxed font-medium">
-                Corporate Anchor approves on portal, or SME buyer confirms with 30s WhatsApp OTP.
+            <div className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <div className="h-6 w-6 rounded-lg bg-sky-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                2
               </div>
+              <span>Corporate Delivery Acknowledgment</span>
             </div>
+            <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
+              Digital NOA issued to Corporate Treasury via WhatsApp/Email. Buyer confirms commercial delivery of goods or services.
+            </p>
           </div>
 
-          <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-md transition-all duration-300 group">
-            <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 text-white font-black text-sm flex items-center justify-center shrink-0 shadow-lg shadow-purple-500/30 group-hover:scale-105 transition-transform duration-300 ring-2 ring-purple-400/20">
-              3
+          <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-2 hover:bg-white hover:border-purple-300 transition-all duration-200 group">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-mono">Stage 03</span>
+              <span className="text-[10px] font-bold text-purple-700 bg-purple-100/70 px-2 py-0.5 rounded-md">Same-Day Payout</span>
             </div>
-            <div>
-              <div className="text-xs font-bold text-slate-900">Step 3: Instant Cash in Bank</div>
-              <div className="text-[11px] text-slate-600 mt-0.5 leading-relaxed font-medium">
-                Escrow deposits 84% cash immediately into seller's bank account. Remaining 15% released on buyer payment.
+            <div className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <div className="h-6 w-6 rounded-lg bg-purple-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                3
               </div>
+              <span>84% Advance in Bank + CERSAI</span>
             </div>
+            <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
+              Institutional Funder deposits 84% upfront liquidity into MSME Current Account. Security interest registered on central CERSAI registry.
+            </p>
           </div>
         </div>
       </section>
@@ -633,11 +667,10 @@ export default function DashboardClient({
 
             return (
               <>
-                <div className="glass-3d-card p-5 sm:p-6 rounded-3xl relative overflow-hidden group">
-                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-sky-500 to-cyan-400 opacity-80" />
+                <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl shadow-xs hover:shadow-md transition-all">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Approved Facility Line</span>
-                    <div className="p-2.5 rounded-2xl bg-sky-500/15 text-sky-700 border border-sky-400/30 shadow-xs shadow-sky-500/10">
+                    <div className="p-2.5 rounded-xl bg-sky-50 text-sky-700 border border-sky-200">
                       <ShieldCheck className="w-4 h-4" />
                     </div>
                   </div>
@@ -647,11 +680,10 @@ export default function DashboardClient({
                   <div className="text-xs text-slate-500 mt-1 font-medium">Sanctioned Treasury Cap</div>
                 </div>
 
-                <div className="glass-3d-card p-5 sm:p-6 rounded-3xl relative overflow-hidden group">
-                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-amber-500 to-orange-400 opacity-80" />
+                <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl shadow-xs hover:shadow-md transition-all">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Facility Utilized</span>
-                    <div className="p-2.5 rounded-2xl bg-amber-500/15 text-amber-700 border border-amber-400/30 shadow-xs shadow-amber-500/10">
+                    <div className="p-2.5 rounded-xl bg-amber-50 text-amber-700 border border-amber-200">
                       <Layers className="w-4 h-4" />
                     </div>
                   </div>
@@ -664,11 +696,10 @@ export default function DashboardClient({
                   </div>
                 </div>
 
-                <div className="glass-3d-card p-5 sm:p-6 rounded-3xl relative overflow-hidden group">
-                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-400 opacity-80" />
+                <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl shadow-xs hover:shadow-md transition-all">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Available Headroom</span>
-                    <div className="p-2.5 rounded-2xl bg-emerald-500/15 text-emerald-700 border border-emerald-400/30 shadow-xs shadow-emerald-500/10">
+                    <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200">
                       <Wallet className="w-4 h-4" />
                     </div>
                   </div>
@@ -681,11 +712,10 @@ export default function DashboardClient({
                   </div>
                 </div>
 
-                <div className="glass-3d-card p-5 sm:p-6 rounded-3xl relative overflow-hidden group">
-                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-500 to-violet-400 opacity-80" />
+                <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl shadow-xs hover:shadow-md transition-all">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Awaiting Confirmation</span>
-                    <div className="p-2.5 rounded-2xl bg-indigo-500/15 text-indigo-700 border border-indigo-400/30 shadow-xs shadow-indigo-500/10">
+                    <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200">
                       <FileText className="w-4 h-4" />
                     </div>
                   </div>
@@ -700,11 +730,10 @@ export default function DashboardClient({
         </section>
       ) : (
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-          <div className="glass-3d-card p-5 sm:p-6 rounded-3xl relative overflow-hidden group">
-            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-400 opacity-80" />
+          <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl shadow-xs hover:shadow-md transition-all">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Active MSME Sellers</span>
-              <div className="p-2.5 rounded-2xl bg-emerald-500/15 text-emerald-700 border border-emerald-400/30 shadow-xs shadow-emerald-500/10">
+              <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200">
                 <Building2 className="w-4 h-4" />
               </div>
             </div>
@@ -715,11 +744,10 @@ export default function DashboardClient({
             </div>
           </div>
 
-          <div className="glass-3d-card p-5 sm:p-6 rounded-3xl relative overflow-hidden group">
-            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-sky-500 to-cyan-400 opacity-80" />
+          <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl shadow-xs hover:shadow-md transition-all">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Anchor Buyer Exposure</span>
-              <div className="p-2.5 rounded-2xl bg-sky-500/15 text-sky-700 border border-sky-400/30 shadow-xs shadow-sky-500/10">
+              <div className="p-2.5 rounded-xl bg-sky-50 text-sky-700 border border-sky-200">
                 <Layers className="w-4 h-4" />
               </div>
             </div>
@@ -729,11 +757,10 @@ export default function DashboardClient({
             <div className="text-xs text-slate-500 mt-1 font-medium">Cap: ₹{(anchors[0]?.maxExposureLimit / 10000000).toFixed(1)} Cr</div>
           </div>
 
-          <div className="glass-3d-card p-5 sm:p-6 rounded-3xl relative overflow-hidden group">
-            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-500 to-violet-400 opacity-80" />
+          <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl shadow-xs hover:shadow-md transition-all">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Investor Escrow Liquidity</span>
-              <div className="p-2.5 rounded-2xl bg-indigo-500/15 text-indigo-700 border border-indigo-400/30 shadow-xs shadow-indigo-500/10">
+              <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200">
                 <Wallet className="w-4 h-4" />
               </div>
             </div>
@@ -746,11 +773,10 @@ export default function DashboardClient({
             </div>
           </div>
 
-          <div className="glass-3d-card p-5 sm:p-6 rounded-3xl relative overflow-hidden group">
-            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-purple-500 to-pink-400 opacity-80" />
+          <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl shadow-xs hover:shadow-md transition-all">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Invoices Volume</span>
-              <div className="p-2.5 rounded-2xl bg-purple-500/15 text-purple-700 border border-purple-400/30 shadow-xs shadow-purple-500/10">
+              <div className="p-2.5 rounded-xl bg-purple-50 text-purple-700 border border-purple-200">
                 <Coins className="w-4 h-4" />
               </div>
             </div>
@@ -1098,13 +1124,12 @@ export default function DashboardClient({
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {/* Player 1: MSME Seller */}
-              <div className="glass-3d-card p-5 sm:p-6 rounded-3xl space-y-4 relative overflow-hidden group ring-1 ring-white/90">
-                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-amber-400 to-orange-500 opacity-80" />
+              <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl space-y-4 shadow-xs hover:shadow-md transition-all">
                 <div className="flex items-center justify-between">
-                  <span className="px-3 py-1 rounded-full text-[11px] font-bold uppercase bg-amber-500/15 text-amber-800 border border-amber-400/30 backdrop-blur-md shadow-2xs">
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase bg-amber-50 text-amber-800 border border-amber-200">
                     1. MSME Vendor
                   </span>
-                  <span className="text-xs font-bold text-emerald-800 bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-400/30 backdrop-blur-md">
+                  <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
                     {currentUser?.role === "SELLER" ? "Your Company" : "Verified Seller"}
                   </span>
                 </div>
@@ -1112,10 +1137,10 @@ export default function DashboardClient({
                   <h3 className="text-base font-black text-slate-900 tracking-tight">{activeSeller?.legalName || "Your Registered MSME"}</h3>
                   <p className="text-xs text-slate-500 font-mono mt-0.5">GSTIN: {activeSeller?.gstin || "Pending"}</p>
                 </div>
-                <div className="pt-3 border-t border-white/60 text-xs text-slate-600 space-y-2.5">
+                <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2.5">
                   <div className="flex justify-between items-center">
                     <span className="font-medium text-slate-500">Disbursement Rule:</span>
-                    <span className="font-bold text-emerald-700 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">84% upfront cash</span>
+                    <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">84% upfront cash</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="font-medium text-slate-500">Margin Release:</span>
@@ -1129,13 +1154,12 @@ export default function DashboardClient({
               </div>
 
               {/* Player 2: Corporate Anchor */}
-              <div className="glass-3d-card p-5 sm:p-6 rounded-3xl space-y-4 relative overflow-hidden group ring-1 ring-white/90">
-                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-sky-400 to-indigo-500 opacity-80" />
+              <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl space-y-4 shadow-xs hover:shadow-md transition-all">
                 <div className="flex items-center justify-between">
-                  <span className="px-3 py-1 rounded-full text-[11px] font-bold uppercase bg-sky-500/15 text-sky-800 border border-sky-400/30 backdrop-blur-md shadow-2xs">
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase bg-sky-50 text-sky-800 border border-sky-200">
                     2. Corporate Buyer
                   </span>
-                  <span className="text-xs font-bold text-sky-800 bg-sky-500/15 px-2.5 py-0.5 rounded-full border border-sky-400/30 backdrop-blur-md">
+                  <span className="text-xs font-bold text-sky-800 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-200">
                     Rating: {activeAnchor?.creditRating || "AAA"}
                   </span>
                 </div>
@@ -1143,7 +1167,7 @@ export default function DashboardClient({
                   <h3 className="text-base font-black text-slate-900 tracking-tight">{activeAnchor?.corporateName || "Approved Corporate Buyer"}</h3>
                   <p className="text-xs text-slate-500 font-mono mt-0.5">GSTIN: {activeAnchor?.gstin || "Verified"}</p>
                 </div>
-                <div className="pt-3 border-t border-white/60 text-xs text-slate-600 space-y-2.5">
+                <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2.5">
                   <div className="flex justify-between items-center">
                     <span className="font-medium text-slate-500">Sanctioned Limit:</span>
                     <span className="font-black text-slate-900 font-mono">
@@ -1164,13 +1188,12 @@ export default function DashboardClient({
               </div>
 
               {/* Player 3: NBFC Investor */}
-              <div className="glass-3d-card p-5 sm:p-6 rounded-3xl space-y-4 relative overflow-hidden group ring-1 ring-white/90">
-                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-purple-400 to-indigo-600 opacity-80" />
+              <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl space-y-4 shadow-xs hover:shadow-md transition-all">
                 <div className="flex items-center justify-between">
-                  <span className="px-3 py-1 rounded-full text-[11px] font-bold uppercase bg-purple-500/15 text-purple-800 border border-purple-400/30 backdrop-blur-md shadow-2xs">
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase bg-purple-50 text-purple-800 border border-purple-200">
                     3. NBFC / Bank
                   </span>
-                  <span className="text-xs font-bold text-purple-800 bg-purple-500/15 px-2.5 py-0.5 rounded-full border border-purple-400/30 backdrop-blur-md">
+                  <span className="text-xs font-bold text-purple-800 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200">
                     11% - 14% p.a.
                   </span>
                 </div>
@@ -1185,7 +1208,7 @@ export default function DashboardClient({
                     RBI-Compliant Nodal Escrow Account
                   </p>
                 </div>
-                <div className="pt-3 border-t border-white/60 text-xs text-slate-600 space-y-2.5">
+                <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2.5">
                   <div className="flex justify-between items-center">
                     <span className="font-medium text-slate-500">Escrow Balance:</span>
                     <span className="font-black text-indigo-700 font-mono text-sm">
