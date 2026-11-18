@@ -2,17 +2,24 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth, requireAdminAuth } from "@/lib/auth";
 
-// GET /api/v1/entities/investors - List all funders/investors (Authenticated role view)
+// GET /api/v1/entities/investors - List funders/investors (Strict Multi-Tenant Role Isolation)
 export async function GET() {
   const auth = await requireAuth();
   if (auth instanceof NextResponse) return auth;
 
+  // Sellers and Corporate Anchors have no operational need or permission to view institutional escrow liquidity pools
+  if (auth.role !== "INVESTOR") {
+    return NextResponse.json({ success: true, count: 0, data: [] });
+  }
+
   try {
     const investors = await prisma.investor.findMany({
+      where: { id: auth.entityId },
       select: {
         id: true,
         entityName: true,
         investorType: true,
+        escrowBalance: true,
         createdAt: true,
       },
       orderBy: { createdAt: "desc" },

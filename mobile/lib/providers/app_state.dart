@@ -182,7 +182,7 @@ class AppState extends ChangeNotifier {
         _currentRole = expectedRole;
         _userIdentifier = email;
         _entityId = res['entityId'] ?? (expectedRole == UserRole.anchor ? 'anchor-1' : 'investor-1');
-        _entityName = expectedRole == UserRole.anchor ? 'Tata Motors Ltd' : 'Bajaj Finance NBFC';
+        _entityName = expectedRole == UserRole.anchor ? 'Tata Motors Ltd' : 'Institutional Capital Partner';
 
         await loadData();
         return true;

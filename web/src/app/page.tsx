@@ -16,49 +16,108 @@ export default async function Home() {
 
   // Load tenant-isolated data based on authenticated role & entityId
   let entityName = "Verified Participant";
-  let invoicesWhere = {};
+  let sellers: any[] = [];
+  let anchors: any[] = [];
+  let investors: any[] = [];
+  let invoices: any[] = [];
 
   if (session.role === "SELLER") {
-    const seller = await prisma.seller.findUnique({
-      where: { id: session.entityId },
-    });
-    if (seller) entityName = seller.legalName;
-    invoicesWhere = { sellerId: session.entityId };
-  } else if (session.role === "ANCHOR") {
-    const anchor = await prisma.anchor.findUnique({
-      where: { id: session.entityId },
-    });
-    if (anchor) entityName = anchor.corporateName;
-    invoicesWhere = { anchorId: session.entityId };
-  } else if (session.role === "INVESTOR") {
-    const investor = await prisma.investor.findUnique({
-      where: { id: session.entityId },
-    });
-    if (investor) entityName = investor.entityName;
-    invoicesWhere = {
-      OR: [
-        { status: "LISTED" },
-        { fundingBids: { some: { investorId: session.entityId } } },
-      ],
-    };
-  }
+    const [seller, approvedAnchors, sellerInvoices] = await Promise.all([
+      prisma.seller.findUnique({
+        where: { id: session.entityId },
+      }),
+      prisma.anchor.findMany({
+        where: { status: "ACTIVE" },
+        select: {
+          id: true,
+          corporateName: true,
+          creditRating: true,
+          maxExposureLimit: true,
+          currentExposure: true,
+          gstin: true,
+        },
+      }),
+      prisma.invoice.findMany({
+        where: { sellerId: session.entityId },
+        include: {
+          seller: true,
+          anchor: true,
+          escrowTransactions: { orderBy: { createdAt: "desc" } },
+          settlementRecord: true,
+          fundingBids: { include: { investor: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+    ]);
 
-  const [sellers, anchors, investors, invoices] = await Promise.all([
-    prisma.seller.findMany(),
-    prisma.anchor.findMany(),
-    prisma.investor.findMany(),
-    prisma.invoice.findMany({
-      where: invoicesWhere,
-      include: {
-        seller: true,
-        anchor: true,
-        escrowTransactions: { orderBy: { createdAt: "desc" } },
-        settlementRecord: true,
-        fundingBids: { include: { investor: true } },
-      },
-      orderBy: { createdAt: "desc" },
-    }),
-  ]);
+    if (seller) {
+      entityName = seller.legalName;
+      sellers = [seller]; // Strict isolation: Seller ONLY gets their own record
+    }
+    anchors = approvedAnchors;
+    investors = []; // Strict isolation: Seller NEVER sees other investors or their balances
+    invoices = sellerInvoices;
+  } else if (session.role === "ANCHOR") {
+    const [anchor, anchorInvoices] = await Promise.all([
+      prisma.anchor.findUnique({
+        where: { id: session.entityId },
+      }),
+      prisma.invoice.findMany({
+        where: { anchorId: session.entityId },
+        include: {
+          seller: true,
+          anchor: true,
+          escrowTransactions: { orderBy: { createdAt: "desc" } },
+          settlementRecord: true,
+          fundingBids: { include: { investor: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+    ]);
+
+    if (anchor) {
+      entityName = anchor.corporateName;
+      anchors = [anchor];
+    }
+    const sellerIds = Array.from(new Set(anchorInvoices.map((inv) => inv.sellerId)));
+    sellers = await prisma.seller.findMany({
+      where: { id: { in: sellerIds } },
+    });
+    investors = [];
+    invoices = anchorInvoices;
+  } else if (session.role === "INVESTOR") {
+    const [investor, fundableInvoices, allAnchors, allSellers] = await Promise.all([
+      prisma.investor.findUnique({
+        where: { id: session.entityId },
+      }),
+      prisma.invoice.findMany({
+        where: {
+          OR: [
+            { status: { in: ["LISTED", "ANCHOR_CONFIRMED", "FUNDED", "SETTLED"] } },
+            { fundingBids: { some: { investorId: session.entityId } } },
+          ],
+        },
+        include: {
+          seller: true,
+          anchor: true,
+          escrowTransactions: { orderBy: { createdAt: "desc" } },
+          settlementRecord: true,
+          fundingBids: { include: { investor: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.anchor.findMany(),
+      prisma.seller.findMany(),
+    ]);
+
+    if (investor) {
+      entityName = investor.entityName;
+      investors = [investor];
+    }
+    anchors = allAnchors;
+    sellers = allSellers;
+    invoices = fundableInvoices;
+  }
 
   const currentUser = {
     userId: session.userId,

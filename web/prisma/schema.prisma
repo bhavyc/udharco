@@ -122,7 +122,7 @@ model Anchor {
 
 model Investor {
   id            String       @id @default(uuid())
-  entityName    String       // e.g. Bajaj Finance NBFC, HDFC Bank
+  entityName    String       // e.g. Regulated Factoring NBFC Partner, Scheduled Commercial Bank
   investorType  String       @default("NBFC") // BANK, NBFC, HNI
   escrowBalance Float        @default(0) // Production Escrow balance starts at ₹0 until real deposit
   createdAt     DateTime     @default(now())

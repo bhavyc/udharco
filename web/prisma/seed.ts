@@ -128,15 +128,15 @@ async function main() {
   });
   console.log("✅ Seeded Anchor User (Email):", anchorUser.email);
 
-  // 3. Seed Institutional Investor
+  // 3. Seed Institutional Investor (Regulated NBFC Partner)
   let investor = await prisma.investor.findFirst({
-    where: { entityName: "Bajaj Finance NBFC" },
+    where: { entityName: "Institutional Capital NBFC" },
   });
 
   if (!investor) {
     investor = await prisma.investor.create({
       data: {
-        entityName: "Bajaj Finance NBFC",
+        entityName: "Institutional Capital NBFC",
         investorType: "NBFC",
         escrowBalance: 25000000, // ₹2.5 Cr virtual escrow
       },
@@ -144,13 +144,13 @@ async function main() {
   }
   console.log("✅ Seeded Investor:", investor.entityName);
 
-  // Link Investor User (Email: treasury@bajajfinserv.in / Investor@123456)
+  // Link Investor User (Email: treasury@capitalpartner.in / Investor@123456)
   const investorPasswordHash = await bcrypt.hash("Investor@123456", 12);
   const investorUser = await prisma.user.upsert({
-    where: { email: "treasury@bajajfinserv.in" },
+    where: { email: "treasury@capitalpartner.in" },
     update: { investorId: investor.id, passwordHash: investorPasswordHash, isActive: true },
     create: {
-      email: "treasury@bajajfinserv.in",
+      email: "treasury@capitalpartner.in",
       passwordHash: investorPasswordHash,
       role: "INVESTOR",
       investorId: investor.id,

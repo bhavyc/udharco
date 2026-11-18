@@ -2,21 +2,39 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth, requireAdminAuth } from "@/lib/auth";
 
-// GET /api/v1/entities/sellers - List onboarded sellers (Safe Public/Authorized View with PII Masking)
+// GET /api/v1/entities/sellers - List onboarded sellers (Role-scoped Multi-Tenant Safe View)
 export async function GET() {
   const auth = await requireAuth();
   if (auth instanceof NextResponse) return auth;
 
   try {
-    // Only return safe non-sensitive business fields (Do NOT expose bank accounts, IFSC, or PAN)
+    let whereClause = {};
+
+    if (auth.role === "SELLER") {
+      // MSME Seller can ONLY see their own profile
+      whereClause = { id: auth.entityId };
+    } else if (auth.role === "ANCHOR") {
+      // Anchors only see suppliers who have submitted invoices to them
+      const anchorInvoices = await prisma.invoice.findMany({
+        where: { anchorId: auth.entityId },
+        select: { sellerId: true },
+      });
+      const sellerIds = Array.from(new Set(anchorInvoices.map((inv) => inv.sellerId)));
+      whereClause = { id: { in: sellerIds } };
+    } else {
+      // INVESTOR: Can see sellers of invoices eligible for funding
+      whereClause = {};
+    }
+
     const sellers = await prisma.seller.findMany({
+      where: whereClause,
       select: {
         id: true,
         legalName: true,
         gstin: true,
         kycStatus: true,
         creditLimitStatus: true,
-        creditLimit: auth.role === "SELLER" ? true : false,
+        creditLimit: auth.role === "SELLER",
       },
       orderBy: { createdAt: "desc" },
     });

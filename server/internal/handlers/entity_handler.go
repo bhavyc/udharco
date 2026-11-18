@@ -26,24 +26,75 @@ func NewEntityHandler(db *gorm.DB, cfg *config.Config) *EntityHandler {
 	return &EntityHandler{DB: db, Cfg: cfg}
 }
 
-// GetSellers returns list of MSME sellers
+// GetSellers returns list of MSME sellers (Tenant-isolated by role)
 func (h *EntityHandler) GetSellers(c *gin.Context) {
+	authUser := middleware.GetAuthUser(c)
 	var sellers []models.Seller
-	if err := h.DB.Order("created_at desc").Find(&sellers).Error; err != nil {
+
+	query := h.DB.Order("created_at desc")
+	if authUser != nil {
+		switch authUser.Role {
+		case "SELLER":
+			// MSME Seller can ONLY view their own profile
+			query = query.Where("id = ?", authUser.EntityID)
+		case "ANCHOR":
+			// Corporate Anchor can only view sellers who have submitted invoices to them
+			query = query.Joins("JOIN invoices ON invoices.seller_id = sellers.id").
+				Where("invoices.anchor_id = ?", authUser.EntityID).
+				Distinct()
+		case "ADMIN", "INVESTOR":
+			// Admin and institutional funders can inspect eligible MSME sellers
+		default:
+			c.JSON(http.StatusOK, gin.H{"success": true, "count": 0, "data": []models.Seller{}})
+			return
+		}
+	}
+
+	if err := query.Find(&sellers).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": err.Error()})
 		return
 	}
+
+	// PII Defense: Mask seller bank accounts & PAN if not the seller themselves or Admin
+	if authUser != nil && authUser.Role != "ADMIN" {
+		for i := range sellers {
+			if authUser.Role != "SELLER" || sellers[i].ID != authUser.EntityID {
+				acc := sellers[i].BankAccountNo
+				if len(acc) > 4 {
+					sellers[i].BankAccountNo = fmt.Sprintf("••••••••%s", acc[len(acc)-4:])
+				}
+				sellers[i].PAN = "••••••••••"
+			}
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{"success": true, "count": len(sellers), "data": sellers})
 }
 
-// GetSellerByID returns a single seller by ID
+// GetSellerByID returns a single seller by ID (Protected by tenant boundary)
 func (h *EntityHandler) GetSellerByID(c *gin.Context) {
+	authUser := middleware.GetAuthUser(c)
 	id := c.Param("id")
+
+	if authUser != nil && authUser.Role == "SELLER" && authUser.EntityID != id {
+		c.JSON(http.StatusForbidden, gin.H{"success": false, "error": "Access denied: MSME Sellers cannot view other seller profiles."})
+		return
+	}
+
 	var seller models.Seller
 	if err := h.DB.Preload("Invoices").Where("id = ?", id).First(&seller).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"success": false, "error": "Seller MSME not found."})
 		return
 	}
+
+	if authUser != nil && authUser.Role != "ADMIN" && (authUser.Role != "SELLER" || authUser.EntityID != seller.ID) {
+		acc := seller.BankAccountNo
+		if len(acc) > 4 {
+			seller.BankAccountNo = fmt.Sprintf("••••••••%s", acc[len(acc)-4:])
+		}
+		seller.PAN = "••••••••••"
+	}
+
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": seller})
 }
 
@@ -68,10 +119,21 @@ func (h *EntityHandler) GetPendingAnchors(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "count": len(anchors), "data": anchors})
 }
 
-// GetInvestors returns institutional funders (Banks/NBFCs)
+// GetInvestors returns institutional funders (Banks/NBFCs) - Protected from non-investors
 func (h *EntityHandler) GetInvestors(c *gin.Context) {
+	authUser := middleware.GetAuthUser(c)
+	if authUser != nil && authUser.Role != "ADMIN" && authUser.Role != "INVESTOR" {
+		c.JSON(http.StatusOK, gin.H{"success": true, "count": 0, "data": []models.Investor{}})
+		return
+	}
+
 	var investors []models.Investor
-	if err := h.DB.Order("entity_name asc").Find(&investors).Error; err != nil {
+	query := h.DB.Order("entity_name asc")
+	if authUser != nil && authUser.Role == "INVESTOR" {
+		query = query.Where("id = ?", authUser.EntityID)
+	}
+
+	if err := query.Find(&investors).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": err.Error()})
 		return
 	}
@@ -80,7 +142,16 @@ func (h *EntityHandler) GetInvestors(c *gin.Context) {
 
 // GetInvestorByID returns an institutional investor by ID
 func (h *EntityHandler) GetInvestorByID(c *gin.Context) {
+	authUser := middleware.GetAuthUser(c)
 	id := c.Param("id")
+
+	if authUser != nil && authUser.Role != "ADMIN" {
+		if authUser.Role != "INVESTOR" || authUser.EntityID != id {
+			c.JSON(http.StatusForbidden, gin.H{"success": false, "error": "Access denied to institutional liquidity account."})
+			return
+		}
+	}
+
 	var investor models.Investor
 	if err := h.DB.Preload("Bids").Where("id = ?", id).First(&investor).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"success": false, "error": "Institutional investor not found."})

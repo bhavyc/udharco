@@ -52,6 +52,7 @@ interface Anchor {
   maxExposureLimit: number;
   currentExposure: number;
   status?: string;
+  standardPaymentTerms?: number;
 }
 
 interface Investor {
@@ -83,6 +84,8 @@ interface SettlementRecord {
 
 interface Invoice {
   id: string;
+  sellerId?: string;
+  anchorId?: string;
   invoiceNumber: string;
   financialYear: string;
   totalAmount: number;
@@ -518,13 +521,37 @@ export default function DashboardClient({
   const totalVolume = invoices.reduce((sum, inv) => sum + inv.totalAmount, 0);
   const activeExposure = anchors.reduce((sum, a) => sum + a.currentExposure, 0);
 
+  // Tenant-isolated calculations for role-specific dashboard metrics
+  const sellerInvoices = invoices.filter(
+    (i) => !currentUser?.entityId || currentUser.role !== "SELLER" || (i.sellerId || i.seller?.id) === currentUser.entityId
+  );
+  const totalAdvancesDisbursed = sellerInvoices
+    .filter((i) => i.status === "FUNDED" || i.status === "SETTLED")
+    .reduce((sum, i) => sum + (i.upfrontDisbursedAmount || i.totalAmount * 0.84), 0);
+  const totalMarginHeld = sellerInvoices
+    .filter((i) => i.status === "FUNDED")
+    .reduce((sum, i) => sum + (i.marginHeldAmount || i.totalAmount * 0.15), 0);
+  const sellerTotalVolume = sellerInvoices.reduce((sum, i) => sum + i.totalAmount, 0);
+
   // Dynamic Upload Limit Calculations
-  const selectedUploadSeller = sellers.find((s) => s.id === uploadForm.sellerId) || sellers[0];
+  const selectedUploadSeller = sellers.find((s) => s.id === (currentUser?.role === "SELLER" ? currentUser.entityId : uploadForm.sellerId)) || sellers[0];
   const selectedUploadAnchor = anchors.find((a) => a.id === uploadForm.anchorId) || anchors[0];
 
   const sellerLimit = selectedUploadSeller?.creditLimit && selectedUploadSeller.creditLimit > 0
     ? selectedUploadSeller.creditLimit
-    : 2000000;
+    : 5000000;
+
+  const sellerActiveExposure = sellerInvoices
+    .filter((i) => i.status !== "SETTLED" && i.status !== "REJECTED" && i.status !== "DISPUTED")
+    .reduce((sum, i) => sum + i.totalAmount, 0);
+  const sellerHeadroom = Math.max(0, sellerLimit - sellerActiveExposure);
+
+  const readyForFundingCount = invoices.filter(
+    (i) => i.status === "LISTED" || i.status === "ANCHOR_CONFIRMED"
+  ).length;
+  const totalFundedByInvestor = invoices
+    .filter((i) => i.status === "FUNDED" || i.status === "SETTLED")
+    .reduce((sum, i) => sum + (i.upfrontDisbursedAmount || i.totalAmount * 0.84), 0);
 
   const anchorExposureAvailable = selectedUploadAnchor?.maxExposureLimit && selectedUploadAnchor.maxExposureLimit > 0
     ? Math.max(0, selectedUploadAnchor.maxExposureLimit - (selectedUploadAnchor.currentExposure || 0))
@@ -654,8 +681,77 @@ export default function DashboardClient({
         </div>
       </section>
 
-      {/* Top Metrics Row */}
-      {currentUser?.role === "ANCHOR" ? (
+      {/* Top Metrics Row - STRICTLY ROLE-BASED TENANT ISOLATION */}
+      {currentUser?.role === "SELLER" ? (
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          {/* Card 1: Sanctioned Working Capital Limit */}
+          <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl shadow-xs hover:shadow-md transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Sanctioned Credit Limit</span>
+              <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <ShieldCheck className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-3 font-mono tracking-tight">
+              ₹{formatINR(sellerLimit)}
+            </div>
+            <div className="text-xs text-emerald-700 font-bold mt-1 flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+              Headroom: ₹{formatINR(sellerHeadroom)}
+            </div>
+          </div>
+
+          {/* Card 2: Advances Disbursed to Bank Current Account */}
+          <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl shadow-xs hover:shadow-md transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Cash Advances Disbursed (84%)</span>
+              <div className="p-2.5 rounded-xl bg-sky-50 text-sky-700 border border-sky-200">
+                <Wallet className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-3 font-mono tracking-tight">
+              ₹{formatINR(totalAdvancesDisbursed)}
+            </div>
+            <div className="text-xs text-slate-500 mt-1 font-medium flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              Credited to Bank Current A/c
+            </div>
+          </div>
+
+          {/* Card 3: 15% Margin in Escrow */}
+          <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl shadow-xs hover:shadow-md transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Margin in Escrow (15%)</span>
+              <div className="p-2.5 rounded-xl bg-amber-50 text-amber-700 border border-amber-200">
+                <Layers className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-amber-800 mt-3 font-mono tracking-tight">
+              ₹{formatINR(totalMarginHeld)}
+            </div>
+            <div className="text-xs text-amber-700 font-medium mt-1">
+              Releases on Buyer Settlement
+            </div>
+          </div>
+
+          {/* Card 4: My Total Factored Invoices */}
+          <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl shadow-xs hover:shadow-md transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">My Factored Volume</span>
+              <div className="p-2.5 rounded-xl bg-purple-50 text-purple-700 border border-purple-200">
+                <Coins className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-3 font-mono tracking-tight">
+              ₹{formatINR(sellerTotalVolume)}
+            </div>
+            <div className="text-xs text-emerald-700 mt-1 font-bold flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              {sellerInvoices.length} Registered Invoices
+            </div>
+          </div>
+        </section>
+      ) : currentUser?.role === "ANCHOR" ? (
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
           {(() => {
             const currentAnchor = anchors.find((a) => a.id === currentUser.entityId) || anchors[0];
@@ -727,6 +823,64 @@ export default function DashboardClient({
               </>
             );
           })()}
+        </section>
+      ) : currentUser?.role === "INVESTOR" ? (
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          {/* Investor View */}
+          <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl shadow-xs hover:shadow-md transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Deployable Escrow Cash</span>
+              <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200">
+                <Wallet className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-indigo-700 mt-3 font-mono tracking-tight">
+              ₹{(totalEscrow / 10000000).toFixed(2)} Cr
+            </div>
+            <div className="text-xs text-indigo-700 font-bold mt-1 flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+              Available for Instant Advance
+            </div>
+          </div>
+
+          <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl shadow-xs hover:shadow-md transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Capital Deployed</span>
+              <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <Coins className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-3 font-mono tracking-tight">
+              ₹{(totalFundedByInvestor / 10000000).toFixed(2)} Cr
+            </div>
+            <div className="text-xs text-emerald-700 mt-1 font-medium">Active Advances in Circulation</div>
+          </div>
+
+          <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl shadow-xs hover:shadow-md transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Net Annualized Return</span>
+              <div className="p-2.5 rounded-xl bg-purple-50 text-purple-700 border border-purple-200">
+                <Sparkles className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-purple-700 mt-3 font-mono tracking-tight">
+              11.0% - 14.0%
+            </div>
+            <div className="text-xs text-slate-500 mt-1 font-medium">Priority #1 Senior Debt</div>
+          </div>
+
+          <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl shadow-xs hover:shadow-md transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Ready for Funding</span>
+              <div className="p-2.5 rounded-xl bg-sky-50 text-sky-700 border border-sky-200">
+                <FileText className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-sky-700 mt-3 font-mono tracking-tight">
+              {readyForFundingCount}
+            </div>
+            <div className="text-xs text-sky-700 font-medium mt-1">Confirmed Invoices Awaiting Capital</div>
+          </div>
         </section>
       ) : (
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
@@ -890,7 +1044,7 @@ export default function DashboardClient({
             <thead className="bg-white/90 backdrop-blur-md text-[11px] uppercase font-black text-slate-600 border-b border-slate-200/80 tracking-wider">
               <tr>
                 <th className="py-3 px-4">Invoice #</th>
-                <th className="py-3 px-4">Seller MSME</th>
+                {currentUser?.role !== "SELLER" && <th className="py-3 px-4">Seller MSME</th>}
                 <th className="py-3 px-4">Buyer Entity</th>
                 <th className="py-3 px-4">Bill Amount</th>
                 <th className="py-3 px-4">Upfront 84% Cash</th>
@@ -902,7 +1056,7 @@ export default function DashboardClient({
             <tbody className="divide-y divide-slate-100 bg-white font-sans text-xs">
               {filteredInvoices.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-500 font-medium">
+                  <td colSpan={currentUser?.role === "SELLER" ? 7 : 8} className="py-12 text-center text-slate-500 font-medium">
                     No invoices found for filter &quot;{filter}&quot;
                   </td>
                 </tr>
@@ -918,10 +1072,12 @@ export default function DashboardClient({
                       </div>
                       <div className="text-[11px] text-slate-500 font-normal mt-0.5">PO: {inv.poNumber || "N/A"}</div>
                     </td>
-                    <td className="py-3.5 px-4">
-                      <div className="font-semibold text-slate-800">{inv.seller.legalName}</div>
-                      <div className="text-[11px] text-slate-500 font-mono">{inv.seller.gstin}</div>
-                    </td>
+                    {currentUser?.role !== "SELLER" && (
+                      <td className="py-3.5 px-4">
+                        <div className="font-semibold text-slate-800">{inv.seller.legalName}</div>
+                        <div className="text-[11px] text-slate-500 font-mono">{inv.seller.gstin}</div>
+                      </td>
+                    )}
                     <td className="py-3.5 px-4">
                       <div className="font-semibold text-sky-800">{inv.anchor.corporateName}</div>
                       <div className="text-[11px] text-sky-600 font-medium">Rating: {inv.anchor.creditRating}</div>
@@ -1095,12 +1251,12 @@ export default function DashboardClient({
       </section>
 
 
-      {/* 3 Main Players Showcase Cards (Dynamic to Active Session) */}
+      {/* 3 Main Role-Tailored Operational Cards (Strict Multi-Tenant Isolation) */}
       {(() => {
         const activeSeller =
           (currentUser?.role === "SELLER" && currentUser.entityId
             ? sellers.find((s) => s.id === currentUser.entityId)
-            : null) || sellers[sellers.length - 1] || sellers[0];
+            : null) || sellers[0];
 
         const activeAnchor =
           (currentUser?.role === "ANCHOR" && currentUser.entityId
@@ -1111,6 +1267,315 @@ export default function DashboardClient({
           (currentUser?.role === "INVESTOR" && currentUser.entityId
             ? investors.find((i) => i.id === currentUser.entityId)
             : null) || investors[0];
+
+        if (currentUser?.role === "SELLER") {
+          return (
+            <section className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-emerald-600"></span>
+                  MSME Verified Compliance & Payout Profile
+                </h2>
+                <span className="text-xs text-slate-500 font-medium">Factoring Regulation Act 2011 Compliance</span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                {/* Card 1: Verified Payout Bank Account */}
+                <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl space-y-4 shadow-xs hover:shadow-md transition-all">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase bg-emerald-50 text-emerald-800 border border-emerald-200">
+                      Payout Current Account
+                    </span>
+                    <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> NPCI Verified
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-slate-900 tracking-tight">
+                      {activeSeller?.legalName || "Registered MSME Vendor"}
+                    </h3>
+                    <p className="text-xs text-slate-500 font-mono mt-0.5">
+                      GSTIN: {activeSeller?.gstin || "Verified"}
+                    </p>
+                  </div>
+                  <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2.5">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-slate-500">Bank Account:</span>
+                      <span className="font-mono text-slate-900 font-bold">
+                        {activeSeller?.bankAccountNo
+                          ? `•••• •••• ${activeSeller.bankAccountNo.slice(-4)}`
+                          : "•••• 5678"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-slate-500">IFSC Code:</span>
+                      <span className="font-mono text-slate-800 font-semibold">{activeSeller?.bankIfsc || "HDFC0001234"}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-slate-500">Disbursal Route:</span>
+                      <span className="text-emerald-700 font-bold">Direct RTGS / IMPS (T+0)</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card 2: Legal Guarantee & e-NACH Mandate */}
+                <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl space-y-4 shadow-xs hover:shadow-md transition-all">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase bg-sky-50 text-sky-800 border border-sky-200">
+                      Legal Standing & Mandate
+                    </span>
+                    <span className="text-xs font-bold text-sky-800 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-200">
+                      Sec 138 NI Act
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-slate-900 tracking-tight">e-NACH Digital Mandate</h3>
+                    <p className="text-xs text-slate-500 font-mono mt-0.5">
+                      Mandate ID: {activeSeller?.enachMandateId || "MND-NPCI-882910"}
+                    </p>
+                  </div>
+                  <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2.5">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-slate-500">Sanctioned Facility:</span>
+                      <span className="font-black text-slate-900 font-mono">₹{formatINR(sellerLimit)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-slate-500">Recourse Status:</span>
+                      <span className="font-bold text-sky-700">Commercial Dispute Recourse</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-slate-500">Mandate Health:</span>
+                      <span className="text-emerald-700 font-bold flex items-center gap-1">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Active & Linked
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card 3: Institutional Factoring Facility */}
+                <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl space-y-4 shadow-xs hover:shadow-md transition-all">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase bg-purple-50 text-purple-800 border border-purple-200">
+                      Factoring Facility
+                    </span>
+                    <span className="text-xs font-bold text-purple-800 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200">
+                      RBI Regulated
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-slate-900 tracking-tight">Institutional Capital Network</h3>
+                    <p className="text-xs text-slate-500 font-medium mt-0.5 flex items-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" />
+                      Regulated Factoring NBFC / Bank Partners
+                    </p>
+                  </div>
+                  <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2.5">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-slate-500">Upfront Advance:</span>
+                      <span className="font-black text-emerald-700 font-mono">84% Gross Bill Value</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-slate-500">Escrow Reserve:</span>
+                      <span className="text-amber-700 font-bold">15% (Released on Buyer Pay)</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-slate-500">Platform Charge:</span>
+                      <span className="text-slate-800 font-medium">1.0% Flat Factoring Fee</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          );
+        }
+
+        if (currentUser?.role === "ANCHOR") {
+          return (
+            <section className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-sky-600"></span>
+                  Corporate Buyer Facility & Procurement Line
+                </h2>
+                <span className="text-xs text-slate-500 font-medium">Authorized Credit Line & Settlement Details</span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl space-y-4 shadow-xs hover:shadow-md transition-all">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase bg-sky-50 text-sky-800 border border-sky-200">
+                      Corporate Facility Line
+                    </span>
+                    <span className="text-xs font-bold text-sky-800 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-200">
+                      Rating: {activeAnchor?.creditRating || "AAA"}
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-slate-900 tracking-tight">{activeAnchor?.corporateName || "Corporate Buyer"}</h3>
+                    <p className="text-xs text-slate-500 font-mono mt-0.5">GSTIN: {activeAnchor?.gstin || "Verified"}</p>
+                  </div>
+                  <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2.5">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-slate-500">Sanctioned Limit:</span>
+                      <span className="font-black text-slate-900 font-mono">
+                        ₹{activeAnchor ? (activeAnchor.maxExposureLimit / 10000000).toFixed(1) : "5.0"} Cr
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-slate-500">Available Headroom:</span>
+                      <span className="font-bold text-emerald-700 font-mono">
+                        ₹{(anchorExposureAvailable / 100000).toFixed(1)} Lakhs
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl space-y-4 shadow-xs hover:shadow-md transition-all">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase bg-emerald-50 text-emerald-800 border border-emerald-200">
+                      Active Suppliers
+                    </span>
+                    <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                      {sellers.length} MSME Vendors
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-slate-900 tracking-tight">Procurement Network</h3>
+                    <p className="text-xs text-slate-500 font-medium mt-0.5">Suppliers submitting discounted invoices</p>
+                  </div>
+                  <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2.5">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-slate-500">Standard Terms:</span>
+                      <span className="font-bold text-slate-900">{activeAnchor?.standardPaymentTerms || 60} Days</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-slate-500">Approval Channel:</span>
+                      <span className="text-slate-800 font-medium">Digital Portal & WhatsApp OTP</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl space-y-4 shadow-xs hover:shadow-md transition-all">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase bg-indigo-50 text-indigo-800 border border-indigo-200">
+                      Settlement Route
+                    </span>
+                    <span className="text-xs font-bold text-indigo-800 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200">
+                      Nodal Escrow
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-slate-900 tracking-tight">Direct Escrow Routing</h3>
+                    <p className="text-xs text-slate-500 font-medium mt-0.5">Automated waterfall clearing on invoice maturity</p>
+                  </div>
+                  <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2.5">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-slate-500">Virtual Escrow:</span>
+                      <span className="font-mono text-slate-800 font-bold">Assigned per Invoice</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-slate-500">Compliance:</span>
+                      <span className="text-emerald-700 font-bold">RBI Nodal Direct Credit</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          );
+        }
+
+        if (currentUser?.role === "INVESTOR") {
+          return (
+            <section className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-purple-600"></span>
+                  Institutional Treasury & Escrow Facility
+                </h2>
+                <span className="text-xs text-slate-500 font-medium">Priority #1 Senior Debt Capital Deployment</span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl space-y-4 shadow-xs hover:shadow-md transition-all">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase bg-indigo-50 text-indigo-800 border border-indigo-200">
+                      Escrow Liquidity
+                    </span>
+                    <span className="text-xs font-bold text-indigo-800 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200">
+                      RBI Nodal Account
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-slate-900 tracking-tight">{activeInvestor?.entityName || "Institutional Capital Provider"}</h3>
+                    <p className="text-xs text-slate-500 font-medium mt-0.5">Designated Virtual Escrow Account</p>
+                  </div>
+                  <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2.5">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-slate-500">Available Escrow:</span>
+                      <span className="font-black text-indigo-700 font-mono text-sm">
+                        ₹{activeInvestor ? (activeInvestor.escrowBalance / 10000000).toFixed(2) : "2.50"} Cr
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-slate-500">Payout Mechanism:</span>
+                      <span className="text-slate-800 font-medium">Direct Escrow Split</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl space-y-4 shadow-xs hover:shadow-md transition-all">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase bg-purple-50 text-purple-800 border border-purple-200">
+                      Yield & Seniority
+                    </span>
+                    <span className="text-xs font-bold text-purple-800 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200">
+                      11% - 14% p.a.
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-slate-900 tracking-tight">Priority #1 Senior Debt</h3>
+                    <p className="text-xs text-slate-500 font-medium mt-0.5">First-charge on corporate debtor receivables</p>
+                  </div>
+                  <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2.5">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-slate-500">Asset Class:</span>
+                      <span className="font-bold text-slate-900">Factored Invoice Receivables</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-slate-500">Legal Recourse:</span>
+                      <span className="font-bold text-purple-700">Section 138 NI Act Mandate</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl space-y-4 shadow-xs hover:shadow-md transition-all">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase bg-emerald-50 text-emerald-800 border border-emerald-200">
+                      Statutory Protection
+                    </span>
+                    <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                      Factoring Act 2011
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-slate-900 tracking-tight">CERSAI Registered</h3>
+                    <p className="text-xs text-slate-500 font-medium mt-0.5">Central Registry of Securitisation & Asset Reconstruction</p>
+                  </div>
+                  <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2.5">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-slate-500">Registration:</span>
+                      <span className="font-bold text-emerald-700">100% CERSAI Filing</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-slate-500">Debtor Notification:</span>
+                      <span className="text-slate-800 font-medium">Digital NOA Dispatched</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          );
+        }
 
         return (
           <section className="space-y-4">
@@ -1130,11 +1595,11 @@ export default function DashboardClient({
                     1. MSME Vendor
                   </span>
                   <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                    {currentUser?.role === "SELLER" ? "Your Company" : "Verified Seller"}
+                    Verified Seller
                   </span>
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-slate-900 tracking-tight">{activeSeller?.legalName || "Your Registered MSME"}</h3>
+                  <h3 className="text-base font-black text-slate-900 tracking-tight">{activeSeller?.legalName || "Registered MSME"}</h3>
                   <p className="text-xs text-slate-500 font-mono mt-0.5">GSTIN: {activeSeller?.gstin || "Pending"}</p>
                 </div>
                 <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2.5">
@@ -1187,11 +1652,11 @@ export default function DashboardClient({
                 </div>
               </div>
 
-              {/* Player 3: NBFC Investor */}
+              {/* Player 3: Regulated NBFC / Bank Partner */}
               <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl space-y-4 shadow-xs hover:shadow-md transition-all">
                 <div className="flex items-center justify-between">
                   <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase bg-purple-50 text-purple-800 border border-purple-200">
-                    3. NBFC / Bank
+                    3. NBFC / Bank Partner
                   </span>
                   <span className="text-xs font-bold text-purple-800 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200">
                     11% - 14% p.a.
@@ -1199,9 +1664,7 @@ export default function DashboardClient({
                 </div>
                 <div>
                   <h3 className="text-base font-black text-slate-900 tracking-tight">
-                    {activeInvestor?.entityName && !activeInvestor.entityName.includes("Bajaj")
-                      ? activeInvestor.entityName
-                      : "Regulated NBFC / Bank Partner"}
+                    {activeInvestor?.entityName || "Regulated NBFC / Bank Partner"}
                   </h3>
                   <p className="text-xs text-slate-500 font-medium mt-0.5 flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" />
@@ -1210,14 +1673,12 @@ export default function DashboardClient({
                 </div>
                 <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2.5">
                   <div className="flex justify-between items-center">
-                    <span className="font-medium text-slate-500">Escrow Balance:</span>
-                    <span className="font-black text-indigo-700 font-mono text-sm">
-                      ₹{activeInvestor ? (activeInvestor.escrowBalance / 10000000).toFixed(2) : "2.50"} Cr
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
                     <span className="font-medium text-slate-500">Seniority:</span>
                     <span className="text-slate-900 font-black">Priority #1 (Senior Debt)</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-slate-500">Regulatory Framework:</span>
+                    <span className="text-slate-800 font-medium">Factoring Act 2011</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="font-medium text-slate-500">Payout Method:</span>

@@ -99,9 +99,9 @@ func main() {
 		log.Println("✅ Seeded Pending Anchor:", pendingAnchor.CorporateName)
 	}
 
-	// 3. Seed Institutional Investor: Bajaj Finance NBFC
+	// 3. Seed Institutional Investor: Institutional Capital NBFC
 	investor := models.Investor{
-		EntityName:    "Bajaj Finance NBFC",
+		EntityName:    "Institutional Capital NBFC",
 		InvestorType:  "NBFC",
 		EscrowBalance: 25000000, // ₹2.5 Cr Escrow balance
 	}
@@ -114,7 +114,7 @@ func main() {
 	}
 
 	// Investor User
-	investorEmail := "investor@bajajfinance.com"
+	investorEmail := "treasury@capitalpartner.in"
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
 	hashStr := string(hashedPassword)
 	var investorUser models.User

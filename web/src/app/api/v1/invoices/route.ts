@@ -22,7 +22,10 @@ export async function GET() {
       whereClause = { anchorId: auth.entityId };
     } else if (auth.role === "INVESTOR") {
       whereClause = {
-        fundingBids: { some: { investorId: auth.entityId } },
+        OR: [
+          { status: { in: ["LISTED", "ANCHOR_CONFIRMED"] } },
+          { fundingBids: { some: { investorId: auth.entityId } } },
+        ],
       };
     }
 
