@@ -212,26 +212,6 @@ class ApiService {
     }
   }
 
-  // Fetch approved Anchors from backend DB
-  static Future<List<Map<String, dynamic>>> getAnchors() async {
-    try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/api/v1/entities/anchors'),
-        headers: _headers,
-      ).timeout(const Duration(seconds: 5));
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['success'] == true && data['data'] != null) {
-          return List<Map<String, dynamic>>.from(data['data']);
-        }
-      }
-    } catch (e) {
-      debugPrint('getAnchors error: $e');
-    }
-    return [];
-  }
-
   // Login for Anchor or Investor (Email + Password)
   static Future<Map<String, dynamic>> loginWithCredentials(String email, String password) async {
     try {

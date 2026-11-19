@@ -486,6 +486,7 @@ class SellerDashboard extends StatelessWidget {
 
   // Phase 1: Onboarding & e-NACH Mandate Details Modal
   void _showKYCDetailsModal(BuildContext context, dynamic seller) {
+    final appState = Provider.of<AppState>(context, listen: false);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
