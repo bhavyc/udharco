@@ -73,32 +73,35 @@ func main() {
 		// Corporate Self-Serve Application
 		api.POST("/corporate/apply", entityH.CorporateApply)
 
-		// Entities Lookup
-		entitiesGroup := api.Group("/entities")
+		// Entities Lookup (Role-Isolated and Session-Protected)
+		entitiesGroup := api.Group("/entities", middleware.RequireAuth(cfg))
 		{
 			entitiesGroup.GET("/sellers", entityH.GetSellers)
 			entitiesGroup.GET("/anchors", entityH.GetAnchors)
-			entitiesGroup.GET("/anchors/:id/pending", entityH.GetPendingAnchors)
-			entitiesGroup.GET("/investors", entityH.GetInvestors)
+			entitiesGroup.GET("/anchors/:id/pending", middleware.RequireAuth(cfg, "ADMIN"), entityH.GetPendingAnchors)
+			entitiesGroup.GET("/investors", middleware.RequireAuth(cfg, "INVESTOR", "ADMIN"), entityH.GetInvestors)
 		}
 
-		// Invoices & Factoring Lifecycle
+		// Invoices & Factoring Lifecycle (Strict RBAC Protected)
 		invoicesGroup := api.Group("/invoices")
 		{
-			invoicesGroup.GET("", invoiceH.GetInvoices)
+			invoicesGroup.GET("", middleware.RequireAuth(cfg), invoiceH.GetInvoices)
 			invoicesGroup.POST("", middleware.RequireAuth(cfg, "SELLER"), invoiceH.UploadInvoice)
 			invoicesGroup.GET("/:id/noa", invoiceH.GetInvoiceNOA)
 			invoicesGroup.POST("/:id/anchor-confirm", invoiceH.AnchorConfirmInvoice)
 			invoicesGroup.POST("/:id/notice-confirm", invoiceH.NoticeConfirmInvoice)
 			invoicesGroup.POST("/:id/anchor-reject", invoiceH.AnchorRejectInvoice)
-			invoicesGroup.POST("/:id/verify", invoiceH.VerifyInvoice)
+			invoicesGroup.POST("/:id/verify", middleware.RequireAuth(cfg, "ADMIN"), invoiceH.VerifyInvoice)
 			invoicesGroup.POST("/:id/fund", middleware.RequireAuth(cfg, "INVESTOR", "ADMIN"), fundingH.FundInvoice)
-			invoicesGroup.POST("/:id/settle", fundingH.SettleInvoice)
+			invoicesGroup.POST("/:id/settle", middleware.RequireAuth(cfg, "ADMIN", "ANCHOR"), fundingH.SettleInvoice)
 
-			invoicesGroup.POST("/process-anchor-reminders", invoiceH.ProcessAnchorReminders)
+			invoicesGroup.POST("/process-anchor-reminders", middleware.RequireAuth(cfg, "ADMIN"), invoiceH.ProcessAnchorReminders)
 			invoicesGroup.POST("/verify-irn", invoiceH.VerifyIRN)
-			invoicesGroup.POST("/generate-irn", invoiceH.GenerateIRN)
+			invoicesGroup.POST("/generate-irn", middleware.RequireAuth(cfg, "SELLER", "ADMIN"), invoiceH.GenerateIRN)
 		}
+
+		// Dashboard Aggregated Endpoint
+		api.GET("/dashboard", middleware.RequireAuth(cfg), invoiceH.GetDashboard)
 
 		// Webhooks (Escrow Bank Ingestion)
 		api.POST("/webhooks/escrow", fundingH.EscrowWebhook)
@@ -116,6 +119,7 @@ func main() {
 		// Protected Admin Routes
 		protectedAdmin := adminApi.Group("", middleware.RequireAuth(cfg, "ADMIN"))
 		{
+			protectedAdmin.GET("/overview", adminAuthH.GetAdminOverview)
 			protectedAdmin.GET("/sellers/:id", entityH.GetSellerByID)
 			protectedAdmin.GET("/investors/:id", entityH.GetInvestorByID)
 			protectedAdmin.POST("/entities/provision", entityH.AdminProvisionEntity)

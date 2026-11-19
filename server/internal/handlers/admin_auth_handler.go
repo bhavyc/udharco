@@ -109,3 +109,30 @@ func (h *AdminAuthHandler) AdminLogout(c *gin.Context) {
 	c.SetCookie("udharco_admin_session", "", -1, "/", "", false, true)
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Admin logged out successfully."})
 }
+
+// GetAdminOverview returns the complete dataset for Admin dashboard
+func (h *AdminAuthHandler) GetAdminOverview(c *gin.Context) {
+	var sellers []models.Seller
+	var anchors []models.Anchor
+	var investors []models.Investor
+	var invoices []models.Invoice
+	var transactions []models.EscrowTransaction
+	var auditLogs []models.AuditLog
+
+	h.DB.Order("created_at desc").Find(&sellers)
+	h.DB.Preload("User").Order("created_at desc").Find(&anchors)
+	h.DB.Preload("User").Order("created_at desc").Find(&investors)
+	h.DB.Preload("Seller").Preload("Anchor").Order("created_at desc").Find(&invoices)
+	h.DB.Preload("Invoice").Order("created_at desc").Limit(100).Find(&transactions)
+	h.DB.Order("timestamp desc").Limit(100).Find(&auditLogs)
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":      true,
+		"sellers":      sellers,
+		"anchors":      anchors,
+		"investors":    investors,
+		"invoices":     invoices,
+		"transactions": transactions,
+		"auditLogs":    auditLogs,
+	})
+}

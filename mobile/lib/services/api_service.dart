@@ -418,73 +418,50 @@ class ApiService {
     }
   }
 
-  // Fetch Sellers, Anchors, Investors
+  // Fetch Sellers, Anchors, Investors (Session-isolated)
   static Future<List<Seller>> getSellers() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/api/v1/entities/sellers'));
+      final response = await http
+          .get(Uri.parse('$baseUrl/api/v1/entities/sellers'), headers: _headers)
+          .timeout(const Duration(seconds: 4));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        if (data['success'] == true) {
+        if (data['success'] == true && data['data'] != null) {
           return (data['data'] as List).map((s) => Seller.fromJson(s)).toList();
         }
       }
     } catch (_) {}
-    return [
-      Seller(
-        id: 'seller-1',
-        legalName: 'Apex Precision Tubes Pvt Ltd',
-        gstin: '27AABCA1234F1Z5',
-        pan: 'AABCA1234F',
-        bankAccountNo: '50200012345678',
-        bankIfsc: 'HDFC0000060',
-        kycStatus: 'VERIFIED',
-        enachMandateStatus: 'ACTIVE',
-        enachMandateId: 'MND-NPCI-882910',
-      )
-    ];
+    return [];
   }
 
   static Future<List<Anchor>> getAnchors() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/api/v1/entities/anchors'));
+      final response = await http
+          .get(Uri.parse('$baseUrl/api/v1/entities/anchors'), headers: _headers)
+          .timeout(const Duration(seconds: 4));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        if (data['success'] == true) {
+        if (data['success'] == true && data['data'] != null) {
           return (data['data'] as List).map((a) => Anchor.fromJson(a)).toList();
         }
       }
     } catch (_) {}
-    return [
-      Anchor(
-        id: 'anchor-1',
-        corporateName: 'Tata Motors Commercial Vehicles Ltd',
-        gstin: '27AABCT9999M1Z8',
-        creditRating: 'AAA',
-        maxExposureLimit: 50000000,
-        currentExposure: 18500000,
-      )
-    ];
+    return [];
   }
 
   static Future<List<Investor>> getInvestors() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/api/v1/entities/investors'));
+      final response = await http
+          .get(Uri.parse('$baseUrl/api/v1/entities/investors'), headers: _headers)
+          .timeout(const Duration(seconds: 4));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        if (data['success'] == true) {
+        if (data['success'] == true && data['data'] != null) {
           return (data['data'] as List).map((i) => Investor.fromJson(i)).toList();
         }
       }
     } catch (_) {}
-    return [
-      Investor(
-        id: 'investor-1',
-        institutionName: 'Northern Arc Capital NBFC',
-        entityType: 'NBFC_INSTITUTIONAL',
-        escrowBalance: 25000000,
-        deployedCapital: 12500000,
-      )
-    ];
+    return [];
   }
 }
 

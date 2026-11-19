@@ -34,24 +34,31 @@ func NewInvoiceHandler(db *gorm.DB, cfg *config.Config) *InvoiceHandler {
 	}
 }
 
-// GetInvoices retrieves invoices filtered by user's role with PII bank masking
+// GetInvoices retrieves invoices filtered strictly by user's role with PII bank masking
 func (h *InvoiceHandler) GetInvoices(c *gin.Context) {
 	authUser := middleware.GetAuthUser(c)
+	if authUser == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "error": "UNAUTHORIZED"})
+		return
+	}
 
 	var invoices []models.Invoice
 	query := h.DB.Preload("Seller").Preload("Anchor").Preload("FundingBids.Investor").
 		Preload("EscrowTransactions").Preload("SettlementRecord").Order("created_at desc")
 
-	if authUser != nil {
-		switch authUser.Role {
-		case "SELLER":
-			query = query.Where("seller_id = ?", authUser.EntityID)
-		case "ANCHOR":
-			query = query.Where("anchor_id = ?", authUser.EntityID)
-		case "INVESTOR":
-			query = query.Joins("JOIN funding_bids ON funding_bids.invoice_id = invoices.id").
-				Where("funding_bids.investor_id = ?", authUser.EntityID)
-		}
+	switch authUser.Role {
+	case "SELLER":
+		query = query.Where("seller_id = ?", authUser.EntityID)
+	case "ANCHOR":
+		query = query.Where("anchor_id = ?", authUser.EntityID)
+	case "INVESTOR":
+		query = query.Where("status IN ? OR id IN (SELECT invoice_id FROM funding_bids WHERE investor_id = ?)",
+			[]string{"LISTED", "ANCHOR_CONFIRMED", "FUNDED", "SETTLED"}, authUser.EntityID)
+	case "ADMIN":
+		// Admin can view all
+	default:
+		c.JSON(http.StatusForbidden, gin.H{"success": false, "error": "FORBIDDEN"})
+		return
 	}
 
 	if err := query.Find(&invoices).Error; err != nil {
@@ -59,17 +66,117 @@ func (h *InvoiceHandler) GetInvoices(c *gin.Context) {
 		return
 	}
 
-	// PII Defense: Mask seller bank account for Anchors & Investors
-	if authUser != nil && authUser.Role != "SELLER" {
+	// PII Defense: Mask seller bank account for non-sellers and non-admins
+	if authUser.Role != "ADMIN" {
 		for i := range invoices {
-			acc := invoices[i].Seller.BankAccountNo
-			if len(acc) > 4 {
-				invoices[i].Seller.BankAccountNo = fmt.Sprintf("••••••••%s", acc[len(acc)-4:])
+			if authUser.Role != "SELLER" || invoices[i].SellerID != authUser.EntityID {
+				acc := invoices[i].Seller.BankAccountNo
+				if len(acc) > 4 {
+					invoices[i].Seller.BankAccountNo = fmt.Sprintf("••••••••%s", acc[len(acc)-4:])
+				}
+				invoices[i].Seller.PAN = "••••••••••"
 			}
 		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success": true, "count": len(invoices), "data": invoices})
+}
+
+// GetDashboard returns role-isolated initial dataset for the frontend dashboard
+func (h *InvoiceHandler) GetDashboard(c *gin.Context) {
+	authUser := middleware.GetAuthUser(c)
+	if authUser == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "error": "UNAUTHORIZED"})
+		return
+	}
+
+	entityName := "Verified Participant"
+	var sellers []models.Seller
+	var anchors []models.Anchor
+	var investors []models.Investor
+	var invoices []models.Invoice
+
+	switch authUser.Role {
+	case "SELLER":
+		var seller models.Seller
+		if err := h.DB.Where("id = ?", authUser.EntityID).First(&seller).Error; err == nil {
+			entityName = seller.LegalName
+			sellers = []models.Seller{seller}
+		}
+		// Active anchors for invoice creation
+		h.DB.Where("status = ?", "ACTIVE").Order("corporate_name asc").Find(&anchors)
+		// Seller's own invoices
+		h.DB.Preload("Seller").Preload("Anchor").Preload("EscrowTransactions").Preload("SettlementRecord").
+			Where("seller_id = ?", authUser.EntityID).Order("created_at desc").Find(&invoices)
+		investors = []models.Investor{}
+
+	case "ANCHOR":
+		var anchor models.Anchor
+		if err := h.DB.Where("id = ?", authUser.EntityID).First(&anchor).Error; err == nil {
+			entityName = anchor.CorporateName
+			anchors = []models.Anchor{anchor}
+		}
+		// Anchor's invoices
+		h.DB.Preload("Seller").Preload("Anchor").Preload("EscrowTransactions").Preload("SettlementRecord").
+			Where("anchor_id = ?", authUser.EntityID).Order("created_at desc").Find(&invoices)
+		// Sellers who sent invoices to this anchor
+		h.DB.Joins("JOIN invoices ON invoices.seller_id = sellers.id").
+			Where("invoices.anchor_id = ?", authUser.EntityID).Distinct().Find(&sellers)
+		investors = []models.Investor{}
+
+	case "INVESTOR":
+		var investor models.Investor
+		if err := h.DB.Where("id = ?", authUser.EntityID).First(&investor).Error; err == nil {
+			entityName = investor.EntityName
+			investors = []models.Investor{investor}
+		}
+		// Fundable invoices + funded by this investor
+		h.DB.Preload("Seller").Preload("Anchor").Preload("EscrowTransactions").Preload("SettlementRecord").
+			Where("status IN ('LISTED', 'ANCHOR_CONFIRMED', 'FUNDED', 'SETTLED')").
+			Order("created_at desc").Find(&invoices)
+		h.DB.Where("status = ?", "ACTIVE").Order("corporate_name asc").Find(&anchors)
+		h.DB.Joins("JOIN invoices ON invoices.seller_id = sellers.id").
+			Where("invoices.status IN ('LISTED', 'ANCHOR_CONFIRMED', 'FUNDED', 'SETTLED')").
+			Distinct().Find(&sellers)
+
+	default:
+		c.JSON(http.StatusForbidden, gin.H{"success": false, "error": "FORBIDDEN: Unknown role"})
+		return
+	}
+
+	// PII Defense: Mask seller bank account and PAN for non-sellers
+	if authUser.Role != "SELLER" && authUser.Role != "ADMIN" {
+		for i := range sellers {
+			acc := sellers[i].BankAccountNo
+			if len(acc) > 4 {
+				sellers[i].BankAccountNo = fmt.Sprintf("••••••••%s", acc[len(acc)-4:])
+			}
+			sellers[i].PAN = "••••••••••"
+		}
+		for i := range invoices {
+			acc := invoices[i].Seller.BankAccountNo
+			if len(acc) > 4 {
+				invoices[i].Seller.BankAccountNo = fmt.Sprintf("••••••••%s", acc[len(acc)-4:])
+			}
+			invoices[i].Seller.PAN = "••••••••••"
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":    true,
+		"entityName": entityName,
+		"sellers":    sellers,
+		"anchors":    anchors,
+		"investors":  investors,
+		"invoices":   invoices,
+		"currentUser": gin.H{
+			"userId":   authUser.UserID,
+			"role":     authUser.Role,
+			"entityId": authUser.EntityID,
+			"email":    authUser.Email,
+			"mobile":   authUser.Mobile,
+		},
+	})
 }
 
 // UploadInvoice handles invoice upload with fraud checks, NOA dispatch, and VAN allocation
@@ -359,6 +466,7 @@ func (h *InvoiceHandler) NoticeConfirmInvoice(c *gin.Context) {
 	// IDOR & Access Verification
 	user := middleware.GetAuthUser(c)
 	isLoggedAsAnchor := user != nil && user.Role == "ANCHOR" && user.EntityID == invoice.AnchorID
+	isAdmin := user != nil && user.Role == "ADMIN"
 	isTokenValid := body.Token != "" && (body.Token == invoice.InvoiceHash)
 	if !isTokenValid && body.Token != "" {
 		var anchorUser models.User
@@ -366,9 +474,8 @@ func (h *InvoiceHandler) NoticeConfirmInvoice(c *gin.Context) {
 			isTokenValid = true
 		}
 	}
-	isDev := h.Cfg.NodeEnv != "production"
 
-	if !isLoggedAsAnchor && !isTokenValid && !isDev {
+	if !isLoggedAsAnchor && !isAdmin && !isTokenValid {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"success": false,
 			"error":   "UNAUTHORIZED_NOTICE_CONFIRMATION: Invalid security token or unauthenticated session. Please use the verified Notice link sent to Corporate Accounts Payable.",
@@ -524,15 +631,30 @@ func (h *InvoiceHandler) NoticeConfirmInvoice(c *gin.Context) {
 // AnchorRejectInvoice handles corporate buyer dispute / rejection
 func (h *InvoiceHandler) AnchorRejectInvoice(c *gin.Context) {
 	id := c.Param("id")
+	authUser := middleware.GetAuthUser(c)
+
 	var body struct {
 		Reason string `json:"reason" binding:"required"`
 		Notes  string `json:"notes"`
+		Token  string `json:"token"`
 	}
 	_ = c.ShouldBindJSON(&body)
 
 	var invoice models.Invoice
 	if err := h.DB.Where("id = ?", id).First(&invoice).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"success": false, "error": "Invoice not found."})
+		return
+	}
+
+	isLoggedAsAnchor := authUser != nil && authUser.Role == "ANCHOR" && authUser.EntityID == invoice.AnchorID
+	isAdmin := authUser != nil && authUser.Role == "ADMIN"
+	isTokenValid := body.Token != "" && (body.Token == invoice.InvoiceHash)
+
+	if !isLoggedAsAnchor && !isAdmin && !isTokenValid {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"success": false,
+			"error":   "UNAUTHORIZED: Only the designated Corporate Buyer or platform Admin can dispute or reject this invoice.",
+		})
 		return
 	}
 

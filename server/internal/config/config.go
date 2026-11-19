@@ -30,8 +30,8 @@ func LoadConfig() *Config {
 	if databaseURL == "" {
 		databaseURL = getEnv("POSTGRES_URL", "")
 	}
-	sessionSecret := getEnv("SESSION_SECRET", "super-secret-udharco-session-key-32chars!!")
-	adminSessionSecret := getEnv("ADMIN_SESSION_SECRET", "super-secret-udharco-admin-key-32chars!!")
+	sessionSecret := getEnv("SESSION_SECRET", "udharco_super_secure_user_jwt_secret_key_32bytes_min")
+	adminSessionSecret := getEnv("ADMIN_SESSION_SECRET", "udharco_super_secure_admin_jwt_secret_key_32bytes_min")
 	surepassBaseURL := getEnv("SUREPASS_BASE_URL", "https://sandbox.surepass.app")
 	surepassBearerToken := getEnv("SUREPASS_BEARER_TOKEN", "")
 	nodeEnv := getEnv("NODE_ENV", "development")

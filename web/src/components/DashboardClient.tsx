@@ -882,67 +882,7 @@ export default function DashboardClient({
             <div className="text-xs text-sky-700 font-medium mt-1">Confirmed Invoices Awaiting Capital</div>
           </div>
         </section>
-      ) : (
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-          <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl shadow-xs hover:shadow-md transition-all">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Active MSME Sellers</span>
-              <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200">
-                <Building2 className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-3 font-mono tracking-tight">{sellers.length}</div>
-            <div className="text-xs text-slate-500 mt-1 font-medium flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-              Verified Suppliers Onboarded
-            </div>
-          </div>
-
-          <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl shadow-xs hover:shadow-md transition-all">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Anchor Buyer Exposure</span>
-              <div className="p-2.5 rounded-xl bg-sky-50 text-sky-700 border border-sky-200">
-                <Layers className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-3 font-mono tracking-tight">
-              ₹{(activeExposure / 100000).toFixed(1)} Lakhs
-            </div>
-            <div className="text-xs text-slate-500 mt-1 font-medium">Cap: ₹{(anchors[0]?.maxExposureLimit / 10000000).toFixed(1)} Cr</div>
-          </div>
-
-          <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl shadow-xs hover:shadow-md transition-all">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Investor Escrow Liquidity</span>
-              <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200">
-                <Wallet className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="text-2xl sm:text-3xl font-black text-indigo-700 mt-3 font-mono tracking-tight">
-              ₹{(totalEscrow / 10000000).toFixed(2)} Cr
-            </div>
-            <div className="text-xs text-indigo-700 font-bold mt-1 flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
-              Available in Virtual Escrow
-            </div>
-          </div>
-
-          <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl shadow-xs hover:shadow-md transition-all">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Invoices Volume</span>
-              <div className="p-2.5 rounded-xl bg-purple-50 text-purple-700 border border-purple-200">
-                <Coins className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-3 font-mono tracking-tight">
-              ₹{(totalVolume / 100000).toFixed(1)} Lakhs
-            </div>
-            <div className="text-xs text-emerald-700 mt-1 font-bold flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> 100% CERSAI Registered
-            </div>
-          </div>
-        </section>
-      )}
+      ) : null}
 
       {/* Main Table Section */}
       <section className="glass-3d-card p-6 md:p-8 rounded-3xl space-y-6">
@@ -1436,7 +1376,7 @@ export default function DashboardClient({
                       Active Suppliers
                     </span>
                     <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                      {sellers.length} MSME Vendors
+                      {new Set(invoices.map((i) => i.sellerId || i.seller?.id).filter(Boolean)).size} Approved Suppliers
                     </span>
                   </div>
                   <div>
@@ -1725,16 +1665,16 @@ export default function DashboardClient({
                 <div className="flex items-center justify-between bg-white/60 backdrop-blur-md p-3 rounded-2xl border border-white/80 shadow-xs">
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                      {(sellers.find((s) => s.id === uploadForm.sellerId)?.legalName || sellers[0]?.legalName || "M")[0].toUpperCase()}
+                      {(currentUser?.entityName || selectedUploadSeller?.legalName || "M")[0].toUpperCase()}
                     </div>
                     <div>
                       <div className="flex items-center gap-1.5 mb-0.5">
                         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Logged-in MSME Seller</span>
                       </div>
                       <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                        <span>{sellers.find((s) => s.id === uploadForm.sellerId)?.legalName || sellers[0]?.legalName || "MSME Seller Pvt Ltd"}</span>
+                        <span>{currentUser?.entityName || selectedUploadSeller?.legalName || "MSME Supplier"}</span>
                         <span className="text-[9px] font-mono text-emerald-800 bg-emerald-500/15 border border-emerald-500/20 px-1.5 py-0.5 rounded font-bold">
-                          {sellers.find((s) => s.id === uploadForm.sellerId)?.gstin || sellers[0]?.gstin}
+                          {selectedUploadSeller?.gstin || "Verified GSTIN"}
                         </span>
                       </div>
                     </div>

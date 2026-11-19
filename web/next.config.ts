@@ -51,9 +51,6 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
-    if (process.env.USE_GO_BACKEND === "false") {
-      return [];
-    }
     const backendUrl = process.env.BACKEND_URL || "http://127.0.0.1:8080";
     return {
       beforeFiles: [

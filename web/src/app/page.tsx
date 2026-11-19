@@ -1,12 +1,10 @@
 import React from "react";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
-import { prisma } from "@/lib/prisma";
+import { backendFetch } from "@/lib/backend";
 import DashboardClient from "@/components/DashboardClient";
 import Link from "next/link";
 import { ShieldCheck, LogOut, Building2, User, Wallet } from "lucide-react";
-
-export const instant = false;
 
 export default async function Home() {
   const session = await getSession();
@@ -14,109 +12,27 @@ export default async function Home() {
     redirect("/login");
   }
 
-  // Load tenant-isolated data based on authenticated role & entityId
+  // Load tenant-isolated data from the 100% Go Backend Engine
   let entityName = "Verified Participant";
   let sellers: any[] = [];
   let anchors: any[] = [];
   let investors: any[] = [];
   let invoices: any[] = [];
 
-  if (session.role === "SELLER") {
-    const [seller, approvedAnchors, sellerInvoices] = await Promise.all([
-      prisma.seller.findUnique({
-        where: { id: session.entityId },
-      }),
-      prisma.anchor.findMany({
-        where: { status: "ACTIVE" },
-        select: {
-          id: true,
-          corporateName: true,
-          creditRating: true,
-          maxExposureLimit: true,
-          currentExposure: true,
-          gstin: true,
-        },
-      }),
-      prisma.invoice.findMany({
-        where: { sellerId: session.entityId },
-        include: {
-          seller: true,
-          anchor: true,
-          escrowTransactions: { orderBy: { createdAt: "desc" } },
-          settlementRecord: true,
-          fundingBids: { include: { investor: true } },
-        },
-        orderBy: { createdAt: "desc" },
-      }),
-    ]);
-
-    if (seller) {
-      entityName = seller.legalName;
-      sellers = [seller]; // Strict isolation: Seller ONLY gets their own record
+  try {
+    const res = await backendFetch("/api/v1/dashboard");
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success) {
+        entityName = data.entityName || entityName;
+        sellers = data.sellers || [];
+        anchors = data.anchors || [];
+        investors = data.investors || [];
+        invoices = data.invoices || [];
+      }
     }
-    anchors = approvedAnchors;
-    investors = []; // Strict isolation: Seller NEVER sees other investors or their balances
-    invoices = sellerInvoices;
-  } else if (session.role === "ANCHOR") {
-    const [anchor, anchorInvoices] = await Promise.all([
-      prisma.anchor.findUnique({
-        where: { id: session.entityId },
-      }),
-      prisma.invoice.findMany({
-        where: { anchorId: session.entityId },
-        include: {
-          seller: true,
-          anchor: true,
-          escrowTransactions: { orderBy: { createdAt: "desc" } },
-          settlementRecord: true,
-          fundingBids: { include: { investor: true } },
-        },
-        orderBy: { createdAt: "desc" },
-      }),
-    ]);
-
-    if (anchor) {
-      entityName = anchor.corporateName;
-      anchors = [anchor];
-    }
-    const sellerIds = Array.from(new Set(anchorInvoices.map((inv) => inv.sellerId)));
-    sellers = await prisma.seller.findMany({
-      where: { id: { in: sellerIds } },
-    });
-    investors = [];
-    invoices = anchorInvoices;
-  } else if (session.role === "INVESTOR") {
-    const [investor, fundableInvoices, allAnchors, allSellers] = await Promise.all([
-      prisma.investor.findUnique({
-        where: { id: session.entityId },
-      }),
-      prisma.invoice.findMany({
-        where: {
-          OR: [
-            { status: { in: ["LISTED", "ANCHOR_CONFIRMED", "FUNDED", "SETTLED"] } },
-            { fundingBids: { some: { investorId: session.entityId } } },
-          ],
-        },
-        include: {
-          seller: true,
-          anchor: true,
-          escrowTransactions: { orderBy: { createdAt: "desc" } },
-          settlementRecord: true,
-          fundingBids: { include: { investor: true } },
-        },
-        orderBy: { createdAt: "desc" },
-      }),
-      prisma.anchor.findMany(),
-      prisma.seller.findMany(),
-    ]);
-
-    if (investor) {
-      entityName = investor.entityName;
-      investors = [investor];
-    }
-    anchors = allAnchors;
-    sellers = allSellers;
-    invoices = fundableInvoices;
+  } catch (e) {
+    console.error("Failed to fetch dashboard data from Go backend:", e);
   }
 
   const currentUser = {

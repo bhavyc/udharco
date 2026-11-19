@@ -164,6 +164,7 @@ func (h *FundingHandler) FundInvoice(c *gin.Context) {
 // SettleInvoice executes 3-way financial waterfall upon corporate payment into VAN
 func (h *FundingHandler) SettleInvoice(c *gin.Context) {
 	invoiceID := c.Param("id")
+	authUser := middleware.GetAuthUser(c)
 
 	var body struct {
 		RepaymentAmount *float64 `json:"repaymentAmount"`
@@ -175,6 +176,13 @@ func (h *FundingHandler) SettleInvoice(c *gin.Context) {
 	if err := h.DB.Preload("Anchor").Preload("Seller").Preload("FundingBids.Investor").
 		Where("id = ?", invoiceID).First(&invoice).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"success": false, "error": "Invoice not found."})
+		return
+	}
+
+	// Access Control: Only Platform Admin or the Designated Corporate Buyer can execute settlement
+	isAuthorized := authUser != nil && (authUser.Role == "ADMIN" || (authUser.Role == "ANCHOR" && authUser.EntityID == invoice.AnchorID))
+	if !isAuthorized {
+		c.JSON(http.StatusForbidden, gin.H{"success": false, "error": "FORBIDDEN: Only Admin or the Corporate Buyer may execute settlement."})
 		return
 	}
 
